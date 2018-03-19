@@ -8,6 +8,7 @@ module.exports = {
         "semi": ["warn", "always"],
         "quotes": ["error", "double"],
         "no-unused-vars": 1,
-        "no-unreachable": ["warn"]
+        "no-unreachable": ["warn"],
+        "camelcase": [2, {properties: "never"}]
     }
 };
