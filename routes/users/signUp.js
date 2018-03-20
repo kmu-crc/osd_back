@@ -52,7 +52,7 @@ exports.signUp = (req, res, next) => {
         "sido": sido,
         "about_me": aboutMe,
         "is_designer": isDesigner
-      }
+      };
       connection.query("INSERT INTO user_detail SET ?", data, (err, rows, fields) => {
         if (!err) {
           resolve(rows);
