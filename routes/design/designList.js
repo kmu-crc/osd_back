@@ -31,6 +31,21 @@ exports.designList = (req, res, next) => {
     return p;
   };
 
+  function getName (data) {
+    const p = new Promise((resolve, reject) => {
+      const userId = data.user_id;
+      connection.query("SELECT nickname FROM user WHERE uid = ?", userId, (err, result) => {
+        if (!err) {
+          data.userName = result;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
   function getThumbnail (data) {
     const p = new Promise((resolve, reject) => {
       const thumbnailId = data.thumbnail;
@@ -65,8 +80,8 @@ exports.designList = (req, res, next) => {
           reject(err);
         }
       });
-      return p;
     });
+    return p;
   }
 
   function getCount (data) {
@@ -85,6 +100,7 @@ exports.designList = (req, res, next) => {
   };
 
   getList(sql, category)
+    .then(getName)
     .then(getThumbnail)
     .then(getCategory)
     .then(getCount)
