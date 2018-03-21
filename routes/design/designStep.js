@@ -2,6 +2,7 @@ var connection = require("../../configs/connection");
 
 exports.designStep = (req, res, next) => {
   const designId = req.params.id;
+  let arr = [];
 
   // board 목록 가져오기
   function getBoardList (id) {
@@ -55,5 +56,6 @@ exports.designStep = (req, res, next) => {
   getBoardList(designId)
     .then(getCardList)
     .then(getCardCount)
-    .then(data => res.json(data));
+    .then(data => arr.push(data))
+    .then(arr => res.json(arr));
 };

@@ -3,6 +3,7 @@ var connection = require("../../configs/connection");
 exports.designList = (req, res, next) => {
   const level = req.params.level;
   const category = (level) ? req.params.category : "";
+  let arr = [];
   let sql;
   if (level === " " || level === undefined) { // 카테고리 파라미터가 없는 경우
     console.log("this1");
@@ -104,5 +105,6 @@ exports.designList = (req, res, next) => {
     .then(getThumbnail)
     .then(getCategory)
     .then(getCount)
-    .then(data => res.json(data));
+    .then(data => arr.push(data))
+    .then(arr => res.json(arr));
 };
