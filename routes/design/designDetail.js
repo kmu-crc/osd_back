@@ -1,7 +1,7 @@
 var connection = require("../../configs/connection");
 
 exports.designDetail = (req, res, next) => {
-  const id = req.params.id;
+  const designId = req.params.id;
 
   // 디자인 기본 정보 가져오기
   function getDesignInfo (id) {
@@ -29,7 +29,7 @@ exports.designDetail = (req, res, next) => {
         } else {
           reject(err);
         }
-      })
+      });
     });
     return p;
   }
@@ -90,7 +90,7 @@ exports.designDetail = (req, res, next) => {
     return p;
   };
 
-  getDesignInfo(id)
+  getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
     .then(getCount)

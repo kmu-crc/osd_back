@@ -1,5 +1,6 @@
 var connection = require("../../configs/connection");
 
+// 디자인 스텝 보드 가져오기
 exports.designStep = (req, res, next) => {
   const designId = req.params.id;
   let arr = [];
@@ -58,4 +59,63 @@ exports.designStep = (req, res, next) => {
     .then(getCardCount)
     .then(data => arr.push(data))
     .then(arr => res.json(arr));
+};
+
+// ************************
+
+// 디자인 스텝 카드 디테일 가져오기
+exports.designCardDetail = (req, res, next) => {
+  const cardId = req.params.card_id;
+
+  // 카드 디테일 내용 가져오기
+  function getCardDetail (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT * FROM design_card WHERE uid = ?", cardId, (err, data) => {
+        if (!err) {
+          let cardData = data[0];
+          resolve(cardData);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
+  // 카드 안에 있는 이미지 정보 가져오기
+  function getImage (data) {
+    const p = new Promise((resolve, reject) => {
+      const id = data.uid;
+      connection.query("SELECT * FROM design_images WHERE card_id = ?", id, (err, row) => {
+        if (!err) {
+          data.imageInfo = row[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
+  // 카드 안에 있는 첨부 파일 정보 가져오기
+  function getSource (data) {
+    const p = new Promise((resolve, reject) => {
+      const id = data.uid;
+      connection.query("SELECT * FROM design_source_file WHERE card_id = ?", id, (err, row) => {
+        if (!err) {
+          data.srcInfo = row[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
+  getCardDetail(cardId)
+    .then(getImage)
+    .then(getSource)
+    .then(data => res.json(data));
 };
