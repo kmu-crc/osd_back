@@ -53,6 +53,7 @@ exports.basicSignIn = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       jwt.sign(
         {
+          uid: userInfo.uid,
           email: userInfo.email,
           nickName: userInfo["nick_name"],
           admin: userInfo["is_admin"]
