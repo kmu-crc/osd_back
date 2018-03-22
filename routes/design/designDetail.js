@@ -1,5 +1,6 @@
 var connection = require("../../configs/connection");
 
+// 디자인 디테일 정보 가져오기 (GET)
 exports.designDetail = (req, res, next) => {
   const designId = req.params.id;
 
@@ -16,7 +17,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   // 등록자 닉네임 가져오기
   function getName (data) {
@@ -72,7 +73,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   // 파생된 디자인 수 가져오기
   function getChildrenCount (data) {
@@ -88,12 +89,12 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
     .then(getCount)
     .then(getChildrenCount)
-    .then(data => res.json(data));
+    .then(data => res.status(200).json(data));
 };

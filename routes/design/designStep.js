@@ -1,6 +1,6 @@
 var connection = require("../../configs/connection");
 
-// 디자인 스텝 보드 가져오기
+// 디자인 스텝 보드 가져오기 (GET)
 exports.designStep = (req, res, next) => {
   const designId = req.params.id;
   let arr = [];
@@ -58,12 +58,12 @@ exports.designStep = (req, res, next) => {
     .then(getCardList)
     .then(getCardCount)
     .then(data => arr.push(data))
-    .then(arr => res.json(arr));
+    .then(arr => res.status(200).json(arr));
 };
 
-// ************************
+// **********************************************************
 
-// 디자인 스텝 카드 디테일 가져오기
+// 디자인 스텝 카드 디테일 가져오기 (GET)
 exports.designCardDetail = (req, res, next) => {
   const cardId = req.params.card_id;
 
@@ -117,5 +117,56 @@ exports.designCardDetail = (req, res, next) => {
   getCardDetail(cardId)
     .then(getImage)
     .then(getSource)
-    .then(data => res.json(data));
+    .then(data => res.status(200).json(data));
+};
+
+// **********************************************************
+
+// 디자인 스텝 보드 생성 (POST)
+exports.createBoard = (req, res, next) => {
+  const designId = req.params.id;
+  const { userId, title, complete, order } = req.body;
+
+  let newData = {
+    "user_id": userId,
+    "design_id": designId,
+    "title": title,
+    "order": order,
+    "is_complete_board": complete
+  };
+
+  if (userId) {
+    isMember(userId);
+  }
+
+  // 해당 디자인의 멤버인지 판별
+  function isMember (userId) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT count(*) FROM design_member WHERE user_id = ? AND design_id = ?", userId, designId, (err, result) => {
+        if (!err) {
+          if (result > 0) {
+            createNewBoard(newData);
+          } else if (result === 0) {
+            res.json({
+              message: "멤버가 아닙니다."
+            });
+          }
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
+  // 보드 생성 함수
+  function createNewBoard (data) {
+    connection.query("INSERT INTO design_board SET = ?", data, (err, result) => {
+      if (!err) {
+        res.status(200);
+      } else {
+        res.status(500).json(err);
+      }
+    });
+  }
 };

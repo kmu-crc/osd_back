@@ -1,5 +1,6 @@
 var connection = require("../../configs/connection");
 
+// 디자인 리스트 가져오기 (GET)
 exports.designList = (req, res, next) => {
   const level = req.params.level;
   const category = (level) ? req.params.category : "";
@@ -30,7 +31,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   function getName (data) {
     const p = new Promise((resolve, reject) => {
@@ -60,7 +61,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   function getCategory (data) {
     const p = new Promise((resolve, reject) => {
@@ -98,7 +99,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   getList(sql, category)
     .then(getName)
@@ -106,5 +107,5 @@ exports.designList = (req, res, next) => {
     .then(getCategory)
     .then(getCount)
     .then(data => arr.push(data))
-    .then(arr => res.json(arr));
+    .then(arr => res.status(200).json(arr));
 };

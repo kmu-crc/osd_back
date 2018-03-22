@@ -1,5 +1,6 @@
 var connection = require("../../configs/connection");
 
+// 디자인 이슈 리스트 가져오기 (GET)
 exports.designIssue = (req, res, next) => {
   const designId = req.params.id;
   let arr = [];
@@ -39,5 +40,5 @@ exports.designIssue = (req, res, next) => {
   getIssueList(designId)
     .then(getCommentCount)
     .then(data => arr.push(data))
-    .then(arr => res.json(arr));
+    .then(arr => res.status(200).json(arr));
 };
