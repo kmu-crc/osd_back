@@ -125,14 +125,13 @@ exports.designCardDetail = (req, res, next) => {
 // 디자인 스텝 보드 생성 (POST)
 exports.createBoard = (req, res, next) => {
   const designId = req.params.id;
-  const { userId, title, complete, order } = req.body;
+  const { userId, title, order } = req.body;
 
   let newData = {
     "user_id": userId,
     "design_id": designId,
     "title": title,
-    "order": order,
-    "is_complete_board": complete
+    "order": order
   };
 
   if (userId) {

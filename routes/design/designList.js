@@ -2,19 +2,19 @@ var connection = require("../../configs/connection");
 
 // 디자인 리스트 가져오기 (GET)
 exports.designList = (req, res, next) => {
-  const level = req.params.level;
-  const category = (level) ? req.params.category : "";
+  const level = req.query.level;
+  const category = (level) ? req.query.category : "";
   let arr = [];
   let sql;
   if (level === " " || level === undefined) { // 카테고리 파라미터가 없는 경우
     console.log("this1");
-    sql = "SELECT uid, user_id, title, thumbnail, category_level1, category_level2, updateTime FROM design";
+    sql = "SELECT uid, user_id, title, thumbnail, category_level1, category_level2, create_time FROM design";
   } else if (level === "1") { // 카테고리 레벨 1이 설정된 경우
     console.log("this2");
-    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, updateTime FROM design WHERE category_level1 = ?";
+    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level1 = ?";
   } else if (level === "2") { // 카테고리 레벨 2가 설정된 경우
     console.log("this3");
-    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, updateTime FROM design WHERE category_level2 = ?";
+    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level2 = ?";
   }
 
   function getList (sql, category) {
@@ -36,7 +36,7 @@ exports.designList = (req, res, next) => {
   function getName (data) {
     const p = new Promise((resolve, reject) => {
       const userId = data.user_id;
-      connection.query("SELECT nickname FROM user WHERE uid = ?", userId, (err, result) => {
+      connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
         if (!err) {
           data.userName = result;
           resolve(data);
