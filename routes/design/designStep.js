@@ -125,7 +125,7 @@ exports.designCardDetail = (req, res, next) => {
 // 디자인 스텝 보드 생성 (POST)
 exports.createBoard = (req, res, next) => {
   const designId = req.params.id;
-  const { userId, title, order } = req.body;
+  const { title, order } = req.body;
 
   let newData = {
     "user_id": userId,
@@ -133,30 +133,6 @@ exports.createBoard = (req, res, next) => {
     "title": title,
     "order": order
   };
-
-  if (userId) {
-    isMember(userId);
-  }
-
-  // 해당 디자인의 멤버인지 판별
-  function isMember (userId) {
-    const p = new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM design_member WHERE user_id = ? AND design_id = ?", userId, designId, (err, result) => {
-        if (!err) {
-          if (result > 0) {
-            createNewBoard(newData);
-          } else if (result === 0) {
-            res.json({
-              message: "멤버가 아닙니다."
-            });
-          }
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  }
 
   // 보드 생성 함수
   function createNewBoard (data) {
@@ -168,4 +144,6 @@ exports.createBoard = (req, res, next) => {
       }
     });
   }
+
+  createNewBoard(newData);
 };
