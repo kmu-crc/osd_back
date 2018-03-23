@@ -44,7 +44,7 @@ exports.designStep = (req, res, next) => {
       const cardId = data.cardData.uid;
       connection.query("SELECT comment_count FROM card_counter WHERE card_id = ?", cardId, (err, result) => {
         if (!err) {
-          data.cardData.cardCount = result;
+          data.cardData.cardCount = result[0];
           resolve(data);
         } else {
           reject(err);

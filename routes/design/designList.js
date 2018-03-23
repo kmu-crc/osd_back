@@ -38,7 +38,7 @@ exports.designList = (req, res, next) => {
       const userId = data.user_id;
       connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
         if (!err) {
-          data.userName = result;
+          data.userName = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -53,7 +53,7 @@ exports.designList = (req, res, next) => {
       const thumbnailId = data.thumbnail;
       connection.query("SELECT s_img FROM thumbnail WHERE uid = ?", thumbnailId, (err, result) => {
         if (!err) {
-          data.thumbnailUrl = result;
+          data.thumbnailUrl = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -76,7 +76,7 @@ exports.designList = (req, res, next) => {
       }
       connection.query(sql, cate, (err, result) => {
         if (!err) {
-          data.categoryName = result;
+          data.categoryName = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -89,7 +89,7 @@ exports.designList = (req, res, next) => {
   function getCount (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT * FROM design_counter WEHRE design_id = ?", id, (err, row) => {
+      connection.query("SELECT * FROM design_counter WHERE design_id = ?", id, (err, row) => {
         if (!err) {
           data.count = row[0];
           resolve(data);
@@ -108,4 +108,5 @@ exports.designList = (req, res, next) => {
     .then(getCount)
     .then(data => arr.push(data))
     .then(arr => res.status(200).json(arr));
+    //.then(arr => res.status(200).json(arr));
 };
