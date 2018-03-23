@@ -3,6 +3,7 @@ var connection = require("../../configs/connection");
 // 디자인 디테일 정보 가져오기 (GET)
 exports.designDetail = (req, res, next) => {
   const designId = req.params.id;
+  const user = req.decoded.uid;
 
   // 디자인 기본 정보 가져오기
   function getDesignInfo (id) {
@@ -75,12 +76,14 @@ exports.designDetail = (req, res, next) => {
     return p;
   }
 
-  // 속한 멤버 id 리스트 가져오기
+  // 속한 멤버들의 id, 닉네임 리스트 가져오기
   function getMemberList (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT user_id FROM design_member WHERE design_id = ?", id, (err, row) => {
+      connection.query("SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE design_id = ?", id, (err, row) => {
         if (!err) {
+          data.member = row[0];
+          resolve(data);
         } else {
           reject(err);
         }
@@ -109,6 +112,7 @@ exports.designDetail = (req, res, next) => {
     .then(getName)
     .then(getCategory)
     .then(getCount)
+    .then(getMemberList)
     .then(getChildrenCount)
     .then(data => res.status(200).json(data));
 };

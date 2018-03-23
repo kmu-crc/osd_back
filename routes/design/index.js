@@ -1,12 +1,16 @@
 var express = require("express");
 var router = express.Router();
+
 var { designList } = require("./designList");
 var { designDetail } = require("./designDetail");
 var { designView } = require("./designView");
 var { designStep, createBoard, designCardDetail } = require("./designStep");
 var { designIssue, designIssueDetail } = require("./designIssue");
+var auth = require("../../middlewares/auth");
 
+router.use("/designList", auth);
 router.get("/designList", designList);
+router.use("/designDetail/:id", auth);
 router.get("/designDetail/:id", designDetail);
 router.get("/designDetail/:id/view", designView);
 router.get("/designDetail/:id/step", designStep);
