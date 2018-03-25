@@ -17,5 +17,4 @@ exports.designDetail = (req, res, next) => {
     });
     return p;
   };
-
 };
