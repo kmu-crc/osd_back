@@ -128,7 +128,6 @@ exports.createBoard = (req, res, next) => {
   const { title, order } = req.body;
 
   let newData = {
-    "user_id": userId,
     "design_id": designId,
     "title": title,
     "order": order

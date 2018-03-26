@@ -3,7 +3,6 @@ var connection = require("../../configs/connection");
 // 디자인 디테일 정보 가져오기 (GET)
 exports.designDetail = (req, res, next) => {
   const designId = req.params.id;
-  const user = req.decoded.uid;
 
   // 디자인 기본 정보 가져오기
   function getDesignInfo (id) {
