@@ -74,8 +74,6 @@ exports.designDetail = (req, res, next) => {
     });
     return p;
   };
-<<<<<<< HEAD
-=======
 
   // 속한 멤버들의 id, 닉네임 리스트 가져오기
   function getMemberList (data) {
@@ -92,7 +90,6 @@ exports.designDetail = (req, res, next) => {
     });
     return p;
   };
->>>>>>> feature/sql_test
 
   // 파생된 디자인 수 가져오기
   function getChildrenCount (data) {
