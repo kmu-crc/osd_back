@@ -20,7 +20,7 @@ exports.designIssue = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 각 issue 글들의 코멘트 개수 가져오기
   function getCommentCount (data) {
@@ -35,7 +35,7 @@ exports.designIssue = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getIssueList(designId)
     .then(getCommentCount)
@@ -61,7 +61,7 @@ exports.designIssueDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 디자인 이슈 디테일 코멘트 가져오기 (GET)
   function getIssueComment (data) {
@@ -77,7 +77,7 @@ exports.designIssueDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getIssueDetail(issueId)
     .then(getIssueComment)

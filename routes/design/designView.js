@@ -17,7 +17,7 @@ exports.designView = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 받아온 카드 id로 카드 정보 가져오기
   function getViewCard (id) {
@@ -32,7 +32,7 @@ exports.designView = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 이미지 정보 가져오기
   function getImage (data) {
@@ -47,7 +47,7 @@ exports.designView = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 첨부 파일 정보 가져오기
   function getSource (data) {
@@ -62,7 +62,7 @@ exports.designView = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 코멘트 가져오기
   function getComment (data) {
@@ -77,7 +77,7 @@ exports.designView = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getViewCardId(designId)
     .then(getViewCard)

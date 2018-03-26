@@ -20,7 +20,7 @@ exports.designStep = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 해당 board에 속한 card 가져오기
   function getCardList (data) {
@@ -36,7 +36,7 @@ exports.designStep = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // board 안에 있는 각 card들의 댓글 수 가져오기
   function getCardCount (data) {
@@ -52,7 +52,7 @@ exports.designStep = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getBoardList(designId)
     .then(getCardList)
@@ -80,7 +80,7 @@ exports.designCardDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 카드 안에 있는 이미지 정보 가져오기
   function getImage (data) {
@@ -96,7 +96,7 @@ exports.designCardDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 카드 안에 있는 첨부 파일 정보 가져오기
   function getSource (data) {
@@ -112,7 +112,7 @@ exports.designCardDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getCardDetail(cardId)
     .then(getImage)
@@ -142,7 +142,7 @@ exports.createBoard = (req, res, next) => {
         res.status(500).json(err);
       }
     });
-  }
+  };
 
   createNewBoard(newData);
 };

@@ -31,7 +31,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getName (data) {
     const p = new Promise((resolve, reject) => {
@@ -46,7 +46,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getThumbnail (data) {
     const p = new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getCategory (data) {
     const p = new Promise((resolve, reject) => {
@@ -84,7 +84,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getCount (data) {
     const p = new Promise((resolve, reject) => {
@@ -99,7 +99,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getList(sql, category)
     .then(getName)
@@ -108,5 +108,4 @@ exports.designList = (req, res, next) => {
     .then(getCount)
     .then(data => arr.push(data))
     .then(arr => res.status(200).json(arr));
-    //.then(arr => res.status(200).json(arr));
 };

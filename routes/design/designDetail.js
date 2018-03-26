@@ -17,7 +17,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 등록자 닉네임 가져오기
   function getName (data) {
@@ -33,7 +33,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 카테고리 이름 가져오기
   function getCategory (data) {
@@ -57,7 +57,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 좋아요 수, 조회수, 멤버수, 카드수 가져오기
   function getCount (data) {
@@ -73,7 +73,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 속한 멤버들의 id, 닉네임 리스트 가져오기
   function getMemberList (data) {
@@ -89,7 +89,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 파생된 디자인 수 가져오기
   function getChildrenCount (data) {
@@ -105,7 +105,7 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getDesignInfo(designId)
     .then(getName)
