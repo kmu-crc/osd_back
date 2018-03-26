@@ -20,7 +20,7 @@ exports.designStep = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 해당 board에 속한 card 가져오기
   function getCardList (data) {
@@ -36,7 +36,7 @@ exports.designStep = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // board 안에 있는 각 card들의 댓글 수 가져오기
   function getCardCount (data) {
@@ -44,7 +44,7 @@ exports.designStep = (req, res, next) => {
       const cardId = data.cardData.uid;
       connection.query("SELECT comment_count FROM card_counter WHERE card_id = ?", cardId, (err, result) => {
         if (!err) {
-          data.cardData.cardCount = result;
+          data.cardData.cardCount = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -52,7 +52,7 @@ exports.designStep = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getBoardList(designId)
     .then(getCardList)
@@ -80,7 +80,7 @@ exports.designCardDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 카드 안에 있는 이미지 정보 가져오기
   function getImage (data) {
@@ -96,7 +96,7 @@ exports.designCardDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   // 카드 안에 있는 첨부 파일 정보 가져오기
   function getSource (data) {
@@ -112,7 +112,7 @@ exports.designCardDetail = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getCardDetail(cardId)
     .then(getImage)
@@ -125,39 +125,13 @@ exports.designCardDetail = (req, res, next) => {
 // 디자인 스텝 보드 생성 (POST)
 exports.createBoard = (req, res, next) => {
   const designId = req.params.id;
-  const { userId, title, complete, order } = req.body;
+  const { title, order } = req.body;
 
   let newData = {
-    "user_id": userId,
     "design_id": designId,
     "title": title,
-    "order": order,
-    "is_complete_board": complete
+    "order": order
   };
-
-  if (userId) {
-    isMember(userId);
-  }
-
-  // 해당 디자인의 멤버인지 판별
-  function isMember (userId) {
-    const p = new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM design_member WHERE user_id = ? AND design_id = ?", userId, designId, (err, result) => {
-        if (!err) {
-          if (result > 0) {
-            createNewBoard(newData);
-          } else if (result === 0) {
-            res.json({
-              message: "멤버가 아닙니다."
-            });
-          }
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  }
 
   // 보드 생성 함수
   function createNewBoard (data) {
@@ -168,5 +142,7 @@ exports.createBoard = (req, res, next) => {
         res.status(500).json(err);
       }
     });
-  }
+  };
+
+  createNewBoard(newData);
 };

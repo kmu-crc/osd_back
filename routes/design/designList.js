@@ -2,19 +2,19 @@ var connection = require("../../configs/connection");
 
 // 디자인 리스트 가져오기 (GET)
 exports.designList = (req, res, next) => {
-  const level = req.params.level;
-  const category = (level) ? req.params.category : "";
+  const level = req.query.level;
+  const category = (level) ? req.query.category : "";
   let arr = [];
   let sql;
   if (level === " " || level === undefined) { // 카테고리 파라미터가 없는 경우
     console.log("this1");
-    sql = "SELECT uid, user_id, title, thumbnail, category_level1, category_level2, updateTime FROM design";
+    sql = "SELECT uid, user_id, title, thumbnail, category_level1, category_level2, create_time FROM design";
   } else if (level === "1") { // 카테고리 레벨 1이 설정된 경우
     console.log("this2");
-    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, updateTime FROM design WHERE category_level1 = ?";
+    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level1 = ?";
   } else if (level === "2") { // 카테고리 레벨 2가 설정된 경우
     console.log("this3");
-    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, updateTime FROM design WHERE category_level2 = ?";
+    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level2 = ?";
   }
 
   function getList (sql, category) {
@@ -31,14 +31,14 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getName (data) {
     const p = new Promise((resolve, reject) => {
       const userId = data.user_id;
-      connection.query("SELECT nickname FROM user WHERE uid = ?", userId, (err, result) => {
+      connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
         if (!err) {
-          data.userName = result;
+          data.userName = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -46,14 +46,14 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getThumbnail (data) {
     const p = new Promise((resolve, reject) => {
       const thumbnailId = data.thumbnail;
       connection.query("SELECT s_img FROM thumbnail WHERE uid = ?", thumbnailId, (err, result) => {
         if (!err) {
-          data.thumbnailUrl = result;
+          data.thumbnailUrl = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -61,7 +61,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getCategory (data) {
     const p = new Promise((resolve, reject) => {
@@ -76,7 +76,7 @@ exports.designList = (req, res, next) => {
       }
       connection.query(sql, cate, (err, result) => {
         if (!err) {
-          data.categoryName = result;
+          data.categoryName = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -84,12 +84,12 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   function getCount (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT * FROM design_counter WEHRE design_id = ?", id, (err, row) => {
+      connection.query("SELECT * FROM design_counter WHERE design_id = ?", id, (err, row) => {
         if (!err) {
           data.count = row[0];
           resolve(data);
@@ -99,7 +99,7 @@ exports.designList = (req, res, next) => {
       });
     });
     return p;
-  }
+  };
 
   getList(sql, category)
     .then(getName)

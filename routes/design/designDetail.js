@@ -9,7 +9,7 @@ exports.designDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design WHERE uid = ?", id, (err, row) => {
         if (!err) {
-          let data = row;
+          let data = row[0];
           resolve(data);
         } else {
           reject(err);
@@ -23,9 +23,9 @@ exports.designDetail = (req, res, next) => {
   function getName (data) {
     const p = new Promise((resolve, reject) => {
       const userId = data.user_id;
-      connection.query("SELECT nickname FROM user WHERE uid = ?", userId, (err, result) => {
+      connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
         if (!err) {
-          data.userName = result;
+          data.userName = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -49,7 +49,7 @@ exports.designDetail = (req, res, next) => {
       }
       connection.query(sql, cate, (err, result) => {
         if (!err) {
-          data.categoryName = result;
+          data.categoryName = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -63,7 +63,7 @@ exports.designDetail = (req, res, next) => {
   function getCount (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT * FROM design_counter WEHRE design_id = ?", id, (err, row) => {
+      connection.query("SELECT * FROM design_counter WHERE design_id = ?", id, (err, row) => {
         if (!err) {
           data.count = row[0];
           resolve(data);
@@ -74,14 +74,33 @@ exports.designDetail = (req, res, next) => {
     });
     return p;
   };
+<<<<<<< HEAD
+=======
+
+  // 속한 멤버들의 id, 닉네임 리스트 가져오기
+  function getMemberList (data) {
+    const p = new Promise((resolve, reject) => {
+      const id = data.uid;
+      connection.query("SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE design_id = ?", id, (err, row) => {
+        if (!err) {
+          data.member = row[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+>>>>>>> feature/sql_test
 
   // 파생된 디자인 수 가져오기
   function getChildrenCount (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT count(*) FROM design WEHRE parents_design = ?", id, (err, result) => {
+      connection.query("SELECT count(*) FROM design WHERE parents_design = ?", id, (err, result) => {
         if (!err) {
-          data.children_count = result;
+          data.children_count = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -95,6 +114,7 @@ exports.designDetail = (req, res, next) => {
     .then(getName)
     .then(getCategory)
     .then(getCount)
+    .then(getMemberList)
     .then(getChildrenCount)
     .then(data => res.status(200).json(data));
 };
