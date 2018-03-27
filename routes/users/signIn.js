@@ -1,9 +1,10 @@
 var connection = require("../../configs/connection");
+const { isUserDetail } = require("../../middlewares/verifications");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
-exports.basicSignIn = (req, res, next) => {
+const signIn = (req, res, next) => {
   const {email, password} = req.body;
   let userInfo = null;
   const verificationEmail = (email) => {
@@ -14,7 +15,7 @@ exports.basicSignIn = (req, res, next) => {
             userInfo = rows[0];
             resolve(rows);
           } else {
-            const errorMessage = `${email}은 사용중이지 않습니다.`;
+            const errorMessage = `${email}은 opendesign 회원이 아닙니다.`;
             reject(errorMessage);
           }
         } else {
@@ -27,12 +28,12 @@ exports.basicSignIn = (req, res, next) => {
 
   const verificationPw = (pw) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT password FROM user WHERE email='${email}';`, (err, rows) => {
+      connection.query(`SELECT * FROM user WHERE email='${email}';`, (err, rows) => {
         if (!err) {
           bcrypt.compare(pw, rows[0].password, function (err, res) {
             if (!err) {
               if (res) {
-                resolve(true);
+                resolve(rows[0].uid);
               } else {
                 let message = "비밀번호가 일치하지 않습니다.";
                 reject(message);
@@ -49,14 +50,15 @@ exports.basicSignIn = (req, res, next) => {
     return p;
   };
 
-  const createJWT = () => {
+  const createJWT = (detail) => {
     const p = new Promise((resolve, reject) => {
       jwt.sign(
         {
           uid: userInfo.uid,
           email: userInfo.email,
           nickName: userInfo["nick_name"],
-          admin: userInfo["is_admin"]
+          admin: userInfo["is_admin"],
+          isDetail: detail
         },
         process.env.SECRET_CODE,
         {
@@ -89,7 +91,10 @@ exports.basicSignIn = (req, res, next) => {
   .then(() => {
     return verificationPw(password);
   })
+  .then(isUserDetail)
   .then(createJWT)
   .then(respond)
   .catch(error);
 };
+
+module.exports = signIn;
