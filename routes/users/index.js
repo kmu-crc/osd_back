@@ -10,8 +10,7 @@ var FBSignIn = require("./FBSignIn");
 router.post("/signUp", signUp);
 router.post("/basicSignIn", basicSignIn);
 
-router.use("/check", auth);
-router.get("/check", check);
+router.use("/check", auth, check);
 
 router.post("/FBSignUp", FBSignUp);
 
