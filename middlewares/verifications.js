@@ -53,3 +53,21 @@ exports.isOnlyFBId = (FBId) => {
   });
   return p;
 };
+
+exports.isUserDetail = (userId) => {
+  console.log("userId : ", userId);
+  const p = new Promise((resolve, reject) => {
+    connection.query(`SELECT count(user_id) FROM user_detail WHERE user_id='${userId}'`, (err, rows) => {
+      if (!err) {
+        if (rows[0]["count(user_id)"] === 0) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      } else {
+        reject(err);
+      }
+    });
+  });
+  return p;
+};
