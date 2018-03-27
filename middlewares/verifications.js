@@ -55,7 +55,6 @@ exports.isOnlyFBId = (FBId) => {
 };
 
 exports.isUserDetail = (userId) => {
-  console.log("userId : ", userId);
   const p = new Promise((resolve, reject) => {
     connection.query(`SELECT count(user_id) FROM user_detail WHERE user_id='${userId}'`, (err, rows) => {
       if (!err) {
@@ -63,6 +62,42 @@ exports.isUserDetail = (userId) => {
           resolve(false);
         } else {
           resolve(true);
+        }
+      } else {
+        reject(err);
+      }
+    });
+  });
+  return p;
+};
+
+exports.isOnlyCountryName = (name) => {
+  const p = new Promise((resolve, reject) => {
+    connection.query(`SELECT count(name) FROM country WHERE name='${name}'`, (err, rows) => {
+      if (!err) {
+        if (rows[0]["count(name)"] === 0) {
+          resolve(name);
+        } else {
+          const err = "이미 등록된 국가입니다.";
+          reject(err);
+        }
+      } else {
+        reject(err);
+      }
+    });
+  });
+  return p;
+};
+
+exports.isOnlySidoName = (name) => {
+  const p = new Promise((resolve, reject) => {
+    connection.query(`SELECT count(name) FROM sido WHERE name='${name}'`, (err, rows) => {
+      if (!err) {
+        if (rows[0]["count(name)"] === 0) {
+          resolve(name);
+        } else {
+          const err = "이미 등록된 도시입니다.";
+          reject(err);
         }
       } else {
         reject(err);
