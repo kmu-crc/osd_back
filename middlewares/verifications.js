@@ -35,3 +35,21 @@ exports.isOnlyEmail = (email) => {
   });
   return p;
 };
+
+exports.isOnlyFBId = (FBId) => {
+  const p = new Promise((resolve, reject) => {
+    connection.query(`SELECT count(FB_user_id) FROM user WHERE FB_user_id='${FBId}'`, (err, rows) => {
+      if (!err) {
+        if (rows[0]["count(FB_user_id)"] === 0) {
+          resolve(true);
+        } else {
+          const errorMessage = "이미 회원입니다.";
+          reject(errorMessage);
+        }
+      } else {
+        reject(err);
+      }
+    });
+  });
+  return p;
+};
