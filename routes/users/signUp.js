@@ -2,11 +2,8 @@ var connection = require("../../configs/connection");
 const bcrypt = require("bcrypt");
 const { isOnlyNicName, isOnlyEmail } = require("../../middlewares/verifications");
 
-exports.signUp = (req, res, next) => {
-  let {email, password, nickName, thumbnail, categoryLevel1, categoryLevel2, country, sido, aboutMe, isDesigner} = req.body;
-  if (thumbnail == null) {
-    thumbnail = null;
-  }
+const signUp = (req, res, next) => {
+  let { email, password, nickName } = req.body;
 
   function createHashPw () {
     const p = new Promise((resolve, reject) => {
@@ -17,8 +14,7 @@ exports.signUp = (req, res, next) => {
             "password": hash,
             "nick_name": nickName,
             "is_admin": 0,
-            "is_facebook": 0,
-            "thumbnail": thumbnail
+            "is_facebook": 0
           };
           resolve(userData);
         } else {
@@ -43,32 +39,8 @@ exports.signUp = (req, res, next) => {
     return p;
   };
 
-  function createUserDetail (userId) {
-    const p = new Promise((resolve, reject) => {
-      let data = {
-        "user_id": userId,
-        "category_level1": categoryLevel1,
-        "category_level2": categoryLevel2,
-        "country": country,
-        "sido": sido,
-        "about_me": aboutMe,
-        "is_designer": isDesigner
-      };
-      connection.query("INSERT INTO user_detail SET ?", data, (err, rows, fields) => {
-        if (!err) {
-          resolve(rows);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
   function respond (data) {
-    res.status(200).json({
-      message: "회원가입을 환영합니다."
-    });
+    next();
   }
 
   function error (err) {
@@ -83,7 +55,8 @@ exports.signUp = (req, res, next) => {
   })
   .then(createHashPw)
   .then(createUser)
-  .then(createUserDetail)
   .then(respond)
   .catch(error);
 };
+
+module.exports = signUp;
