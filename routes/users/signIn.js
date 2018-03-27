@@ -57,7 +57,7 @@ const signIn = (req, res, next) => {
           uid: userInfo.uid,
           email: userInfo.email,
           nickName: userInfo["nick_name"],
-          admin: userInfo["is_admin"],
+          isAdmin: userInfo["is_admin"],
           isDetail: detail
         },
         process.env.SECRET_CODE,
