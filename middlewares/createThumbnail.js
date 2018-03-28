@@ -13,7 +13,7 @@ const createThumbnail = (req, res, next) => {
     "l_img": null
   };
 
-  function createThumbnailForSize (file) {
+  const createThumbnailForSize = (file) => {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       for (let i = 0; i < 3; i++) {
@@ -36,7 +36,7 @@ const createThumbnail = (req, res, next) => {
     return p;
   };
 
-  function insertThumbnail () {
+  const insertThumbnail = () => {
     const p = new Promise((resolve, reject) => {
       connection.query("INSERT INTO thumbnail SET ?", thumbnailObj, (err, rows) => {
         if (!err) {
@@ -58,7 +58,7 @@ const createThumbnail = (req, res, next) => {
   createThumbnailForSize(filename)
   .then(insertThumbnail)
   .then((thumbnailId) => {
-    req.body.thumbnail = thumbnailId;
+    req.thumbnailId = thumbnailId;
     next();
   }).catch(onError);
 };
