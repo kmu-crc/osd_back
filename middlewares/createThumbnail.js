@@ -19,9 +19,6 @@ const createThumbnail = (req, res, next) => {
 
     const createThumbnailForSize = (file) => {
       return new Promise((resolve, reject) => {
-        if (file == null) {
-          resolve(false);
-        }
         let arr = [];
         for (let i = 0; i < 3; i++) {
           arr.push(new Promise((resolve, reject) => {
