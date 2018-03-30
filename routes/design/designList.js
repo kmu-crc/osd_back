@@ -4,7 +4,6 @@ var connection = require("../../configs/connection");
 exports.designList = (req, res, next) => {
   const level = req.query.level;
   const category = (level) ? req.query.category : "";
-  let arr = [];
   let sql;
   if (level === " " || level === undefined) { // 카테고리 파라미터가 없는 경우
     console.log("this1");
@@ -17,82 +16,60 @@ exports.designList = (req, res, next) => {
     sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level2 = ?";
   }
 
+  // 카테고리 이름 가져오는 함수 (이것만 따로 분리함)
+  function getCategory (data) {
+    let cate;
+    let sqlCate;
+    if (data.category_level2 && data.category_level2 !== "") {
+      cate = data.category_level2;
+      sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
+    } else {
+      cate = data.category_level1;
+      sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
+    }
+    connection.query(sqlCate, cate, (err, result) => {
+      if (!err) {
+        data.categoryName = result[0];
+      }
+    });
+  };
+
   function getList (sql, category) {
     const p = new Promise((resolve, reject) => {
+      let arr = [];
       connection.query(sql, category, (err, row) => {
         if (!err) {
           for (var i = 0, l = row.length; i < l; i++) {
-            let designData = row[i];
-            resolve(designData);
+            let data = row[i];
+            arr.push(new Promise((resolve, reject) => {
+              connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+                if (!err) {
+                  data.userName = result[0];
+                } else {
+                  reject(err);
+                }
+              });
+              connection.query("SELECT s_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, result) => {
+                if (!err) {
+                  data.thumbnailUrl = result[0];
+                } else {
+                  reject(err);
+                }
+              });
+              getCategory(data);
+              connection.query("SELECT * FROM design_counter WHERE design_id = ?", data.uid, (err, row) => {
+                if (!err) {
+                  data.count = row[0];
+                  resolve(data);
+                } else {
+                  reject(err);
+                }
+              });
+            }));
           }
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
-  function getName (data) {
-    const p = new Promise((resolve, reject) => {
-      const userId = data.user_id;
-      connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
-        if (!err) {
-          data.userName = result[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
-  function getThumbnail (data) {
-    const p = new Promise((resolve, reject) => {
-      const thumbnailId = data.thumbnail;
-      connection.query("SELECT s_img FROM thumbnail WHERE uid = ?", thumbnailId, (err, result) => {
-        if (!err) {
-          data.thumbnailUrl = result[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
-  function getCategory (data) {
-    const p = new Promise((resolve, reject) => {
-      let cate;
-      let sql;
-      if (data.category_level2 && data.category_level2 !== "") {
-        cate = data.category_level2;
-        sql = "SELECT name FROM category_level2 WHERE uid = ?";
-      } else {
-        cate = data.category_level1;
-        sql = "SELECT name FROM category_level1 WHERE uid = ?";
-      }
-      connection.query(sql, cate, (err, result) => {
-        if (!err) {
-          data.categoryName = result[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
-  function getCount (data) {
-    const p = new Promise((resolve, reject) => {
-      const id = data.uid;
-      connection.query("SELECT * FROM design_counter WHERE design_id = ?", id, (err, row) => {
-        if (!err) {
-          data.count = row[0];
-          resolve(data);
+          Promise.all(arr).then(result => {
+            resolve(result);
+          }).catch(console.log("no"));
         } else {
           reject(err);
         }
@@ -102,10 +79,5 @@ exports.designList = (req, res, next) => {
   };
 
   getList(sql, category)
-    .then(getName)
-    .then(getThumbnail)
-    .then(getCategory)
-    .then(getCount)
-    .then(data => arr.push(data))
-    .then(arr => res.status(200).json(arr));
+    .then(data => res.json(data));
 };
