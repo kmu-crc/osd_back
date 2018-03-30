@@ -1,22 +1,28 @@
 const connection = require("../configs/connection");
 
-const getDesignTop3 = (data, id) => {
-  const getDesignObj = (id) => {
+exports.getDesignTop3 = (data) => {
+  console.log(data.uid);
+  const getDesignObj = (data) => {
+    console.log(data.uid);
     let designObj = {
       "design_id": null,
       "s_img": null
     };
-    let sql;
-    if (id === "groupId") {
-      sql = "SELECT design_id FROM group_join_design WHERE group_id = ?";
-    } else if (id === "designerId") {
-      sql = "SELECT uid FROM design WHERE user_id = ?";
-    }
+
+    let sql = "SELECT design_id FROM group_join_design WHERE group_id = ?";
+    // if (id === "groupId") {
+    //   sql = "SELECT design_id FROM group_join_design WHERE group_id = ?";
+    // } else if (id === "designerId") {
+    //   sql = "SELECT uid FROM design WHERE user_id = ?";
+    // }
+
     const p = new Promise((resolve, reject) => {
-      const arr = [];
-      connection.query(sql, id, (err, result) => {
+      let arr = [];
+      connection.query(sql, data.uid, (err, result) => {
         if (!err) {
-          const designList = result[0];
+          console.log(result);
+          const designList = result;
+
           for (var i = 0; i < 3; i++) {
             arr.push(new Promise((resolve, reject) => {
               const designId = designList[i];
@@ -31,7 +37,7 @@ const getDesignTop3 = (data, id) => {
               });
             }));
           }
-          Promise.all(arr).then(() => {
+          Promise.all(arr).then((designObj) => {
             resolve(designObj);
           });
         } else {
@@ -42,11 +48,11 @@ const getDesignTop3 = (data, id) => {
     return p;
   };
 
-  getDesignObj(id)
+  getDesignObj(data)
     .then(function (designObj) {
       data.designTop3 = designObj;
     })
     .then(data);
 };
 
-module.exports = getDesignTop3;
+// module.exports = getDesignTop3;

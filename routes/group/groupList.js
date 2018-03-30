@@ -1,16 +1,22 @@
 var connection = require("../../configs/connection");
-// const { getDesignTop3 } = require("../../middlewares/getDesignTop3");
 
-// 그룹 리스트 가져오기 (GET)
 exports.groupList = (req, res, next) => {
+  // 그룹 리스트 가져오기 (GET)
   function getGroupList () {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query("SELECT * FROM opendesign.group", (err, row) => {
         if (!err) {
           for (var i = 0, l = row.length; i < l; i++) {
-            let groupData = row[i];
             arr.push(new Promise((resolve, reject) => {
+              let groupData = row[i];
+              connection.query("SELECT D.uid, T.s_img FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN thumbnail T ON T.uid = D.thumbnail WHERE group_id = ?", groupData.uid, (err, row) => {
+                if (!err) {
+                  groupData.designTop3 = row;
+                } else {
+                  reject(err);
+                }
+              });
               connection.query("SELECT * FROM group_counter WHERE group_id = ?", groupData.uid, (err, result) => {
                 if (!err) {
                   groupData.count = result[0];
@@ -23,7 +29,7 @@ exports.groupList = (req, res, next) => {
           }
           Promise.all(arr).then(result => {
             resolve(result);
-          }).catch(console.log("no"));
+          });
         } else {
           reject(err);
         }
@@ -33,5 +39,5 @@ exports.groupList = (req, res, next) => {
   };
 
   getGroupList()
-    .then(data => res.json(data));
+    .then(result => res.json(result));
 };
