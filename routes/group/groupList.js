@@ -32,23 +32,6 @@ exports.groupList = (req, res, next) => {
     return p;
   };
 
-  // 그룹 좋아요 수, 멤버수, 디자인수, 총 좋아요 수 가져오기 (GET)
-  // function getGroupCount (data) {
-  //   const p = new Promise((resolve, reject) => {
-  //     const groupId = data.uid;
-  //     connection.query("SELECT * FROM group_counter WHERE uid = ?", groupId, (err, result) => {
-  //       if (!err) {
-  //         data.count = result[0];
-  //         console.log("count working");
-  //         resolve(data);
-  //       } else {
-  //         reject(err);
-  //       }
-  //     });
-  //   });
-  //   return p;
-  // };
-
   getGroupList()
     .then(data => res.json(data));
 };
