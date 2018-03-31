@@ -79,5 +79,6 @@ exports.designList = (req, res, next) => {
   };
 
   getList(sql, category)
-    .then(data => res.json(data));
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(500).json(err));
 };

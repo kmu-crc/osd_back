@@ -38,7 +38,8 @@ exports.designStep = (req, res, next) => {
   };
 
   getBoardList(designId)
-    .then(data => res.json(data));
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(500).json(err));
 };
 
 // **********************************************************
@@ -97,7 +98,8 @@ exports.designCardDetail = (req, res, next) => {
   getCardDetail(cardId)
     .then(getImage)
     .then(getSource)
-    .then(data => res.status(200).json(data));
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(500).json(err));
 };
 
 // **********************************************************

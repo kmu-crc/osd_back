@@ -84,5 +84,6 @@ exports.designView = (req, res, next) => {
     .then(getImage)
     .then(getSource)
     .then(getComment)
-    .then(data => res.status(200).json(data));
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(500).json(err));
 };
