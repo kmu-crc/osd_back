@@ -1,12 +1,12 @@
 var connection = require("../../configs/connection");
 
-exports.groupDetail = (req, res, next) => {
+exports.designerDetail = (req, res, next) => {
   const id = req.params.id;
 
-  // 그룹 정보 가져오기 (GET)
-  function getGroupInfo (id) {
+  // 디자이너 정보 가져오기 (GET)
+  function getDesignerInfo (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM opendesign.group WHERE uid = ?", id, (err, result) => {
+      connection.query("SELECT U.uid, U.nick_name, D.category_level1, D.category_level2, T.s_img FROM user U JOIN user_detail D ON U.uid = D.user_id JOIN thumbnail T ON U.uid = T.user_id WHERE U.uid = ?", id, (err, result) => {
         if (!err) {
           let data = result[0];
           resolve(data);
@@ -18,29 +18,13 @@ exports.groupDetail = (req, res, next) => {
     return p;
   };
 
-  // 그룹 count 정보 가져오기 (GET)
-  function getGroupCount (data) {
+  // 디자이너 count 정보 가져오기 (GET)
+  function getDesignerCount (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT * FROM group_counter WHERE uid = ?", id, (err, result) => {
+      connection.query("SELECT total_like, total_design, total_view FROM user_couter WHERE user_id = ?", id, (err, result) => {
         if (!err) {
           data.count = result[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
-  // 그룹 comment 가져오기 (GET)
-  function getGroupComment (data) {
-    const p = new Promise((resolve, reject) => {
-      const id = data.uid;
-      connection.query("SELECT uid, user_id, comment FROM group_comment WHERE group_id = ?", id, (err, result) => {
-        if (!err) {
-          data.comment = result[0];
           resolve(data);
         } else {
           reject(err);
@@ -53,7 +37,7 @@ exports.groupDetail = (req, res, next) => {
   // 디자인 리스트 가져오기 (GET)
   function getDesignList (data) {
     const id = data.uid;
-    const sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time FROM group_join_design G JOIN design D ON D.uid = G.design_id WHERE group_id = ?";
+    const sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time FROM design D WHERE user_id = ?";
 
     function getCategory (data) {
       let cate;
@@ -123,9 +107,8 @@ exports.groupDetail = (req, res, next) => {
       }).then(result => res.json(result));
   };
 
-  getGroupInfo(id)
-    .then(getGroupCount)
-    .then(getGroupComment)
+  getDesignerInfo(id)
+    .then(getDesignerCount)
     .then(getDesignList)
     .then(result => console.log(result));
 };
