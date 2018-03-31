@@ -9,6 +9,7 @@ const { insertDetail, modifyDetail } = require("./userDetail");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const createThumbnail = require("../../middlewares/createThumbnail");
 const imageUpload = require("../../middlewares/imageUpload");
+const secession = require("./secession");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -22,5 +23,7 @@ router.post("/FBSignIn", FBSignIn, FBSignUp, FBSignIn);
 router.post("/insertDetail", auth, imageUpload, createThumbnail, stringToNumber, insertDetail);
 
 router.post("/modifyDetail", auth, imageUpload, createThumbnail, stringToNumber, modifyDetail);
+
+router.delete("/deleteUser", auth, secession);
 
 module.exports = router;
