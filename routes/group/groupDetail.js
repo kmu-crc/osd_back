@@ -34,6 +34,22 @@ exports.groupDetail = (req, res, next) => {
     return p;
   };
 
+  // 그룹 comment 가져오기 (GET)
+  function getGroupComment (data) {
+    const p = new Promise((resolve, reject) => {
+      const id = data.uid;
+      connection.query("SELECT uid, user_id, comment FROM group_comment WHERE group_id = ?", id, (err, result) => {
+        if (!err) {
+          data.comment = result[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
   // 디자인 리스트 가져오기 (GET)
   function getDesignList (data) {
     const id = data.uid;
@@ -105,10 +121,11 @@ exports.groupDetail = (req, res, next) => {
         data.designList = result;
         return data;
       }).then(result => res.json(result));
-  }
+  };
 
   getGroupInfo(id)
     .then(getGroupCount)
+    .then(getGroupComment)
     .then(getDesignList)
     .then(result => console.log(result));
 };
