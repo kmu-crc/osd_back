@@ -1,4 +1,4 @@
-var connection = require("../../configs/connection");
+const connection = require("../../configs/connection");
 const { isOnlyNicName, isOnlyEmail, isOnlyFBId, isUserDetail } = require("../../middlewares/verifications");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
