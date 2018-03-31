@@ -1,4 +1,4 @@
-var connection = require("../../configs/connection");
+const connection = require("../../configs/connection");
 
 exports.insertDetail = (req, res) => {
   console.log("insert");
