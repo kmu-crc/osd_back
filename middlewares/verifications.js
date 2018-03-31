@@ -126,3 +126,41 @@ exports.isMember = (uid) => {
     });
   });
 };
+// group uid로 group이 존재하는지 확인하는 로직
+exports.isGroup = (uid) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT count(uid) FROM opendesign.group WHERE uid=${uid}`, (err, rows) => {
+      console.log("rows", rows);
+      if (!err) {
+        if (rows[0]["count(uid)"] > 0) {
+          resolve(uid);
+        } else {
+          const errorMessage = "존재하지 않는 그룹입니다.";
+          reject(errorMessage);
+        }
+      } else {
+        const errorMessage = "isGroup err : " + err;
+        reject(errorMessage);
+      }
+    });
+  });
+};
+// design uid로 design 존재하는지 확인하는 로직
+exports.isDesign = (uid) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT count(uid) FROM design WHERE uid=${uid}`, (err, rows) => {
+      console.log("rows", rows);
+      if (!err) {
+        if (rows[0]["count(uid)"] > 0) {
+          resolve(uid);
+        } else {
+          const errorMessage = "존재하지 않는 디자인입니다.";
+          reject(errorMessage);
+        }
+      } else {
+        const errorMessage = "isDesign err : " + err;
+        reject(errorMessage);
+      }
+    });
+  });
+};
