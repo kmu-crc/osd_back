@@ -11,12 +11,12 @@ const signIn = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM user WHERE email='${email}'`, (err, rows) => {
         if (!err) {
-          if (rows[0].email === email) {
-            userInfo = rows[0];
-            resolve(rows);
-          } else {
+          if (rows.length === 0) {
             const errorMessage = `${email}은 opendesign 회원이 아닙니다.`;
             reject(errorMessage);
+          } else if (rows[0].email === email) {
+            userInfo = rows[0];
+            resolve(rows);
           }
         } else {
           reject(err);
