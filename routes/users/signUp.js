@@ -1,4 +1,4 @@
-var connection = require("../../configs/connection");
+const connection = require("../../configs/connection");
 const bcrypt = require("bcrypt");
 const { isOnlyNicName, isOnlyEmail } = require("../../middlewares/verifications");
 
