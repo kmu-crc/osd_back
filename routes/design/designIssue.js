@@ -81,5 +81,6 @@ exports.designIssueDetail = (req, res, next) => {
 
   getIssueDetail(issueId)
     .then(getIssueComment)
-    .then(data => res.status(200).json(data));
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(500).json(err));
 };

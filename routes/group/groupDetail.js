@@ -120,7 +120,8 @@ exports.groupDetail = (req, res, next) => {
       .then(result => {
         data.designList = result;
         return data;
-      }).then(result => res.json(result));
+      }).then(result => res.status(200).json(result))
+      .catch(err => res.status(500).json(err));
   };
 
   getGroupInfo(id)
