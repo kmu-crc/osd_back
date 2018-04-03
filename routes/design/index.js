@@ -14,7 +14,7 @@ router.get("/designList", designList);
 router.get("/designDetail/:id", designDetail);
 router.get("/designDetail/:id/view", designView);
 router.get("/designDetail/:id/step", designStep);
-router.get("/designDetail/:id/createBoard", createBoard);
+router.post("/designDetail/:id/createBoard", createBoard);
 router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
 router.get("/designDetail/:id/issue", designIssue);
 router.get("/designDetail/:id/issueDetail/:issue_id", designIssueDetail);

@@ -108,16 +108,18 @@ exports.designCardDetail = (req, res, next) => {
 exports.createBoard = (req, res, next) => {
   const designId = req.params.id;
   const { title, order } = req.body;
+  const date = new Date();
 
   let newData = {
     "design_id": designId,
     "title": title,
-    "order": order
+    "order": order,
+    "create_time": date
   };
 
   // 보드 생성 함수
   function createNewBoard (data) {
-    connection.query("INSERT INTO design_board SET = ?", data, (err, result) => {
+    connection.query("INSERT INTO design_board SET ?", data, (err, result) => {
       if (!err) {
         res.status(200);
       } else {

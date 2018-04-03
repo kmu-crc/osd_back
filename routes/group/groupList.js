@@ -10,13 +10,7 @@ exports.groupList = (req, res, next) => {
           for (var i = 0, l = row.length; i < l; i++) {
             arr.push(new Promise((resolve, reject) => {
               let groupData = row[i];
-              connection.query("SELECT D.uid, T.s_img FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN thumbnail T ON T.uid = D.thumbnail WHERE group_id = ?", groupData.uid, (err, row) => {
-                if (!err) {
-                  groupData.designTop3 = row;
-                } else {
-                  reject(err);
-                }
-              });
+              getThumbnail(groupData);
               connection.query("SELECT * FROM group_counter WHERE group_id = ?", groupData.uid, (err, result) => {
                 if (!err) {
                   groupData.count = result[0];
@@ -37,6 +31,24 @@ exports.groupList = (req, res, next) => {
     });
     return p;
   };
+
+  function getThumbnail (data) {
+    let arr = [];
+    connection.query("SELECT D.uid, T.s_img FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN thumbnail T ON T.uid = D.thumbnail WHERE group_id = ?", data.uid, (err, row) => {
+      if (!err) {
+        if (row.length > 3) {
+          for (var i = 0; i < 3; i++) {
+            arr.push(row[i]);
+          }
+        } else if (row.length <= 3) {
+          arr = row;
+        }
+        data.designTop3 = row;
+      } else {
+        console.log(err);
+      }
+    });
+  }
 
   getGroupList()
     .then(result => res.status(200).json(result))
