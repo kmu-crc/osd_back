@@ -6,11 +6,14 @@ exports.groupList = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query("SELECT * FROM opendesign.group", (err, row) => {
-        if (!err) {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
           for (var i = 0, l = row.length; i < l; i++) {
             arr.push(new Promise((resolve, reject) => {
               let groupData = row[i];
               getThumbnail(groupData);
+              getGroupUser(groupData);
               connection.query("SELECT * FROM group_counter WHERE group_id = ?", groupData.uid, (err, result) => {
                 if (!err) {
                   groupData.count = result[0];
@@ -44,6 +47,16 @@ exports.groupList = (req, res, next) => {
           arr = row;
         }
         data.designTop3 = row;
+      } else {
+        console.log(err);
+      }
+    });
+  }
+
+  function getGroupUser (data) {
+    connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+      if (!err) {
+        data.userName = result[0].nick_name;
       } else {
         console.log(err);
       }

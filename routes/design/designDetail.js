@@ -25,7 +25,7 @@ exports.designDetail = (req, res, next) => {
       const userId = data.user_id;
       connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
         if (!err) {
-          data.userName = result[0];
+          data.userName = result[0].nick_name;
           resolve(data);
         } else {
           reject(err);

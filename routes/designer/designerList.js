@@ -6,7 +6,9 @@ exports.designerList = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query("SELECT U.uid, U.nick_name, U.thumbnail FROM user U JOIN user_detail D ON D.is_designer = true", (err, row) => {
-        if (!err) {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
           for (var i = 0, l = row.length; i < l; i++) {
             arr.push(new Promise((resolve, reject) => {
               let designerData = row[i];
@@ -52,7 +54,7 @@ exports.designerList = (req, res, next) => {
   };
 
   function getProfile (data) {
-    connection.query("SELECT s_img FROM thumbnail WHERE user_id = ?", data.uid, (err, result) => {
+    connection.query("SELECT m_img FROM thumbnail WHERE user_id = ?", data.uid, (err, result) => {
       if (!err) {
         data.imgURL = result[0];
       } else {
