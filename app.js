@@ -26,7 +26,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use("/userFile", express.static("uploads"));
-app.use("/thumbnail", express.static("thumbnails"));
+app.use("/thumbnails", express.static("thumbnails"));
 
 app.use("/", routers);
 

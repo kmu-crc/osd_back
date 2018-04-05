@@ -26,7 +26,7 @@ const createThumbnail = (req, res, next) => {
               if (err) {
                 reject(err);
               } else {
-                thumbnailObj[thumbnailSizeName[i]] = `http://localhost:3000/thumbnails/${filename}`;
+                thumbnailObj[thumbnailSizeName[i]] = `http://localhost:8080/thumbnails/${filename}`;
                 resolve(true);
               }
             });
