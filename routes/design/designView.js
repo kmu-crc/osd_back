@@ -3,14 +3,17 @@ var connection = require("../../configs/connection");
 // 디자인 대표 카드 가져오기 (GET)
 exports.designView = (req, res, next) => {
   const designId = req.params.id;
+  console.log(designId);
 
   // 완료된 카드 id 가져오기
   function getViewCardId (designId) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT uid FROM design_card WHERE design_id = ? AND is_complete_card = ?", designId, true, (err, result) => {
+      connection.query("SELECT uid FROM design_card WHERE is_complete_card = true AND design_id = ?", designId, (err, result) => {
         if (!err) {
-          let cardId = result;
-          resolve(cardId);
+          const cardId = result[0];
+          console.log(cardId);
+          console.log(cardId.uid);
+          resolve(cardId.uid);
         } else {
           reject(err);
         }
@@ -67,7 +70,7 @@ exports.designView = (req, res, next) => {
   // 코멘트 가져오기
   function getComment (data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT uid, user_id, comment, update_time FROM card_comment WEHRE card_id = ?", data.uid, (err, row) => {
+      connection.query("SELECT uid, user_id, comment, update_time FROM card_comment WHERE card_id = ?", data.uid, (err, row) => {
         if (!err) {
           data.commentInfo = row[0];
           resolve(data);
@@ -84,5 +87,6 @@ exports.designView = (req, res, next) => {
     .then(getImage)
     .then(getSource)
     .then(getComment)
-    .then(data => res.status(200).json(data));
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(500).json(err));
 };
