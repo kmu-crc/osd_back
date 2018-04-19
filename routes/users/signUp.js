@@ -45,6 +45,7 @@ const signUp = (req, res, next) => {
 
   function error (err) {
     res.status(500).json({
+      success: false,
       error: err
     });
   };
