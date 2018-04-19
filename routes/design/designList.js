@@ -38,7 +38,9 @@ exports.designList = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, category, (err, row) => {
-        if (!err) {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
           for (var i = 0, l = row.length; i < l; i++) {
             let data = row[i];
             arr.push(new Promise((resolve, reject) => {
@@ -49,7 +51,7 @@ exports.designList = (req, res, next) => {
                   reject(err);
                 }
               });
-              connection.query("SELECT s_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, result) => {
+              connection.query("SELECT m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, result) => {
                 if (!err) {
                   data.thumbnailUrl = result[0];
                 } else {
