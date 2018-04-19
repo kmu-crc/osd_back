@@ -18,7 +18,7 @@ router.use("/check", auth, check);
 
 router.post("/FBSignUp", FBSignUp, FBSignIn);
 
-router.post("/FBSignIn", FBSignIn, FBSignUp, FBSignIn);
+router.post("/FBSignIn", FBSignIn);
 
 router.post("/insertDetail", auth, imageUpload, createThumbnail, stringToNumber, insertDetail);
 
