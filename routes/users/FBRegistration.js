@@ -11,12 +11,14 @@ exports.FBSignIn = (req, res, next) => {
       connection.query(`SELECT * FROM user WHERE FB_user_id='${userId}'`, (err, rows) => {
         if (!err) {
           if (rows.length === 0) {
-            next();
+            res.status(200).json({
+              isMember: false
+            });
           } else if (rows[0]["FB_user_id"] === userId) {
             userInfo = rows[0];
             resolve(rows[0].uid);
           } else {
-            const errorMessage = "facebook login err";
+            const errorMessage = "FacekBook SignIn Error";
             reject(errorMessage);
           }
         } else {
@@ -55,11 +57,14 @@ exports.FBSignIn = (req, res, next) => {
 
   const respond = (data) => {
     res.status(200).json({
+      success: true,
+      isMember: true,
       token: data
     });
   };
   const error = (err) => {
     res.status(500).json({
+      success: false,
       error: err
     });
   };
@@ -98,6 +103,7 @@ exports.FBSignUp = (req, res, next) => {
 
   function error (err) {
     res.status(500).json({
+      success: false,
       error: err
     });
   };
