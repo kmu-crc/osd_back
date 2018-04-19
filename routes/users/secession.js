@@ -18,12 +18,14 @@ const secession = (req, res) => {
 
   const respond = (data) => {
     res.status(200).json({
+      success: true,
       message: "성공적으로 탈퇴되었습니다."
     });
   };
 
   const error = (err) => {
     res.status(500).json({
+      success: false,
       error: err
     });
   };
