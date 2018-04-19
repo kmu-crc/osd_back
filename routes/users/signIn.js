@@ -14,6 +14,7 @@ const signIn = (req, res, next) => {
           if (rows.length === 0) {
             const errorMessage = `${email}은 opendesign 회원이 아닙니다.`;
             reject(errorMessage);
+            // res.status(200).json({success: false, isMember: false, isPassword: false});
           } else if (rows[0].email === email) {
             userInfo = rows[0];
             resolve(rows);
@@ -30,13 +31,12 @@ const signIn = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM user WHERE email='${email}';`, (err, rows) => {
         if (!err) {
-          bcrypt.compare(pw, rows[0].password, function (err, res) {
+          bcrypt.compare(pw, rows[0].password, function (err, respond) {
             if (!err) {
-              if (res) {
+              if (respond) {
                 resolve(rows[0].uid);
               } else {
-                let message = "비밀번호가 일치하지 않습니다.";
-                reject(message);
+                res.status(200).json({success: false, isMember: true, isPassword: false});
               }
             } else {
               reject(err);
@@ -78,11 +78,16 @@ const signIn = (req, res, next) => {
 
   const respond = (data) => {
     res.status(200).json({
-      token: data
+      success: true,
+      token: data,
+      isMember: true,
+      isPassword: true
     });
   };
-  const error = (err) => {
-    res.status(500).json({
+  const error = (err, status) => {
+    if (status == null) status = 500;
+    res.status(status).json({
+      success: false,
       error: err
     });
   };
