@@ -53,7 +53,7 @@ exports.designCardDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design_card WHERE uid = ?", cardId, (err, data) => {
         if (!err) {
-          let cardData = data[0];
+          let cardData = data;
           resolve(cardData);
         } else {
           reject(err);
@@ -69,7 +69,7 @@ exports.designCardDetail = (req, res, next) => {
       const id = data.uid;
       connection.query("SELECT * FROM design_images WHERE card_id = ?", id, (err, row) => {
         if (!err) {
-          data.imageInfo = row[0];
+          data.imageInfo = row;
           resolve(data);
         } else {
           reject(err);
@@ -85,7 +85,7 @@ exports.designCardDetail = (req, res, next) => {
       const id = data.uid;
       connection.query("SELECT * FROM design_source_file WHERE card_id = ?", id, (err, row) => {
         if (!err) {
-          data.srcInfo = row[0];
+          data.srcInfo = row;
           resolve(data);
         } else {
           reject(err);
