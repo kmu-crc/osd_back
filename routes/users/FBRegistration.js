@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 exports.FBSignIn = (req, res, next) => {
-  const { FBUserId } = req.body;
+  const { FB_user_id } = req.body;
   let userInfo = null;
   const verificationFBUserId = (userId) => {
     const p = new Promise((resolve, reject) => {
@@ -69,7 +69,7 @@ exports.FBSignIn = (req, res, next) => {
     });
   };
 
-  verificationFBUserId(FBUserId)
+  verificationFBUserId(FB_user_id)
   .then(isUserDetail)
   .then(createJWT)
   .then(respond)
@@ -78,14 +78,8 @@ exports.FBSignIn = (req, res, next) => {
 
 exports.FBSignUp = (req, res, next) => {
   let {email, nickName, FBUserId} = req.body;
-
-  let userData = {
-    "email": email,
-    "nick_name": nickName,
-    "is_admin": 0,
-    "is_facebook": true,
-    "FB_user_id": FBUserId
-  };
+  req.body.is_admin = 0;
+  req.body.is_facebook = true;
 
   function createUser (data) {
     const p = new Promise((resolve, reject) => {
@@ -113,9 +107,9 @@ exports.FBSignUp = (req, res, next) => {
   };
 
   isOnlyFBId(FBUserId)
-  .then(() => isOnlyEmail(email))
-  .then(() => isOnlyNicName(nickName))
-  .then(() => createUser(userData))
+  .then(() => isOnlyEmail(req.body.email))
+  .then(() => isOnlyNicName(req.body.nick_name))
+  .then(() => createUser(req.body))
   .then(respond)
   .catch(error);
 };
