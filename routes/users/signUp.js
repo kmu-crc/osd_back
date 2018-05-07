@@ -4,18 +4,16 @@ const { isOnlyNicName, isOnlyEmail } = require("../../middlewares/verifications"
 
 const signUp = (req, res, next) => {
   let { email, password, nickName } = req.body;
-
+  let userData = {
+    ...req.body,
+    "is_admin": 0,
+    "is_facebook": 0
+  };
   function createHashPw () {
     const p = new Promise((resolve, reject) => {
       bcrypt.hash(password, 10, function (err, hash) {
         if (!err) {
-          let userData = {
-            "email": email,
-            "password": hash,
-            "nick_name": nickName,
-            "is_admin": 0,
-            "is_facebook": 0
-          };
+          userData.password = hash;
           resolve(userData);
         } else {
           reject(err);
