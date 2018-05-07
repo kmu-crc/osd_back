@@ -10,7 +10,8 @@ const stringToNumber = require("../../middlewares/stringToNumber");
 const createThumbnail = require("../../middlewares/createThumbnail");
 const imageUpload = require("../../middlewares/imageUpload");
 const secession = require("./secession");
-const checkEamil = require("./checkEmail");
+const checkEmail = require("./checkEmail");
+const checkNickName = require("./checkNickName");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -27,6 +28,8 @@ router.post("/modifyDetail", auth, imageUpload, createThumbnail, stringToNumber,
 
 router.delete("/deleteUser", auth, secession);
 
-router.get("/checkEamil", checkEamil);
+router.post("/checkEmail", checkEmail);
+
+router.post("/checkNickName", checkNickName);
 
 module.exports = router;
