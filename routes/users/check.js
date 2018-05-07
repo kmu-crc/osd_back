@@ -1,7 +1,17 @@
+const { isUserDetail } = require("../../middlewares/verifications");
+
 const check = (req, res) => {
-  res.status(200).json({
-    success: true,
-    info: req.decoded
+  const respond = (data) => {
+    res.status(200).json({
+      success: true,
+      info: req.decoded
+    });
+  };
+
+  isUserDetail(req.decoded.uid)
+  .then((isDetail) => {
+    req.decoded.isDetail = isDetail;
+    return respond();
   });
 };
 
