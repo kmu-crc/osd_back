@@ -5,7 +5,7 @@ exports.designerList = (req, res, next) => {
   function getDesignerList () {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail FROM user U JOIN user_detail D ON D.is_designer = true", (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.thumbnail FROM user_detail D JOIN user U ON U.uid = D.user_id WHERE D.is_designer = 1", (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
