@@ -127,5 +127,6 @@ exports.groupDetail = (req, res, next) => {
   getGroupInfo(id)
     .then(getGroupCount)
     .then(getGroupComment)
-    .then(getDesignList); // res.json은 여기서 이미 보냄;
+    .then(getDesignList)
+    .then(result => console.log(result));
 };
