@@ -3,6 +3,11 @@ const connection = require("../../configs/connection");
 exports.insertDetail = (req, res) => {
   console.log("insert");
   req.body["user_id"] = req.decoded.uid;
+  if (req.body.is_designer) {
+    req.body.is_designer = 1;
+  } else {
+    req.body.is_designer = 0;
+  }
   const insertDetailDB = (data) => {
     console.log("22");
     return new Promise((resolve, reject) => {
