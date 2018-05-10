@@ -12,6 +12,7 @@ const imageUpload = require("../../middlewares/imageUpload");
 const secession = require("./secession");
 const checkEmail = require("./checkEmail");
 const checkNickName = require("./checkNickName");
+const checkFBUser = require("./checkFBUser");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -31,5 +32,7 @@ router.delete("/deleteUser", auth, secession);
 router.post("/checkEmail", checkEmail);
 
 router.post("/checkNickName", checkNickName);
+
+router.post("/checkFBUser", checkFBUser);
 
 module.exports = router;
