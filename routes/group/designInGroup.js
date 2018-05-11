@@ -2,16 +2,13 @@ var connection = require("../../configs/connection");
 
 exports.designInGroup = (req, res, next) => {
   const id = req.params.id;
-  console.log(req.params.sorting);
-  console.log("work");
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
   } else {
-    console.log("work3");
     sort = "date";
   }
-  console.log(sort);
+
   let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.total_view_count FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN design_counter C ON C.design_id = D.uid WHERE group_id = ? ";
   if (sort === "date") {
     sql = sql + "ORDER BY D.create_time DESC";
@@ -20,7 +17,6 @@ exports.designInGroup = (req, res, next) => {
   }
 
   function getList (id) {
-    console.log(sql);
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, id, (err, row) => {
