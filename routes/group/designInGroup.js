@@ -9,7 +9,7 @@ exports.designInGroup = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.total_view_count FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN design_counter C ON C.design_id = D.uid WHERE group_id = ? ";
+  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.total_view_count FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN design_counter C ON C.design_id = D.uid WHERE parent_group_id = ? ";
   if (sort === "date") {
     sql = sql + "ORDER BY D.create_time DESC";
   } else if (sort === "like") {
@@ -40,14 +40,6 @@ exports.designInGroup = (req, res, next) => {
                   reject(err);
                 }
               });
-              // connection.query("SELECT * FROM design_counter WHERE design_id = ?", data.uid, (err, row) => {
-              //   if (!err) {
-              //     data.count = row[0];
-              //     resolve(data);
-              //   } else {
-              //     reject(err);
-              //   }
-              // });
             }));
           }
           Promise.all(arr).then(result => {

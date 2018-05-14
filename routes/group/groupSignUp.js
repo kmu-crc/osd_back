@@ -29,7 +29,7 @@ const groupSignUp = (req, res) => {
     });
   };
 
-  isGroup(req.body["group_id"])
+  isGroup(req.body["parent_group_id"])
   .then(() => groupSignUpDB(insertData))
   .then(respond)
   .catch(error);

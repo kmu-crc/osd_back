@@ -1,11 +1,25 @@
 var connection = require("../../configs/connection");
 
-exports.groupList = (req, res, next) => {
-  // 그룹 리스트 가져오기 (GET)
-  function getGroupList () {
+exports.groupInGroup = (req, res, next) => {
+  const id = req.params.id;
+  let sort;
+  if (req.params.sorting !== "null" && req.params.sorting !== "undefined") {
+    sort = req.params.sorting;
+  } else {
+    sort = "date";
+  }
+
+  let sql = "SELECT R.uid, R.title, R.create_time, R.user_id, C.like, C.member, C.design, C.total_like FROM group_join_group G JOIN opendesign.group R ON R.uid = G.group_id JOIN group_counter C ON C.group_id = R.uid WHERE parent_group_id = ?";
+  if (sort === "date") {
+    sql = sql + "ORDER BY R.create_time DESC";
+  } else if (sort === "like") {
+    sql = sql + "ORDER BY C.like DESC";
+  }
+
+  function getGroupList (id) {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT * FROM opendesign.group", (err, row) => {
+      connection.query(sql, id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -13,10 +27,9 @@ exports.groupList = (req, res, next) => {
             arr.push(new Promise((resolve, reject) => {
               let groupData = row[i];
               getThumbnail(groupData);
-              getGroupUser(groupData);
-              connection.query("SELECT * FROM group_counter WHERE group_id = ?", groupData.uid, (err, result) => {
+              connection.query("SELECT nick_name FROM user WHERE uid = ?", groupData.user_id, (err, result) => {
                 if (!err) {
-                  groupData.count = result[0];
+                  groupData.userName = result[0].nick_name;
                   resolve(groupData);
                 } else {
                   reject(err);
@@ -51,19 +64,9 @@ exports.groupList = (req, res, next) => {
         console.log(err);
       }
     });
-  }
+  };
 
-  function getGroupUser (data) {
-    connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
-      if (!err) {
-        data.userName = result[0].nick_name;
-      } else {
-        console.log(err);
-      }
-    });
-  }
-
-  getGroupList()
+  getGroupList(id)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
 };
