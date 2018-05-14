@@ -5,7 +5,7 @@ exports.groupList = (req, res, next) => {
   function getGroupList () {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT * FROM opendesign.group", (err, row) => {
+      connection.query("SELECT G.uid, G.title, G.create_time, G.update_time, G.user_id, G.explanation, C.like, C.member, C.design, C.total_like FROM opendesign.group G LEFT JOIN group_counter C ON C.group_id = G.uid", (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -13,10 +13,9 @@ exports.groupList = (req, res, next) => {
             arr.push(new Promise((resolve, reject) => {
               let groupData = row[i];
               getThumbnail(groupData);
-              getGroupUser(groupData);
-              connection.query("SELECT * FROM group_counter WHERE group_id = ?", groupData.uid, (err, result) => {
+              connection.query("SELECT nick_name FROM user WHERE uid = ?", groupData.user_id, (err, result) => {
                 if (!err) {
-                  groupData.count = result[0];
+                  groupData.userName = result[0].nick_name;
                   resolve(groupData);
                 } else {
                   reject(err);
@@ -47,16 +46,6 @@ exports.groupList = (req, res, next) => {
           arr = row;
         }
         data.designTop3 = row;
-      } else {
-        console.log(err);
-      }
-    });
-  }
-
-  function getGroupUser (data) {
-    connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
-      if (!err) {
-        data.userName = result[0].nick_name;
       } else {
         console.log(err);
       }

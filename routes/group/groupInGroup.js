@@ -9,7 +9,7 @@ exports.groupInGroup = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT R.uid, R.title, R.create_time, R.user_id, C.like, C.member, C.design, C.total_like FROM group_join_group G JOIN opendesign.group R ON R.uid = G.group_id JOIN group_counter C ON C.group_id = R.uid WHERE parent_group_id = ?";
+  let sql = "SELECT R.uid, R.title, R.create_time, R.user_id, C.like, C.member, C.design, C.total_like FROM group_join_group G JOIN opendesign.group R ON R.uid = G.group_id LEFT JOIN group_counter C ON C.group_id = R.uid WHERE parent_group_id = ?";
   if (sort === "date") {
     sql = sql + "ORDER BY R.create_time DESC";
   } else if (sort === "like") {
