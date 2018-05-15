@@ -46,7 +46,7 @@ exports.designList = (req, res, next) => {
             arr.push(new Promise((resolve, reject) => {
               connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
                 if (!err) {
-                  data.userName = result[0];
+                  data.userName = result[0].nick_name;
                 } else {
                   reject(err);
                 }

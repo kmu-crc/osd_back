@@ -5,7 +5,7 @@ exports.designerList = (req, res, next) => {
   function getDesignerList () {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail FROM user_detail D JOIN user U ON U.uid = D.user_id WHERE D.is_designer = 1", (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, C.total_design, C.total_like, C.total_view FROM user_detail D JOIN user U ON U.uid = D.user_id LEFT JOIN user_counter C ON C.user_id = U.uid WHERE D.is_designer = 1", (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -13,15 +13,22 @@ exports.designerList = (req, res, next) => {
             arr.push(new Promise((resolve, reject) => {
               let designerData = row[i];
               getThumbnail(designerData);
-              getProfile(designerData);
-              connection.query("SELECT total_like, total_design, total_view FROM user_couter WHERE user_id = ?", designerData.uid, (err, result) => {
+              connection.query("SELECT m_img FROM thumbnail WHERE user_id = ?", designerData.uid, (err, result) => {
                 if (!err) {
-                  designerData.count = result[0];
+                  designerData.imgURL = result[0];
                   resolve(designerData);
                 } else {
                   reject(err);
                 }
               });
+              // connection.query("SELECT total_like, total_design, total_view FROM user_couter WHERE user_id = ?", designerData.uid, (err, result) => {
+              //   if (!err) {
+              //     designerData.count = result[0];
+              //     resolve(designerData);
+              //   } else {
+              //     reject(err);
+              //   }
+              // });
             }));
           }
           Promise.all(arr).then(result => {
@@ -52,16 +59,6 @@ exports.designerList = (req, res, next) => {
       }
     });
   };
-
-  function getProfile (data) {
-    connection.query("SELECT m_img FROM thumbnail WHERE user_id = ?", data.uid, (err, result) => {
-      if (!err) {
-        data.imgURL = result[0];
-      } else {
-        console.log(err);
-      }
-    });
-  }
 
   getDesignerList()
     .then(result => res.status(200).json(result))
