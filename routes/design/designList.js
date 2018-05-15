@@ -7,13 +7,13 @@ exports.designList = (req, res, next) => {
   let sql;
   if (level === " " || level === undefined) { // 카테고리 파라미터가 없는 경우
     console.log("this1");
-    sql = "SELECT uid, user_id, title, thumbnail, category_level1, category_level2, create_time FROM design";
+    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.total_view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid";
   } else if (level === "1") { // 카테고리 레벨 1이 설정된 경우
     console.log("this2");
-    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level1 = ?";
+    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.total_view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE category_level1 = ?";
   } else if (level === "2") { // 카테고리 레벨 2가 설정된 경우
     console.log("this3");
-    sql = "SELECT uid, user_id, title, thumbnail category_level1, category_level2, create_time FROM design WHERE category_level2 = ?";
+    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.total_view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE category_level2 = ?";
   }
 
   // 카테고리 이름 가져오는 함수 (이것만 따로 분리함)
@@ -51,17 +51,10 @@ exports.designList = (req, res, next) => {
                   reject(err);
                 }
               });
+              getCategory(data);
               connection.query("SELECT m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, result) => {
                 if (!err) {
                   data.thumbnailUrl = result[0];
-                } else {
-                  reject(err);
-                }
-              });
-              getCategory(data);
-              connection.query("SELECT * FROM design_counter WHERE design_id = ?", data.uid, (err, row) => {
-                if (!err) {
-                  data.count = row[0];
                   resolve(data);
                 } else {
                   reject(err);
