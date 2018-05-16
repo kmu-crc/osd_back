@@ -23,7 +23,7 @@ exports.designerDetail = (req, res, next) => {
   // 디자이너 프로필 썸네일 가져오기
   function getMyThumbnail (data) {
     const p = new Promise((resolve, reject) => {
-      connection.queyr("SELECT s_img, m_img FROM thumbnail WHERE user_id = ?", data.uid, (err, row) => {
+      connection.queyr("SELECT s_img, m_img, l_img FROM thumbnail WHERE user_id = ?", data.uid, (err, row) => {
         if (!err && row.length === 0) {
           data.thumbnailUrl = null;
           resolve(data);
