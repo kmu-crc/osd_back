@@ -5,7 +5,7 @@ exports.groupList = (req, res, next) => {
   function getGroupList () {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT G.uid, G.title, G.create_time, G.update_time, G.user_id, G.explanation, C.like, C.design, C.group FROM opendesign.group G LEFT JOIN group_counter C ON C.group_id = G.uid", (err, row) => {
+      connection.query("SELECT G.uid, G.title, G.thumbnail, G.create_time, G.update_time, G.user_id, G.explanation, C.like, C.design, C.group FROM opendesign.group G LEFT JOIN group_counter C ON C.group_id = G.uid", (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -13,6 +13,7 @@ exports.groupList = (req, res, next) => {
             arr.push(new Promise((resolve, reject) => {
               let groupData = row[i];
               // getThumbnail(groupData);
+              getMyThumbnail(groupData);
               connection.query("SELECT nick_name FROM user WHERE uid = ?", groupData.user_id, (err, result) => {
                 if (!err) {
                   groupData.userName = result[0].nick_name;
@@ -33,6 +34,25 @@ exports.groupList = (req, res, next) => {
     });
     return p;
   };
+
+  // 그룹 본인의 썸네일 가져오기
+  function getMyThumbnail (data) {
+    if (data.thumbnail === null) {
+      data.thumbnailUrl = null;
+      return data;
+    } else {
+      connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        if (!err && row.length === 0) {
+          data.thumbnailUrl = null;
+        } else if (!err && row.length > 0) {
+          data.thumbnailUrl = row[0];
+        } else {
+          return err;
+        }
+      });
+    }
+  };
+
 
   // 그룹이 가진 컨텐츠 썸네일 불러오기 -> 지금은 적용 안함
   // function getThumbnail (data) {

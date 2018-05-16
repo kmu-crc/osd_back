@@ -29,11 +29,15 @@ exports.designList = (req, res, next) => {
               getUserName(data);
               getCategory(data);
               if (data.thumbnail === null) {
+                data.thumbnailUrl = null;
                 resolve(data);
               } else {
-                connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, result) => {
-                  if (!err) {
-                    data.thumbnailUrl = result[0];
+                connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+                  if (!err && row.length === 0) {
+                    data.thumbnailUrl = null;
+                    resolve(data);
+                  } else if (!err && row.length > 0) {
+                    data.thumbnailUrl = row[0];
                     resolve(data);
                   } else {
                     reject(err);
