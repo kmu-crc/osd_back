@@ -107,7 +107,7 @@ exports.designDetail = (req, res, next) => {
   // 파생된 디자인 수 가져오기
   function getChildrenCount (data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM design WHERE parents_design = ?", data.uid, (err, result) => {
+      connection.query("SELECT count(*) FROM design WHERE parent_design = ?", data.uid, (err, result) => {
         if (!err) {
           data.children_count = result[0];
           resolve(data);
