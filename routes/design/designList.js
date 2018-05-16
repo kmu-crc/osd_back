@@ -90,7 +90,7 @@ exports.designList = (req, res, next) => {
     }
     connection.query(sqlCate, cate, (err, result) => {
       if (!err) {
-        data.categoryName = result[0];
+        data.categoryName = result[0].name;
       } else {
         return err;
       }

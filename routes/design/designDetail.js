@@ -58,7 +58,7 @@ exports.designDetail = (req, res, next) => {
       }
       connection.query(sql, cate, (err, result) => {
         if (!err) {
-          data.categoryName = result[0];
+          data.categoryName = result[0].name;
           resolve(data);
         } else {
           reject(err);

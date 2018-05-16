@@ -56,9 +56,37 @@ exports.designerDetail = (req, res, next) => {
     return p;
   };
 
+  // 카테고리 이름 가져오기
+  function getCategory (data) {
+    const p = new Promise((resolve, reject) => {
+      let cate;
+      let sql;
+      if (!data.category_level1 && !data.category_level2) {
+        data.categoryName = null;
+        resolve(data);
+      } else if (data.category_level2 && data.category_level2 !== "") {
+        cate = data.category_level2;
+        sql = "SELECT name FROM category_level2 WHERE uid = ?";
+      } else {
+        cate = data.category_level1;
+        sql = "SELECT name FROM category_level1 WHERE uid = ?";
+      }
+      connection.query(sql, cate, (err, result) => {
+        if (!err) {
+          data.categoryName = result[0].name;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
   getDesignerInfo(id)
     .then(getMyThumbnail)
     .then(getDesignerCount)
+    .then(getCategory)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
 };
