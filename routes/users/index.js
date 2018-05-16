@@ -13,12 +13,9 @@ const secession = require("./secession");
 const checkEmail = require("./checkEmail");
 const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
-<<<<<<< HEAD
 const test = require("./test");
 const multipleUpload = require("../../middlewares/multipleUpload");
-=======
 const { myPage, myDesign } = require("./myPage");
->>>>>>> feature/myPage
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
