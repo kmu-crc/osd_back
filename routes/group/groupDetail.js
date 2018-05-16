@@ -6,9 +6,11 @@ exports.groupDetail = (req, res, next) => {
   // 그룹 정보 가져오기 (GET)
   function getGroupInfo (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM opendesign.group WHERE uid = ?", id, (err, result) => {
-        if (!err) {
-          let data = result[0];
+      connection.query("SELECT * FROM opendesign.group WHERE uid = ?", id, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          let data = row[0];
           resolve(data);
         } else {
           reject(err);
@@ -21,15 +23,19 @@ exports.groupDetail = (req, res, next) => {
   // 그룹장 닉네임 가져오기 (GET)
   function getName (data) {
     const p = new Promise((resolve, reject) => {
-      const userId = data.user_id;
-      connection.query("SELECT nick_name FROM user WHERE uid = ?", userId, (err, result) => {
-        if (!err) {
-          data.userName = result[0].nick_name;
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
+      if (data.user_id === null) {
+        data.userName = null;
+        resolve(data);
+      } else {
+        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+          if (!err) {
+            data.userName = result[0].nick_name;
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
     });
     return p;
   };
@@ -37,10 +43,12 @@ exports.groupDetail = (req, res, next) => {
   // 그룹 count 정보 가져오기 (GET)
   function getGroupCount (data) {
     const p = new Promise((resolve, reject) => {
-      const id = data.uid;
-      connection.query("SELECT * FROM group_counter WHERE uid = ?", id, (err, result) => {
-        if (!err) {
-          data.count = result[0];
+      connection.query("SELECT * FROM group_counter WHERE uid = ?", data.uid, (err, row) => {
+        if (!err && row.length === 0) {
+          data.count = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.count = row[0];
           resolve(data);
         } else {
           reject(err);
@@ -50,13 +58,15 @@ exports.groupDetail = (req, res, next) => {
     return p;
   };
 
-  // 그룹 comment 가져오기 (GET)
+  // 그룹 issue 가져오기 (GET)
   function getGroupComment (data) {
     const p = new Promise((resolve, reject) => {
-      const id = data.uid;
-      connection.query("SELECT uid, user_id, comment FROM group_comment WHERE group_id = ?", id, (err, result) => {
-        if (!err) {
-          data.comment = result[0];
+      connection.query("SELECT uid, user_id, title, create_time, update_time FROM group_issue WHERE group_id = ?", data.uid, (err, row) => {
+        if (!err && row.length === 0) {
+          data.issue = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.issue = row[0];
           resolve(data);
         } else {
           reject(err);

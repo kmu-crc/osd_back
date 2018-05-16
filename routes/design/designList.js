@@ -57,6 +57,7 @@ exports.designList = (req, res, next) => {
   // 유저 닉네임 가져오는 함수
   function getUserName (data) {
     if (data.user_id === null) {
+      data.userName = null;
       return data;
     } else {
       connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
@@ -74,6 +75,7 @@ exports.designList = (req, res, next) => {
     let cate;
     let sqlCate;
     if (!data.category_level1 && !data.category_level2) {
+      data.categoryName = null;
       return data;
     } else if (data.category_level2 && data.category_level2 !== "") {
       cate = data.category_level2;

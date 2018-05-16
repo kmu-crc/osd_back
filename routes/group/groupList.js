@@ -14,9 +14,7 @@ exports.groupList = (req, res, next) => {
               let groupData = row[i];
               // getThumbnail(groupData);
               connection.query("SELECT nick_name FROM user WHERE uid = ?", groupData.user_id, (err, result) => {
-                if (!err && result === null) {
-                  resolve(null);
-                } else if (!err && result !== null) {
+                if (!err) {
                   groupData.userName = result[0].nick_name;
                   resolve(groupData);
                 } else {

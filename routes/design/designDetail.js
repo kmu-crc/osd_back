@@ -25,12 +25,11 @@ exports.designDetail = (req, res, next) => {
   function getName (data) {
     const p = new Promise((resolve, reject) => {
       if (data.user_id === null) {
+        data.userName = null;
         resolve(data);
       } else {
         connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
-          if (!err && result === null) {
-            resolve(data);
-          } else if (!err && result !== null) {
+          if (!err) {
             data.userName = result[0].nick_name;
             resolve(data);
           } else {
@@ -48,6 +47,7 @@ exports.designDetail = (req, res, next) => {
       let cate;
       let sql;
       if (!data.category_level1 && !data.category_level2) {
+        data.categoryName = null;
         resolve(data);
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
@@ -73,6 +73,7 @@ exports.designDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design_counter WHERE design_id = ?", data.uid, (err, row) => {
         if (!err && row.length === 0) {
+          data.count = null;
           resolve(data);
         } else if (!err && row.length > 0) {
           data.count = row[0];
@@ -90,6 +91,7 @@ exports.designDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE design_id = ?", data.uid, (err, row) => {
         if (!err && row.length === 0) {
+          data.member = null;
           resolve(data);
         } else if (!err && row.length > 0) {
           data.member = row[0];
