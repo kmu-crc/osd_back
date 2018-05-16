@@ -53,7 +53,6 @@ exports.groupList = (req, res, next) => {
     }
   };
 
-
   // 그룹이 가진 컨텐츠 썸네일 불러오기 -> 지금은 적용 안함
   // function getThumbnail (data) {
   //   let arr = [];
