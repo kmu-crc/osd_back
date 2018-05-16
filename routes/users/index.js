@@ -15,7 +15,7 @@ const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
 const test = require("./test");
 const multipleUpload = require("../../middlewares/multipleUpload");
-const { myPage, myDesign } = require("./myPage");
+const { myPage, myDesign, myGroup } = require("./myPage");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -41,6 +41,7 @@ router.post("/checkFBUser", checkFBUser);
 router.post("/test", multipleUpload, test);
 
 router.get("/myPage", auth, myPage);
-router.get("/myPage/:type?/:sort?", auth, myDesign);
+router.get("/myPage/design/:sort?", auth, myDesign);
+router.get("/myPage/group/:sort?", auth, myGroup);
 
 module.exports = router;
