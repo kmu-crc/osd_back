@@ -9,24 +9,9 @@ exports.designerList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          for (var i = 0, l = row.length; i < l; i++) {
-            arr.push(new Promise((resolve, reject) => {
-              let designerData = row[i];
-              // getThumbnail(designerData);
-              getCategory(designerData);
-              connection.query("SELECT s_img, m_img FROM thumbnail WHERE user_id = ?", designerData.uid, (err, row) => {
-                if (!err && row.length === 0) {
-                  designerData.imgURL = null;
-                  resolve(designerData);
-                } else if (!err && row.length > 0) {
-                  designerData.imgURL = row[0];
-                  resolve(designerData);
-                } else {
-                  reject(err);
-                }
-              });
-            }));
-          }
+          row.map(data => {
+            arr.push(newData(data));
+          });
           Promise.all(arr).then(result => {
             resolve(result);
           });
@@ -36,6 +21,22 @@ exports.designerList = (req, res, next) => {
       });
     });
     return p;
+  };
+
+  function newData (data) {
+    return new Promise((resolve, reject) => {
+      getMyThumbnail(data).then(url => {
+        data.imgURL = url;
+        return data;
+      }).then(
+        getCategory
+      ).then(name => {
+        data.categoryName = name;
+        resolve(data);
+      }).catch(err => {
+        reject(err);
+      });
+    });
   };
 
   // function getThumbnail (data) {
@@ -56,26 +57,42 @@ exports.designerList = (req, res, next) => {
   //   });
   // };
 
-  // 카테고리 이름 가져오는 함수 (이것만 따로 분리함)
+  // 디자이너 본인의 썸네일 가져오는 함수
+  function getMyThumbnail (data) {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT s_img, m_img FROM thumbnail WHERE user_id = ?", data.uid, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve(row[0]);
+        } else {
+          return err;
+        }
+      });
+    });
+  };
+
+  // 카테고리 이름 가져오는 함수
   function getCategory (data) {
-    let cate;
-    let sqlCate;
-    if (!data.category_level1 && !data.category_level2) {
-      data.categoryName = null;
-      return data;
-    } else if (data.category_level2 && data.category_level2 !== "") {
-      cate = data.category_level2;
-      sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
-    } else {
-      cate = data.category_level1;
-      sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
-    }
-    connection.query(sqlCate, cate, (err, result) => {
-      if (!err) {
-        data.categoryName = result[0].name;
+    return new Promise((resolve, reject) => {
+      let cate;
+      let sqlCate;
+      if (!data.category_level1 && !data.category_level2) {
+        resolve(data);
+      } else if (data.category_level2 && data.category_level2 !== "") {
+        cate = data.category_level2;
+        sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
       } else {
-        return err;
+        cate = data.category_level1;
+        sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
       }
+      connection.query(sqlCate, cate, (err, result) => {
+        if (!err) {
+          resolve(result[0].name);
+        } else {
+          reject(err);
+        }
+      });
     });
   };
 
