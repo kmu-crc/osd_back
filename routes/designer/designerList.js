@@ -5,7 +5,7 @@ exports.designerList = (req, res, next) => {
   function getDesignerList () {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, C.total_design, C.total_like, C.total_view FROM user_detail D JOIN user U ON U.uid = D.user_id LEFT JOIN user_counter C ON C.user_id = U.uid WHERE D.is_designer = 1", (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, D.category_level1, D.category_level2, U.thumbnail, C.total_design, C.total_like, C.total_view FROM user_detail D JOIN user U ON U.uid = D.user_id LEFT JOIN user_counter C ON C.user_id = U.uid WHERE D.is_designer = 1", (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -13,6 +13,7 @@ exports.designerList = (req, res, next) => {
             arr.push(new Promise((resolve, reject) => {
               let designerData = row[i];
               getThumbnail(designerData);
+              getCategory(designerData);
               connection.query("SELECT m_img FROM thumbnail WHERE user_id = ?", designerData.uid, (err, result) => {
                 if (!err) {
                   designerData.imgURL = result[0];
@@ -21,14 +22,6 @@ exports.designerList = (req, res, next) => {
                   reject(err);
                 }
               });
-              // connection.query("SELECT total_like, total_design, total_view FROM user_couter WHERE user_id = ?", designerData.uid, (err, result) => {
-              //   if (!err) {
-              //     designerData.count = result[0];
-              //     resolve(designerData);
-              //   } else {
-              //     reject(err);
-              //   }
-              // });
             }));
           }
           Promise.all(arr).then(result => {
@@ -56,6 +49,25 @@ exports.designerList = (req, res, next) => {
         data.designTop3 = arr;
       } else {
         console.log(err);
+      }
+    });
+  };
+
+  function getCategory (data) {
+    let cate;
+    let sqlCate;
+    if (!data.category_level1 && !data.category_level2) {
+      return;
+    } else if (data.category_level2 && data.category_level2 !== "") {
+      cate = data.category_level2;
+      sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
+    } else {
+      cate = data.category_level1;
+      sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
+    }
+    connection.query(sqlCate, cate, (err, result) => {
+      if (!err) {
+        data.categoryName = result[0];
       }
     });
   };
