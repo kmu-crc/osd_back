@@ -13,6 +13,7 @@ const secession = require("./secession");
 const checkEmail = require("./checkEmail");
 const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
+const { myPage } = require("./myPage");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -34,5 +35,7 @@ router.post("/checkEmail", checkEmail);
 router.post("/checkNickName", checkNickName);
 
 router.post("/checkFBUser", checkFBUser);
+
+router.get("/myPage", auth, myPage);
 
 module.exports = router;
