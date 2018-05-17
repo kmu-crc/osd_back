@@ -7,9 +7,10 @@ var { designView } = require("./designView");
 var { designStep, createBoard, designCardDetail } = require("./designStep");
 var { designIssue, designIssueDetail } = require("./designIssue");
 var auth = require("../../middlewares/auth");
+const getDesignList = require("../../middlewares/getDesignList");
 
 // router.use("/designList", auth);
-router.get("/designList", designList);
+router.get("/designList", designList, getDesignList);
 // router.use("/designDetail/:id", auth);
 router.get("/designDetail/:id", designDetail);
 router.get("/designDetail/:id/view", designView);

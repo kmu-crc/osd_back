@@ -15,7 +15,10 @@ const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
 const test = require("./test");
 const multipleUpload = require("../../middlewares/multipleUpload");
-const { myPage, myDesign, myGroup } = require("./myPage");
+const getDesignList = require("../../middlewares/getDesignList");
+const getGroupList = require("../../middlewares/getGroupList");
+const getDesignerList = require("../../middlewares/getDesignerList");
+const { myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner } = require("./myPage");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -41,7 +44,10 @@ router.post("/checkFBUser", checkFBUser);
 router.post("/test", multipleUpload, test);
 
 router.get("/myPage", auth, myPage);
-router.get("/myPage/design/:sort?", auth, myDesign);
-router.get("/myPage/group/:sort?", auth, myGroup);
+router.get("/myPage/design/:sort?", auth, myDesign, getDesignList);
+router.get("/myPage/group/:sort?", auth, myGroup, getGroupList);
+router.get("/myPage/like/design/:sort?", auth, myLikeDesign, getDesignList);
+router.get("/myPage/like/group/:sort?", auth, myLikeGroup, getGroupList);
+router.get("/myPage/like/designer/:sort?", auth, myLikeDesigner, getDesignerList);
 
 module.exports = router;
