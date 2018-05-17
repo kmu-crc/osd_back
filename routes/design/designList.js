@@ -1,6 +1,5 @@
 var connection = require("../../configs/connection");
 
-// 디자인 리스트 가져오기 (GET)
 exports.designList = (req, res, next) => {
   const level = req.query.level;
   const category = (level) ? req.query.category : "";
@@ -15,6 +14,28 @@ exports.designList = (req, res, next) => {
     console.log("this3");
     sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.is_public, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE category_level2 = ?";
   }
+
+  // 디자인 리스트 가져오기 (GET)
+  function getList (sql, category) {
+    return new Promise((resolve, reject) => {
+      let arr = [];
+      connection.query(sql, category, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          row.map(data => {
+            arr.push(newData(data));
+          });
+          Promise.all(arr).then(result => {
+            resolve(result);
+          });
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
 
   function newData (data) {
     return new Promise((resolve, reject) => {
@@ -37,27 +58,6 @@ exports.designList = (req, res, next) => {
     });
   };
 
-  function getList (sql, category) {
-    return new Promise((resolve, reject) => {
-      let arr = [];
-      connection.query(sql, category, (err, row) => {
-        if (!err && row.length === 0) {
-          resolve(null);
-        } else if (!err && row.length > 0) {
-          row.map(data => {
-            arr.push(newData(data));
-          });
-          Promise.all(arr).then(result => {
-            resolve(result);
-          }).catch(console.log("no"));
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
   // 유저 닉네임 가져오는 함수
   function getUserName (data) {
     return new Promise((resolve, reject) => {
@@ -75,7 +75,7 @@ exports.designList = (req, res, next) => {
     });
   };
 
-  // 카테고리 이름 가져오는 함수 (이것만 따로 분리함)
+  // 카테고리 이름 가져오는 함수
   function getCategory (data) {
     return new Promise((resolve, reject) => {
       let cate;
@@ -99,6 +99,7 @@ exports.designList = (req, res, next) => {
     });
   };
 
+  // 디자인 썸네일 가져오는 함수
   function getThumbnail (data) {
     return new Promise((resolve, reject) => {
       if (data.thumbnail === null) {

@@ -9,7 +9,7 @@ exports.groupInGroup = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM group_join_group G JOIN opendesign.group R ON R.uid = G.group_id LEFT JOIN group_counter C ON C.group_id = R.uid WHERE parent_group_id = ?";
+  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM group_join_group G JOIN opendesign.group R ON R.uid = G.group_id LEFT JOIN group_counter C ON C.group_id = R.uid WHERE G.parent_group_id = ?";
   if (sort === "date") {
     sql = sql + "ORDER BY R.create_time DESC";
   } else if (sort === "like") {
@@ -23,21 +23,9 @@ exports.groupInGroup = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          for (var i = 0, l = row.length; i < l; i++) {
-            arr.push(new Promise((resolve, reject) => {
-              let groupData = row[i];
-              // getThumbnail(groupData);
-              getMyThumbnail(groupData);
-              connection.query("SELECT nick_name FROM user WHERE uid = ?", groupData.user_id, (err, result) => {
-                if (!err) {
-                  groupData.userName = result[0].nick_name;
-                  resolve(groupData);
-                } else {
-                  reject(err);
-                }
-              });
-            }));
-          }
+          row.map(data => {
+            arr.push(newData(data));
+          });
           Promise.all(arr).then(result => {
             resolve(result);
           });
@@ -49,41 +37,57 @@ exports.groupInGroup = (req, res, next) => {
     return p;
   };
 
-  // 그룹 본인의 썸네일 가져오기
-  function getMyThumbnail (data) {
-    if (data.thumbnail === null) {
-      data.thumbnailUrl = null;
-      return data;
-    } else {
-      connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
-        if (!err && row.length === 0) {
-          data.thumbnailUrl = null;
-        } else if (!err && row.length > 0) {
-          data.thumbnailUrl = row[0];
-        } else {
-          return err;
-        }
+  function newData (data) {
+    return new Promise((resolve, reject) => {
+      getMyThumbnail(data).then(url => {
+        data.thumbnailUrl = url;
+        return data;
+      }).then(
+        getUserName
+      ).then(name => {
+        data.userName = name;
+        resolve(data);
+      }).catch(err => {
+        reject(err);
       });
-    }
+    });
   };
 
-  // function getThumbnail (data) {
-  //   let arr = [];
-  //   connection.query("SELECT D.uid, T.s_img FROM group_join_design G JOIN design D ON D.uid = G.design_id JOIN thumbnail T ON T.uid = D.thumbnail WHERE parent_group_id = ?", data.uid, (err, row) => {
-  //     if (!err) {
-  //       if (row.length > 3) {
-  //         for (var i = 0; i < 3; i++) {
-  //           arr.push(row[i]);
-  //         }
-  //       } else if (row.length <= 3) {
-  //         arr = row;
-  //       }
-  //       data.designTop3 = row;
-  //     } else {
-  //       console.log(err);
-  //     }
-  //   });
-  // };
+  // 그룹 본인의 썸네일 가져오기
+  function getMyThumbnail (data) {
+    return new Promise((resolve, reject) => {
+      if (data.thumbnail === null) {
+        resolve(null);
+      } else {
+        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+          if (!err && row.length === 0) {
+            resolve(null);
+          } else if (!err && row.length > 0) {
+            resolve(row[0]);
+          } else {
+            return err;
+          }
+        });
+      }
+    });
+  };
+
+  // 유저 닉네임 불러오기
+  function getUserName (data) {
+    return new Promise((resolve, reject) => {
+      if (data.user_id === null) {
+        resolve(null);
+      } else {
+        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+          if (!err) {
+            resolve(result[0].nick_name);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+  };
 
   getGroupList(id)
     .then(result => res.status(200).json(result))

@@ -9,21 +9,9 @@ exports.groupList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          for (var i = 0, l = row.length; i < l; i++) {
-            arr.push(new Promise((resolve, reject) => {
-              let groupData = row[i];
-              // getThumbnail(groupData);
-              getMyThumbnail(groupData);
-              connection.query("SELECT nick_name FROM user WHERE uid = ?", groupData.user_id, (err, result) => {
-                if (!err) {
-                  groupData.userName = result[0].nick_name;
-                  resolve(groupData);
-                } else {
-                  reject(err);
-                }
-              });
-            }));
-          }
+          row.map(data => {
+            arr.push(newData(data));
+          });
           Promise.all(arr).then(result => {
             resolve(result);
           });
@@ -35,22 +23,56 @@ exports.groupList = (req, res, next) => {
     return p;
   };
 
+  function newData (data) {
+    return new Promise((resolve, reject) => {
+      getMyThumbnail(data).then(url => {
+        data.thumbnailUrl = url;
+        return data;
+      }).then(
+        getUserName
+      ).then(name => {
+        data.userName = name;
+        resolve(data);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  };
+
   // 그룹 본인의 썸네일 가져오기
   function getMyThumbnail (data) {
-    if (data.thumbnail === null) {
-      data.thumbnailUrl = null;
-      return data;
-    } else {
-      connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
-        if (!err && row.length === 0) {
-          data.thumbnailUrl = null;
-        } else if (!err && row.length > 0) {
-          data.thumbnailUrl = row[0];
-        } else {
-          return err;
-        }
-      });
-    }
+    return new Promise((resolve, reject) => {
+      if (data.thumbnail === null) {
+        resolve(null);
+      } else {
+        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+          if (!err && row.length === 0) {
+            resolve(null);
+          } else if (!err && row.length > 0) {
+            resolve(row[0]);
+          } else {
+            return err;
+          }
+        });
+      }
+    });
+  };
+
+  // 유저 닉네임 불러오기
+  function getUserName (data) {
+    return new Promise((resolve, reject) => {
+      if (data.user_id === null) {
+        resolve(null);
+      } else {
+        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+          if (!err) {
+            resolve(result[0].nick_name);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
   };
 
   // 그룹이 가진 컨텐츠 썸네일 불러오기 -> 지금은 적용 안함
