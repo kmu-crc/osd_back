@@ -82,218 +82,98 @@ exports.myPage = (req, res, next) => {
 exports.myDesign = (req, res, next) => {
   const id = req.decoded.uid;
   let sort;
-  if (req.params.sorting !== "null" && req.params.sorting !== "undefined") {
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
   } else {
     sort = "date";
   }
 
-  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design_member M JOIN design D ON D.uid = M.design_id LEFT JOIN design_counter C ON C.design_id = D.uid WHERE M.user_id = ?";
+  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design_member M JOIN design D ON D.uid = M.design_id LEFT JOIN design_counter C ON C.design_id = D.uid WHERE M.user_id = " + id;
   if (sort === "date") {
-    sql = sql + "ORDER BY D.create_time DESC";
+    sql = sql + " ORDER BY D.create_time DESC";
   } else if (sort === "like") {
-    sql = sql + "ORDER BY C.like_count DESC";
+    sql = sql + " ORDER BY C.like_count DESC";
   }
-
-  // 디자인 리스트 가져오기 (GET)
-  function getList (sql, id) {
-    return new Promise((resolve, reject) => {
-      let arr = [];
-      connection.query(sql, id, (err, row) => {
-        if (!err && row.length === 0) {
-          resolve(null);
-        } else if (!err && row.length > 0) {
-          row.map(data => {
-            arr.push(newData(data));
-          });
-          Promise.all(arr).then(result => {
-            resolve(result);
-          });
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
-  function newData (data) {
-    return new Promise((resolve, reject) => {
-      getUserName(data).then(name => {
-        data.userName = name;
-        return data;
-      }).then(
-        getCategory
-      ).then(name => {
-        data.categoryName = name;
-        return data;
-      }).then(
-        getThumbnail
-      ).then(url => {
-        data.thumbnailUrl = url;
-        resolve(data);
-      }).catch(err => {
-        reject(err);
-      });
-    });
-  };
-
-  // 유저 닉네임 가져오는 함수
-  function getUserName (data) {
-    return new Promise((resolve, reject) => {
-      if (data.user_id === null) {
-        resolve(null);
-      } else {
-        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
-          if (!err) {
-            resolve(result[0].nick_name);
-          } else {
-            reject(err);
-          }
-        });
-      }
-    });
-  };
-
-  // 카테고리 이름 가져오는 함수
-  function getCategory (data) {
-    return new Promise((resolve, reject) => {
-      let cate;
-      let sqlCate;
-      if (!data.category_level1 && !data.category_level2) {
-        resolve(data);
-      } else if (data.category_level2 && data.category_level2 !== "") {
-        cate = data.category_level2;
-        sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
-      } else {
-        cate = data.category_level1;
-        sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
-      }
-      connection.query(sqlCate, cate, (err, result) => {
-        if (!err) {
-          resolve(result[0].name);
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
-
-  // 디자인 썸네일 가져오는 함수
-  function getThumbnail (data) {
-    return new Promise((resolve, reject) => {
-      if (data.thumbnail === null) {
-        resolve(null);
-      } else {
-        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
-          if (!err && row.length === 0) {
-            resolve(null);
-          } else if (!err && row.length > 0) {
-            resolve(row[0]);
-          } else {
-            reject(err);
-          }
-        });
-      }
-    });
-  }
-
-  getList(sql, id)
-    .then(data => res.status(200).json(data))
-    .catch(err => res.status(500).json(err));
+  req.sql = sql;
+  next();
 };
 
 // 내가 그룹장인 그룹 리스트 가져오기
 exports.myGroup = (req, res, next) => {
   const id = req.decoded.uid;
   let sort;
-  if (req.params.sorting !== "null" && req.params.sorting !== "undefined") {
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
   } else {
     sort = "date";
   }
 
-  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = ?";
+  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
   if (sort === "date") {
-    sql = sql + "ORDER BY D.create_time DESC";
+    sql = sql + " ORDER BY R.create_time DESC";
   } else if (sort === "like") {
-    sql = sql + "ORDER BY C.like_count DESC";
+    sql = sql + " ORDER BY C.like DESC";
+  }
+  req.sql = sql;
+  next();
+};
+
+// 내가 좋아요 누른 디자인 가져오기
+exports.myLikeDesign = (req, res, next) => {
+  const id = req.decoded.uid;
+  let sort;
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
+    sort = req.params.sorting;
+  } else {
+    sort = "date";
   }
 
-  function getGroupList (id) {
-    const p = new Promise((resolve, reject) => {
-      let arr = [];
-      connection.query(sql, id, (err, row) => {
-        if (!err && row.length === 0) {
-          resolve(null);
-        } else if (!err && row.length > 0) {
-          row.map(data => {
-            arr.push(newData(data));
-          });
-          Promise.all(arr).then(result => {
-            resolve(result);
-          });
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
+  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design_like L JOIN design D ON D.uid = L.design_id LEFT JOIN design_counter C ON C.design_id = D.uid WHERE L.user_id = " + id;
+  if (sort === "date") {
+    sql = sql + " ORDER BY D.create_time DESC";
+  } else if (sort === "like") {
+    sql = sql + " ORDER BY C.like_count DESC";
+  }
+  req.sql = sql;
+  next();
+};
 
-  function newData (data) {
-    return new Promise((resolve, reject) => {
-      getMyThumbnail(data).then(url => {
-        data.thumbnailUrl = url;
-        return data;
-      }).then(
-        getUserName
-      ).then(name => {
-        data.userName = name;
-        resolve(data);
-      }).catch(err => {
-        reject(err);
-      });
-    });
-  };
+// 내가 좋아요 누른 그룹 가져오기
+exports.myLikeGroup = (req, res, next) => {
+  const id = req.decoded.uid;
+  let sort;
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
+    sort = req.params.sorting;
+  } else {
+    sort = "date";
+  }
 
-  // 그룹 본인의 썸네일 가져오기
-  function getMyThumbnail (data) {
-    return new Promise((resolve, reject) => {
-      if (data.thumbnail === null) {
-        resolve(null);
-      } else {
-        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
-          if (!err && row.length === 0) {
-            resolve(null);
-          } else if (!err && row.length > 0) {
-            resolve(row[0]);
-          } else {
-            return err;
-          }
-        });
-      }
-    });
-  };
+  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM group_like L LEFT JOIN opendesign.group R ON R.uid = L.group_id LEFT JOIN group_counter C ON C.group_id = R.uid WHERE L.user_id = " + id;
+  if (sort === "date") {
+    sql = sql + " ORDER BY R.create_time DESC";
+  } else if (sort === "like") {
+    sql = sql + " ORDER BY C.like DESC";
+  }
+  req.sql = sql;
+  next();
+};
 
-  // 유저 닉네임 불러오기
-  function getUserName (data) {
-    return new Promise((resolve, reject) => {
-      if (data.user_id === null) {
-        resolve(null);
-      } else {
-        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
-          if (!err) {
-            resolve(result[0].nick_name);
-          } else {
-            reject(err);
-          }
-        });
-      }
-    });
-  };
+// 내가 좋아요 누른 디자이너 가져오기
+exports.myLikeDesigner = (req, res, next) => {
+  const id = req.decoded.uid;
+  let sort;
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
+    sort = req.params.sorting;
+  } else {
+    sort = "date";
+  }
 
-  getGroupList(id)
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+  let sql = "SELECT U.uid, U.nick_name, D.category_level1, D.category_level2, U.thumbnail, U.create_time, U.update_time, C.total_design, C.total_group, C.total_like, C.total_view FROM user_like L JOIN user_detail D ON D.user_id = L.designer_id JOIN user U ON U.uid = D.user_id LEFT JOIN user_counter C ON C.user_id = U.uid WHERE L.user_id = " + id;
+  if (sort === "date") {
+    sql = sql + " ORDER BY U.create_time DESC";
+  } else if (sort === "like") {
+    sql = sql + " ORDER BY C.total_like DESC";
+  }
+  req.sql = sql;
+  next();
 };
