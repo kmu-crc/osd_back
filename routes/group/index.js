@@ -5,6 +5,8 @@ const auth = require("../../middlewares/auth");
 const imageUpload = require("../../middlewares/imageUpload");
 const createThumbnail = require("../../middlewares/createThumbnail");
 const stringToNumber = require("../../middlewares/stringToNumber");
+const getDesignList = require("../../middlewares/getDesignList");
+const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList } = require("./groupList");
 const { groupDetail } = require("./groupDetail");
@@ -13,10 +15,10 @@ const { groupInGroup } = require("./groupInGroup");
 const groupSignUp = require("./groupSignUp");
 const { createGroup } = require("./createGroup");
 
-router.get("/groupList", groupList);
+router.get("/groupList", groupList, getGroupList);
 router.get("/groupDetail/:id", groupDetail);
-router.get("/groupDetail/:id/design/:sorting?", designInGroup);
-router.get("/groupDetail/:id/group/:sorting?", groupInGroup);
+router.get("/groupDetail/:id/design/:sorting?", designInGroup, getDesignList);
+router.get("/groupDetail/:id/group/:sorting?", groupInGroup, getGroupList);
 router.post("/groupSignUp", auth, groupSignUp);
 router.post("/createGroup", auth, createThumbnail, stringToNumber, createGroup);
 

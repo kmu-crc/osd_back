@@ -13,7 +13,10 @@ const secession = require("./secession");
 const checkEmail = require("./checkEmail");
 const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
-const { myPage, myDesign } = require("./myPage");
+const getDesignList = require("../../middlewares/getDesignList");
+const getGroupList = require("../../middlewares/getGroupList");
+const getDesignerList = require("../../middlewares/getDesignerList");
+const { myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner } = require("./myPage");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -37,6 +40,10 @@ router.post("/checkNickName", checkNickName);
 router.post("/checkFBUser", checkFBUser);
 
 router.get("/myPage", auth, myPage);
-router.get("/myPage/:type?/:sort?", auth, myDesign);
+router.get("/myPage/design/:sort?", auth, myDesign, getDesignList);
+router.get("/myPage/group/:sort?", auth, myGroup, getGroupList);
+router.get("/myPage/like/design/:sort?", auth, myLikeDesign, getDesignList);
+router.get("/myPage/like/group/:sort?", auth, myLikeGroup, getGroupList);
+router.get("/myPage/like/designer/:sort?", auth, myLikeDesigner, getDesignerList);
 
 module.exports = router;

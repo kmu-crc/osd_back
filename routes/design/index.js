@@ -6,14 +6,14 @@ const { designDetail } = require("./designDetail");
 const { designView } = require("./designView");
 const { designStep, createBoard, designCardDetail } = require("./designStep");
 const { designIssue, designIssueDetail } = require("./designIssue");
+const auth = require("../../middlewares/auth");
+const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 
-const auth = require("../../middlewares/auth");
-
 // router.use("/designList", auth);
-router.get("/designList", designList);
+router.get("/designList", designList, getDesignList);
 // router.use("/designDetail/:id", auth);
 router.get("/designDetail/:id", designDetail);
 router.get("/designDetail/:id/view", designView);
