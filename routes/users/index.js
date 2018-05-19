@@ -13,8 +13,6 @@ const secession = require("./secession");
 const checkEmail = require("./checkEmail");
 const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
-const test = require("./test");
-const multipleUpload = require("../../middlewares/multipleUpload");
 const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 const getDesignerList = require("../../middlewares/getDesignerList");
@@ -40,8 +38,6 @@ router.post("/checkEmail", checkEmail);
 router.post("/checkNickName", checkNickName);
 
 router.post("/checkFBUser", checkFBUser);
-
-router.post("/test", multipleUpload, test);
 
 router.get("/myPage", auth, myPage);
 router.get("/myPage/design/:sort?", auth, myDesign, getDesignList);
