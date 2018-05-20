@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www.js"
+    "start": "nodemon ./bin/www.js",
+    "dev": "DEVELOP=true nodemon ./bin/www.js"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",

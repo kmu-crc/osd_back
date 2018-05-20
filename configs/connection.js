@@ -2,14 +2,25 @@ var mysql = require("mysql");
 require("dotenv").config();
 
 var db;
+var options;
 
-var options = {
-  host: "localhost",
-  user: process.env.MYSQL_USER_NAME,
-  password: process.env.MYSQL_PASSWARD,
-  port: process.env.MYSQL_PORT,
-  database: process.env.DATABASE_NAME
-};
+if (process.env.DEVELOP) {
+  options = {
+    host: process.env.DEV_MYSQL_HOST,
+    user: process.env.DEV_MYSQL_USER_NAME,
+    password: process.env.DEV_MYSQL_PASSWARD,
+    port: process.env.DEV_MYSQL_PORT,
+    database: process.env.DEV_DATABASE_NAME
+  };
+} else {
+  options = {
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER_NAME,
+    password: process.env.MYSQL_PASSWARD,
+    port: process.env.MYSQL_PORT,
+    database: process.env.DATABASE_NAME
+  };
+}
 
 function connectionDataBase () {
   if (!db) {
