@@ -9,7 +9,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 
 router.get("/designerList", designerList, getDesignerList);
 router.get("/designerDetail/:id", designerDetail);
-router.get("designerDetail/:id/design", designInDesigner, getDesignList);
-router.get("designerDetail/:id/like", likeInDesigner, getDesignList);
+router.get("/designerDetail/:id/design", designInDesigner, getDesignList);
+router.get("/designerDetail/:id/like", likeInDesigner, getDesignList);
 
 module.exports = router;
