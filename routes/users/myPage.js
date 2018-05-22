@@ -44,6 +44,24 @@ exports.myPage = (req, res, next) => {
     return p;
   };
 
+  // 나의 count 정보 가져오기 (GET)
+  function getMyCount (data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id = ?", data.uid, (err, row) => {
+        if (!err && row.length === 0) {
+          data.count = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.count = row[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
   // 카테고리 이름 가져오기
   function getCategory (data) {
     const p = new Promise((resolve, reject) => {
@@ -73,6 +91,7 @@ exports.myPage = (req, res, next) => {
 
   getMyInfo(id)
     .then(getThumbnail)
+    .then(getMyCount)
     .then(getCategory)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
