@@ -80,7 +80,7 @@ const getDesignerList = (req, res, next) => {
       let cate;
       let sqlCate;
       if (!data.category_level1 && !data.category_level2) {
-        resolve(data);
+        resolve(null);
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
         sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
