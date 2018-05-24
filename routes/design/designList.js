@@ -2,8 +2,8 @@
 exports.designList = (req, res, next) => {
   // const page = req.headers["pagenumber"];
   const page = req.params.page;
-  const category1 = req.params.cate1 && req.params.cate1 !== "null" ? req.params.cate1 : null;
-  const category2 = req.params.cate2 && req.params.cate2 !== "null" ? req.params.cate2 : null;
+  const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
+  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
   let sql;
   let sort;
 
@@ -17,9 +17,9 @@ exports.designList = (req, res, next) => {
     console.log("this1");
     sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.is_public, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid";
   } else if (category2) { // 카테고리 2가 설정된 경우 먼저 빼감
+    console.log(category2);
     console.log("this2");
     sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.is_public, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE category_level2 = " + category2;
-    return;
   } else if (category1) { // 카테고리 1이 설정된 경우
     console.log("this3");
     sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.is_public, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE category_level1 = " + category1;
