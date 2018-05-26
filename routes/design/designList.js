@@ -1,6 +1,5 @@
 
 exports.designList = (req, res, next) => {
-  // const page = req.headers["pagenumber"];
   const page = req.params.page;
   const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
   const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
