@@ -1,35 +1,44 @@
 const connection = require("../../configs/connection");
-const { thumbnailModule } = require("../../middlewares/thumbnailModule");
+const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
+const { createBoard } = require("../design/designBoard");
+const { createCard, updateCard } = require("../design/designCard");
+
+const updateDesignFn = (req) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE design SET ? WHERE uid=${req.designId} AND user_id=${req.userId}`, req.data, (err, rows) => {
+      if (!err) {
+        if (rows.affectedRows) {
+          resolve(rows);
+        } else {
+          throw err;
+        }
+      } else {
+        throw err;
+      }
+    });
+  });
+};
+
+exports.updateDesign = (req, res, next) => {
+  console.log("updateDesign");
+};
 
 // 디자인 디테일 정보 가져오기 (GET)
 exports.createDesign = (req, res, next) => {
+  console.log("createDesign", req.files);
+  console.log(typeof req.body.is_project)
   const userId = req.decoded.uid;
   req.body.user_id = userId;
   let designId = null;
-  let boardId = null;
   let cardId = null;
-  let boardObj = {
-    user_id: userId,
-    title: req.body.title,
-    order: 0
-  };
-  let cardObj = {
-    user_id: userId,
-    title: req.body.title,
-    content: req.body.explanation,
-    order: 0
-  };
-  let updateCardObj = {};
 
   const insertDesign = (data) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design SET ?", data, (err, rows) => {
         if (!err) {
           designId = rows.insertId;
-          boardObj.design_id = designId;
-          cardObj.design_id = designId;
-          resolve(rows.insertId);
+          resolve();
         } else {
           reject(err);
         }
@@ -37,71 +46,7 @@ exports.createDesign = (req, res, next) => {
     });
   };
 
-  const updateDesign = (data) => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design SET ? WHERE uid=${designId} AND user_id=${userId}`, data, (err, rows) => {
-        if (!err) {
-          if (rows.affectedRows) {
-            resolve(rows);
-          } else {
-            const err = "작성자 본인이 아닙니다.";
-            reject(err);
-          }
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const createBoard = (data) => {
-    return new Promise((resolve, reject) => {
-      console.log("createBoard", data);
-      connection.query("INSERT INTO design_board SET ?", data, (err, rows) => {
-        if (!err) {
-          console.log(rows);
-          boardId = rows.insertId;
-          cardObj.board_id = boardId;
-          resolve(rows.insertId);
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const createCard = (data) => {
-    return new Promise((resolve, reject) => {
-      console.log("createCard", data);
-      connection.query("INSERT INTO design_card SET ?", data, (err, rows) => {
-        if (!err) {
-          cardId = rows.insertId;
-          resolve(rows.insertId);
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const updateCard = (data) => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_card SET ? WHERE uid=${cardId} AND user_id=${userId}`, data, (err, rows) => {
-        if (!err) {
-          if (rows.affectedRows) {
-            resolve(rows);
-          } else {
-            const err = "작성자 본인이 아닙니다.";
-            reject(err);
-          }
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const respond = (data) => {
+  const respond = () => {
     res.status(200).json({
       success: true,
       design_id: designId,
@@ -110,43 +55,70 @@ exports.createDesign = (req, res, next) => {
   };
 
   const error = (err) => {
-    res.status(500).json({
-      success: false,
-      error: err
-    });
+    next(err);
   };
 
-  insertDesign(req.body).then(
-    () => thumbnailModule({uid: userId, image: req.files.thumbnail[0]})
-  ).then(
-    thumbnailId => updateDesign({thumbnail: thumbnailId})
-  ).then(
-    () => createBoard(boardObj)
-  ).then(
-    () => createCard(cardObj)
-  ).then(
-    () => {
-      if (req.body.is_project === 1) return null;
-      return insertSource({uid: userId, card_id: cardId, tabel: "design_images", files: req.files["design_file[]"]});
-    }
-  ).then(
-    (data) => {
-      if (req.body.is_project === 1) return null;
-      let is_images = 0;
-      if (data !== null) is_images = 1;
-      return updateCard({is_images});
-    }
-  ).then(
-    (data) => {
-      if (req.body.is_project === 1) return null;
-      return insertSource({uid: userId, card_id: cardId, tabel: "design_source_file", files: req.files["source_file[]"]});
-    }
-  ).then(
-    (data) => {
-      if (req.body.is_project === 1) return null;
+  // 1. design 을 생성한다.
+  // 2. 섬네일 이미지를 업로드 후 데이터베이스에 등록한다.
+  // 3. 섬네일 이미지를 데이터베이스에 등록한 후 design 데이터에 thumbnail uid를 업데이트한다.
+  // 4. is_project가 true이면 respond 하고 false이면 createBorad 로직을 실행한다.
+  // 5. createBorad 가 성공적으로 완료되면 CreateCard 로직을 실행한다.
+  // 6. card가 성공적으로 생성되었다면 source파일을 업로드 한다.
+  insertDesign(req.body)
+    .then(() => {
+      return createThumbnails({ uid: userId, image: req.files.thumbnail[0] });
+    })
+    .then((thumbnailId) => {
+      return updateDesignFn({
+        designId,
+        userId,
+        data: {
+          thumbnail: thumbnailId
+        }
+      });
+    })
+    .then(() => {
+      console.log(typeof req.body.is_project)
+      if (req.body.is_project) return;
+      return createBoard({
+        user_id: userId,
+        design_id: designId,
+        order: 0,
+        title: req.body.title
+      });
+    })
+    .then((boardId) => {
+      if (req.body.is_project) return;
+      return createCard({
+        design_id: designId,
+        board_id: boardId,
+        user_id: userId,
+        title: req.body.title,
+        content: req.body.explanation,
+        order: 0
+      });
+    })
+    .then((id) => {
+      cardId = id;
+      if (req.body.is_project) return;
+      insertSource({ uid: userId, card_id: id, tabel: "design_source_file", files: req.files["source_file[]"] });
+    })
+    .then((data) => {
+      if (req.body.is_project) return;
       let is_source = 0;
       if (data !== null) is_source = 1;
-      return updateCard({is_source});
-    }
-  ).then(respond).catch(error);
+      return updateCard({ userId, cardId, data: {is_source} });
+    })
+    .then(() => {
+      if (req.body.is_project) return;
+      insertSource({ uid: userId, card_id: cardId, tabel: "design_images", files: req.files["design_file[]"] });
+    })
+    .then((data) => {
+      if (req.body.is_project) return;
+      let is_images = 0;
+      if (data !== null) is_images = 1;
+      return updateCard({ userId, cardId, data: {is_images} });
+    })
+    .then(respond)
+    .catch(next);
 }

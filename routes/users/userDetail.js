@@ -1,17 +1,17 @@
 const connection = require("../../configs/connection");
+const { createThumbnails } = require("../../middlewares/createThumbnails");
 
 exports.insertDetail = (req, res) => {
-  console.log("insert");
+  console.log("insert", req.file);
   req.body["user_id"] = req.decoded.uid;
   if (req.body.is_designer) {
     req.body.is_designer = 1;
   } else {
     req.body.is_designer = 0;
   }
-  const insertDetailDB = (data) => {
-    console.log("22");
+  const userUpdata = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
+      connection.query(`UPDATE user SET ? WHERE uid = ${req.decoded.uid} `, {thumbnail: id}, (err, rows) => {
         if (!err) {
           console.log("detail: ", rows);
           resolve(rows);
@@ -22,21 +22,13 @@ exports.insertDetail = (req, res) => {
     });
   };
 
-  const updateThumbnail = () => {
-    console.log("11");
+  const insertDetailDB = (data) => {
+    console.log("22", data);
     return new Promise((resolve, reject) => {
-      let thumbnail = null;
-      if (req.thumbnailId) {
-        thumbnail = req.thumbnailId;
-      }
-      connection.query(`UPDATE user SET thumbnail=${thumbnail} WHERE uid=${req.decoded.uid}`, (err, rows) => {
+      connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
         if (!err) {
-          if (rows.affectedRows) {
-            resolve(rows);
-          } else {
-            const err = "thumbnail 업데이트 실패";
-            reject(err);
-          }
+          console.log("detail: ", rows);
+          resolve(rows);
         } else {
           reject(err);
         }
@@ -56,10 +48,11 @@ exports.insertDetail = (req, res) => {
     });
   };
 
-  updateThumbnail()
-  .then(() => insertDetailDB(req.body))
-  .then(respond)
-  .catch(error);
+  createThumbnails({ uid: req.decoded.uid, image: req.file })
+    .then(userUpdata)
+    .then(() => insertDetailDB(req.body))
+    .then(respond)
+    .catch(error);
 };
 
 exports.modifyDetail = (req, res) => {
@@ -80,21 +73,12 @@ exports.modifyDetail = (req, res) => {
     });
   };
 
-  const updateThumbnail = () => {
+  const userUpdata = (id) => {
     return new Promise((resolve, reject) => {
-      console.log("222", req.thumbnailId);
-      let thumbnail = null;
-      if (req.thumbnailId) {
-        thumbnail = req.thumbnailId;
-      }
-      connection.query(`UPDATE user SET thumbnail=${thumbnail} WHERE uid=${req.decoded.uid}`, (err, rows) => {
+      connection.query(`UPDATE user SET ? WHERE uid = ${req.decoded.uid} `, {thumbnail: id}, (err, rows) => {
         if (!err) {
-          if (rows.affectedRows) {
-            resolve(rows);
-          } else {
-            const err = "thumbnail 업데이트 실패";
-            reject(err);
-          }
+          console.log("detail: ", rows);
+          resolve(rows);
         } else {
           reject(err);
         }
@@ -114,8 +98,9 @@ exports.modifyDetail = (req, res) => {
     });
   };
 
-  updateThumbnail()
-  .then(() => updateDetailDB(req.body))
-  .then(respond)
-  .catch(error);
+  createThumbnails({ uid: req.decoded.uid, image: req.file })
+    .then(userUpdata)
+    .then(() => updateDetailDB(req.body))
+    .then(respond)
+    .catch(error);
 };
