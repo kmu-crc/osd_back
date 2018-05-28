@@ -13,7 +13,7 @@ const { groupInGroup } = require("./groupInGroup");
 const groupSignUp = require("./groupSignUp");
 const { createGroup } = require("./createGroup");
 
-router.get("/groupList", groupList, getGroupList);
+router.get("/groupList/:page/:sorting?", groupList, getGroupList);
 router.get("/groupDetail/:id", groupDetail);
 router.get("/groupDetail/:id/design/:sorting?", designInGroup, getDesignList);
 router.get("/groupDetail/:id/group/:sorting?", groupInGroup, getGroupList);

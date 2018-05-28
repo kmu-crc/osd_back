@@ -12,9 +12,7 @@ const { createDesign } = require("./createDesign");
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 
-// router.use("/designList", auth);
-router.get("/designList", designList, getDesignList);
-// router.use("/designDetail/:id", auth);
+router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
 router.get("/designDetail/:id", designDetail);
 router.get("/designDetail/:id/view", designView);
 router.get("/designDetail/:id/step", designStep);
