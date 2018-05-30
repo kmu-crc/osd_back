@@ -18,16 +18,32 @@ exports.designIssue = (req, res, next) => {
               connection.query("SELECT count(*) FROM issue_comment WHERE issue_id = ?", IssueData.uid, (err, result) => {
                 if (!err) {
                   IssueData.commentCount = result[0];
-                  resolve(IssueData);
                 } else {
-                  reject(err);
+                  IssueData.commentCount = null;
+                  console.log(err);
                 }
               });
+              if (IssueData.user_id === null) {
+                IssueData.userName = null;
+                resolve(IssueData);
+              } else {
+                connection.query("SELECT nick_name FROM user WHERE uid = ?", IssueData.user_id, (err, result) => {
+                  if (!err && result.length === 0) {
+                    IssueData.userName = null;
+                    resolve(IssueData);
+                  } else if (!err && result.length > 0) {
+                    IssueData.userName = result[0].nick_name;
+                    resolve(IssueData);
+                  } else {
+                    reject(err);
+                  }
+                });
+              }
             }));
           }
           Promise.all(arr).then(result => {
             resolve(result);
-          }).catch(console.log("no"));
+          }).catch(console.log(err));
         } else {
           reject(err);
         }
@@ -64,12 +80,35 @@ exports.designIssueDetail = (req, res, next) => {
     return p;
   };
 
+  // 등록자 닉네임 가져오기
+  function getName (data) {
+    const p = new Promise((resolve, reject) => {
+      if (data.user_id === null) {
+        data.userName = null;
+        resolve(data);
+      } else {
+        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+          if (!err) {
+            data.userName = result[0].nick_name;
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+    return p;
+  };
+
   // 디자인 이슈 디테일 코멘트 가져오기 (GET)
   function getIssueComment (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
       connection.query("SELECT * FROM issue_comment WHERE issue_id = ?", id, (err, row) => {
-        if (!err && row.length > 0) {
+        if (!err && row.length === 0) {
+          data.comment = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
           data.comment = row[0];
           resolve(data);
         } else {
@@ -81,6 +120,7 @@ exports.designIssueDetail = (req, res, next) => {
   };
 
   getIssueDetail(issueId)
+    .then(getName)
     .then(getIssueComment)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
