@@ -55,8 +55,10 @@ exports.designCardDetail = (req, res, next) => {
   function getCardDetail (id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design_card WHERE uid = ?", cardId, (err, data) => {
-        if (!err) {
-          let cardData = data;
+        if (!err && data.length === 0) {
+          resolve(null);
+        } else if (!err && data.length > 0) {
+          let cardData = data[0];
           resolve(cardData);
         } else {
           reject(err);
@@ -66,13 +68,36 @@ exports.designCardDetail = (req, res, next) => {
     return p;
   };
 
+  // 등록자 닉네임 가져오기
+  function getName (data) {
+    const p = new Promise((resolve, reject) => {
+      if (data.user_id === null) {
+        data.userName = null;
+        resolve(data);
+      } else {
+        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+          if (!err) {
+            data.userName = result[0].nick_name;
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+    return p;
+  };
+
   // 카드 안에 있는 이미지 정보 가져오기
   function getImage (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
       connection.query("SELECT * FROM design_images WHERE card_id = ?", id, (err, row) => {
-        if (!err) {
-          data.imageInfo = row;
+        if (!err && row.length === 0) {
+          data.imageInfo = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.imageInfo = row[0];
           resolve(data);
         } else {
           reject(err);
@@ -87,8 +112,11 @@ exports.designCardDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
       connection.query("SELECT * FROM design_source_file WHERE card_id = ?", id, (err, row) => {
-        if (!err) {
-          data.srcInfo = row;
+        if (!err && row.length === 0) {
+          data.srcInfo = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.srcInfo = row[0];
           resolve(data);
         } else {
           reject(err);
@@ -99,6 +127,7 @@ exports.designCardDetail = (req, res, next) => {
   };
 
   getCardDetail(cardId)
+    .then(getName)
     .then(getImage)
     .then(getSource)
     .then(data => res.status(200).json(data))

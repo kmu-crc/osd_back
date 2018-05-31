@@ -71,7 +71,7 @@ exports.designView = (req, res, next) => {
       if (data === null) {
         resolve(null);
       } else {
-        connection.query("SELECT uid, user_id, comment, create_time FROM card_comment WHERE card_id = ?", data.uid, (err, row) => {
+        connection.query("SELECT C.uid, C.user_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM card_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.card_id = ?", data.uid, (err, row) => {
           if (!err && row.length === 0) {
             data.commentInfo = null;
             resolve(data);

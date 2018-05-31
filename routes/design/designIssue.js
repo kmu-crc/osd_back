@@ -104,12 +104,13 @@ exports.designIssueDetail = (req, res, next) => {
   function getIssueComment (data) {
     const p = new Promise((resolve, reject) => {
       const id = data.uid;
-      connection.query("SELECT * FROM issue_comment WHERE issue_id = ?", id, (err, row) => {
+      connection.query("SELECT C.uid, C.user_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM issue_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.issue_id = ?", id, (err, row) => {
+        console.log(row);
         if (!err && row.length === 0) {
           data.comment = null;
           resolve(data);
         } else if (!err && row.length > 0) {
-          data.comment = row[0];
+          data.comment = row;
           resolve(data);
         } else {
           reject(err);
