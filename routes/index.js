@@ -6,6 +6,7 @@ const group = require("./group");
 const designer = require("./designer");
 const categorys = require("./categorys");
 const admins = require("./admins");
+const search = require("./search");
 
 /* GET home page. */
 router.use("/users", users);
@@ -14,5 +15,6 @@ router.use("/admins", admins);
 router.use("/group", group);
 router.use("/designer", designer);
 router.use("/categorys", categorys);
+router.use("/search", search);
 
 module.exports = router;
