@@ -8,14 +8,14 @@ exports.designStep = (req, res, next) => {
   function getBoardList (id) {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      connection.query("SELECT * FROM design_board WHERE design_id = ?", id, (err, row) => {
+      connection.query("SELECT * FROM design_board WHERE design_id = ? ORDER BY design_board.order ASC", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
           for (var i = 0, l = row.length; i < l; i++) {
             arr.push(new Promise((resolve, reject) => {
               let boardData = row[i];
-              let sql = "SELECT D.uid, D.user_id, U.nick_name, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ?";
+              let sql = "SELECT D.uid, D.user_id, U.nick_name, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ? ORDER BY D.order ASC";
               connection.query(sql, boardData.uid, (err, row) => {
                 if (!err && row.length === 0) {
                   boardData.cardData = null;
