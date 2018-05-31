@@ -3,6 +3,7 @@ const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
 const { createBoard } = require("../design/designBoard");
 const { createCard, updateCard } = require("../design/designCard");
+const { joinMember } = require("../design/joinMember");
 
 const updateDesignFn = (req) => {
   return new Promise((resolve, reject) => {
@@ -27,11 +28,18 @@ exports.updateDesign = (req, res, next) => {
 // 디자인 디테일 정보 가져오기 (GET)
 exports.createDesign = (req, res, next) => {
   console.log("createDesign", req.files);
-  console.log(typeof req.body.is_project)
+  console.log(typeof req.body.is_project);
+  console.log(req.body.members);
+  let members = JSON.parse(req.body.members);
   const userId = req.decoded.uid;
   req.body.user_id = userId;
   let designId = null;
   let cardId = null;
+  if (members.length > 0) {
+    members.push({uid: userId});
+    req.body.is_members = 1;
+  }
+  delete req.body.members;
 
   const insertDesign = (data) => {
     return new Promise((resolve, reject) => {
@@ -76,6 +84,9 @@ exports.createDesign = (req, res, next) => {
           thumbnail: thumbnailId
         }
       });
+    })
+    .then(() => {
+      return joinMember({design_id: designId, members});
     })
     .then(() => {
       console.log(typeof req.body.is_project)
