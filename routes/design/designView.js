@@ -32,7 +32,7 @@ exports.designView = (req, res, next) => {
             data.imageInfo = null;
             resolve(data);
           } else if (!err && row.length > 0) {
-            data.imageInfo = row[0];
+            data.imageInfo = row;
             resolve(data);
           } else {
             reject(err);
@@ -54,7 +54,7 @@ exports.designView = (req, res, next) => {
             data.sourceInfo = null;
             resolve(data);
           } else if (!err && row.length > 0) {
-            data.sourceInfo = row[0];
+            data.sourceInfo = row;
             resolve(data);
           } else {
             reject(err);
