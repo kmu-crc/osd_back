@@ -15,8 +15,8 @@ const { createGroup } = require("./createGroup");
 
 router.get("/groupList/:page/:sorting?", groupList, getGroupList);
 router.get("/groupDetail/:id", groupDetail);
-router.get("/groupDetail/:id/design/:sorting?", designInGroup, getDesignList);
-router.get("/groupDetail/:id/group/:sorting?", groupInGroup, getGroupList);
+router.get("/groupDetail/:id/design/:page/:sorting?", designInGroup, getDesignList);
+router.get("/groupDetail/:id/group/:page/:sorting?", groupInGroup, getGroupList);
 router.post("/groupSignUp", auth, groupSignUp);
 // router.post("/createGroup", auth, createThumbnail, stringToNumber, createGroup);
 
