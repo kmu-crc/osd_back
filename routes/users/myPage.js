@@ -100,6 +100,7 @@ exports.myPage = (req, res, next) => {
 // 내 디자인 리스트 가져오기
 exports.myDesign = (req, res, next) => {
   const id = req.decoded.uid;
+  const page = req.params.page;
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
@@ -109,9 +110,9 @@ exports.myDesign = (req, res, next) => {
 
   let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design_member M JOIN design D ON D.uid = M.design_id LEFT JOIN design_counter C ON C.design_id = D.uid WHERE M.user_id = " + id;
   if (sort === "date") {
-    sql = sql + " ORDER BY D.create_time DESC";
+    sql = sql + " ORDER BY D.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
-    sql = sql + " ORDER BY C.like_count DESC";
+    sql = sql + " ORDER BY C.like_count DESC LIMIT " + (page * 10) + ", 10";
   }
   req.sql = sql;
   next();
@@ -120,6 +121,7 @@ exports.myDesign = (req, res, next) => {
 // 내가 그룹장인 그룹 리스트 가져오기
 exports.myGroup = (req, res, next) => {
   const id = req.decoded.uid;
+  const page = req.params.page;
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
@@ -129,9 +131,9 @@ exports.myGroup = (req, res, next) => {
 
   let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
   if (sort === "date") {
-    sql = sql + " ORDER BY R.create_time DESC";
+    sql = sql + " ORDER BY R.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
-    sql = sql + " ORDER BY C.like DESC";
+    sql = sql + " ORDER BY C.like DESC LIMIT " + (page * 10) + ", 10";
   }
   req.sql = sql;
   next();
@@ -140,6 +142,7 @@ exports.myGroup = (req, res, next) => {
 // 내가 좋아요 누른 디자인 가져오기
 exports.myLikeDesign = (req, res, next) => {
   const id = req.decoded.uid;
+  const page = req.params.page;
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
@@ -149,9 +152,9 @@ exports.myLikeDesign = (req, res, next) => {
 
   let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design_like L JOIN design D ON D.uid = L.design_id LEFT JOIN design_counter C ON C.design_id = D.uid WHERE L.user_id = " + id;
   if (sort === "date") {
-    sql = sql + " ORDER BY D.create_time DESC";
+    sql = sql + " ORDER BY D.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
-    sql = sql + " ORDER BY C.like_count DESC";
+    sql = sql + " ORDER BY C.like_count DESC LIMIT " + (page * 10) + ", 10";
   }
   req.sql = sql;
   next();
@@ -160,6 +163,7 @@ exports.myLikeDesign = (req, res, next) => {
 // 내가 좋아요 누른 그룹 가져오기
 exports.myLikeGroup = (req, res, next) => {
   const id = req.decoded.uid;
+  const page = req.params.page;
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
@@ -169,9 +173,9 @@ exports.myLikeGroup = (req, res, next) => {
 
   let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM group_like L LEFT JOIN opendesign.group R ON R.uid = L.group_id LEFT JOIN group_counter C ON C.group_id = R.uid WHERE L.user_id = " + id;
   if (sort === "date") {
-    sql = sql + " ORDER BY R.create_time DESC";
+    sql = sql + " ORDER BY R.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
-    sql = sql + " ORDER BY C.like DESC";
+    sql = sql + " ORDER BY C.like DESC LIMIT " + (page * 10) + ", 10";
   }
   req.sql = sql;
   next();
@@ -180,6 +184,7 @@ exports.myLikeGroup = (req, res, next) => {
 // 내가 좋아요 누른 디자이너 가져오기
 exports.myLikeDesigner = (req, res, next) => {
   const id = req.decoded.uid;
+  const page = req.params.page;
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
@@ -189,9 +194,9 @@ exports.myLikeDesigner = (req, res, next) => {
 
   let sql = "SELECT U.uid, U.nick_name, D.category_level1, D.category_level2, U.thumbnail, U.create_time, U.update_time, C.total_design, C.total_group, C.total_like, C.total_view FROM user_like L JOIN user_detail D ON D.user_id = L.designer_id JOIN user U ON U.uid = D.user_id LEFT JOIN user_counter C ON C.user_id = U.uid WHERE L.user_id = " + id;
   if (sort === "date") {
-    sql = sql + " ORDER BY U.create_time DESC";
+    sql = sql + " ORDER BY U.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
-    sql = sql + " ORDER BY C.total_like DESC";
+    sql = sql + " ORDER BY C.total_like DESC LIMIT " + (page * 10) + ", 10";
   }
   req.sql = sql;
   next();
