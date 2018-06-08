@@ -27,3 +27,21 @@ exports.S3Sources = (res) => {
     });
   });
 };
+
+exports.S3SourcesDetele = (res) => {
+  console.log("s3", res);
+  return new Promise((resolve, reject) => {
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: `${res.filename}`
+    };
+    s3.deleteObject(params, function (err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(result);
+        resolve(true);
+      }
+    });
+  });
+};
