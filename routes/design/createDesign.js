@@ -1,8 +1,8 @@
 const connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
-const { createBoard } = require("../design/designBoard");
-const { createCard, updateCard } = require("../design/designCard");
+const { createBoardDB } = require("../design/designBoard");
+const { createCardDB, updateCardDB } = require("../design/designCard");
 const { joinMember } = require("../design/joinMember");
 
 const updateDesignFn = (req) => {
@@ -91,7 +91,7 @@ exports.createDesign = (req, res, next) => {
     .then(() => {
       console.log(typeof req.body.is_project)
       if (req.body.is_project) return;
-      return createBoard({
+      return createBoardDB({
         user_id: userId,
         design_id: designId,
         order: 0,
@@ -100,7 +100,7 @@ exports.createDesign = (req, res, next) => {
     })
     .then((boardId) => {
       if (req.body.is_project) return;
-      return createCard({
+      return createCardDB({
         design_id: designId,
         board_id: boardId,
         user_id: userId,
@@ -118,7 +118,7 @@ exports.createDesign = (req, res, next) => {
       if (req.body.is_project) return;
       let is_source = 0;
       if (data !== null) is_source = 1;
-      return updateCard({ userId, cardId, data: {is_source} });
+      return updateCardDB({ userId, cardId, data: {is_source} });
     })
     .then(() => {
       if (req.body.is_project) return;
@@ -128,7 +128,7 @@ exports.createDesign = (req, res, next) => {
       if (req.body.is_project) return;
       let is_images = 0;
       if (data !== null) is_images = 1;
-      return updateCard({ userId, cardId, data: {is_images} });
+      return updateCardDB({ userId, cardId, data: {is_images} });
     })
     .then(respond)
     .catch(next);
