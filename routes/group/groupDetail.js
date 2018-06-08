@@ -66,7 +66,7 @@ exports.groupDetail = (req, res, next) => {
           data.issue = null;
           resolve(data);
         } else if (!err && row.length > 0) {
-          data.issue = row[0];
+          data.issue = row;
           resolve(data);
         } else {
           reject(err);

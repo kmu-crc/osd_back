@@ -94,7 +94,7 @@ exports.designDetail = (req, res, next) => {
           data.member = null;
           resolve(data);
         } else if (!err && row.length > 0) {
-          data.member = row[0];
+          data.member = row;
           resolve(data);
         } else {
           reject(err);
