@@ -39,9 +39,9 @@ router.post("/checkNickName", checkNickName);
 router.post("/checkFBUser", checkFBUser);
 
 router.get("/myPage", auth, myPage);
-router.get("/myPage/design", auth, myDesign, getDesignList);
-router.get("/myPage/group", auth, myGroup, getGroupList);
-router.get("/myPage/likeDesign", auth, myLikeDesign, getDesignList);
-router.get("/myPage/likeDesigner", auth, myLikeDesigner, getDesignerList);
+router.get("/myPage/design/:page", auth, myDesign, getDesignList);
+router.get("/myPage/group/:page", auth, myGroup, getGroupList);
+router.get("/myPage/likeDesign/:page", auth, myLikeDesign, getDesignList);
+router.get("/myPage/likeDesigner/:page", auth, myLikeDesigner, getDesignerList);
 
 module.exports = router;
