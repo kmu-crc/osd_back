@@ -9,7 +9,7 @@ exports.designerList = (req, res, next) => {
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
   } else {
-    sort = "date";
+    sort = "update";
   }
 
   if (!category1 && !category2) { // 카테고리 파라미터가 없는 경우
@@ -23,7 +23,9 @@ exports.designerList = (req, res, next) => {
     sql = "SELECT U.uid, U.nick_name, D.category_level1, D.category_level2, U.thumbnail, U.create_time, U.update_time, C.total_design, C.total_group, C.total_like, C.total_view FROM user_detail D JOIN user U ON U.uid = D.user_id LEFT JOIN user_counter C ON C.user_id = U.uid WHERE D.is_designer = 1 AND D.category_level1 = " + category1;
   }
 
-  if (sort === "date") {
+  if (sort === "update") {
+    sql = sql + " ORDER BY U.update_time DESC LIMIT " + (page * 10) + ", 10";
+  } else if (sort === "create") {
     sql = sql + " ORDER BY U.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.total_like DESC LIMIT " + (page * 10) + ", 10";
