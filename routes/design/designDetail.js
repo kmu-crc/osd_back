@@ -149,6 +149,24 @@ exports.designDetail = (req, res, next) => {
     return p;
   };
 
+  // 가장 최근 업데이트된 이슈 제목 가져오기
+  function getIssueTitle (data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT title FROM design_issue WHERE design_id = ${data.uid} ORDER BY update_time DESC`, (err, result) => {
+        if (!err && result.length === 0) {
+          data.issueTitle = null;
+          resolve(data);
+        } else if (!err && result.length > 0) {
+          data.issueTitle = result[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
@@ -156,6 +174,7 @@ exports.designDetail = (req, res, next) => {
     .then(getMemberList)
     .then(getChildrenCount)
     .then(isTeam)
+    .then(getIssueTitle)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };
