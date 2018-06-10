@@ -20,7 +20,6 @@ exports.designIssue = (req, res, next) => {
                   IssueData.commentCount = result[0];
                 } else {
                   IssueData.commentCount = null;
-                  console.log(err);
                 }
               });
               if (IssueData.user_id === null) {
