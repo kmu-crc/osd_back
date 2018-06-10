@@ -7,6 +7,7 @@ const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
 const { designIssue, designIssueDetail } = require("./designIssue");
 const auth = require("../../middlewares/auth");
+const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
 const uploadDesign = require("../../middlewares/uploadDesign");
@@ -15,7 +16,7 @@ const { createBoard, getBoardList } = require("./designBoard");
 const { createCard, getCardList, updateCard, updateTitle, updateContent, getCardDetail, updateImages, updateSources } = require("./designCard");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
-router.get("/designDetail/:id", designDetail);
+router.get("/designDetail/:id", tokenDecoded, designDetail);
 router.get("/designDetail/:id/view", designView);
 router.get("/designDetail/:id/step", designStep);
 router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
