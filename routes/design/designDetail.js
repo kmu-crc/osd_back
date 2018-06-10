@@ -152,12 +152,12 @@ exports.designDetail = (req, res, next) => {
   // 가장 최근 업데이트된 이슈 제목 가져오기
   function getIssueTitle (data) {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT title FROM design_issue WHERE design_id = ${data.uid} ORDER BY update_time DESC`, (err, result) => {
+      connection.query(`SELECT uid, title, update_time FROM design_issue WHERE design_id = ${data.uid} ORDER BY update_time DESC`, (err, result) => {
         if (!err && result.length === 0) {
-          data.issueTitle = null;
+          data.mainIssue = null;
           resolve(data);
         } else if (!err && result.length > 0) {
-          data.issueTitle = result[0];
+          data.mainIssue = result[0];
           resolve(data);
         } else {
           reject(err);
