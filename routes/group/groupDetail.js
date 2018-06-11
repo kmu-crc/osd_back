@@ -76,10 +76,34 @@ exports.groupDetail = (req, res, next) => {
     return p;
   };
 
+  // 그룹 썸네일 가져오기 (GET)
+  function getThumnbail (data) {
+    const p = new Promise((resolve, reject) => {
+      if (data.thumbnail === null) {
+        data.img = null;
+        resolve(data);
+      } else {
+        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+          if (!err && row.length === 0) {
+            data.img = null;
+            resolve(data);
+          } else if (!err && row.length > 0) {
+            data.img = row[0];
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+    return p;
+  };
+
   getGroupInfo(id)
     .then(getName)
     .then(getGroupCount)
     .then(getGroupComment)
+    .then(getThumnbail)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
 };
