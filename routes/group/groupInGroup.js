@@ -6,7 +6,7 @@ exports.groupInGroup = (req, res, next) => {
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
   } else {
-    sort = "date";
+    sort = "update";
   }
 
   let sql = `SELECT 
@@ -15,7 +15,9 @@ exports.groupInGroup = (req, res, next) => {
               JOIN opendesign.group R ON R.uid = G.group_id 
               LEFT JOIN group_counter C ON C.group_id = R.uid 
             WHERE G.parent_group_id = ${id} AND G.is_join = 1`;
-  if (sort === "date") {
+  if (sort === "update") {
+    sql = sql + " ORDER BY R.child_update_time DESC LIMIT " + (page * 10) + ", 10";
+  } else if (sort === "create") {
     sql = sql + " ORDER BY R.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.like DESC LIMIT " + (page * 10) + ", 10";
