@@ -10,7 +10,7 @@ exports.groupInGroup = (req, res, next) => {
   }
 
   let sql = `SELECT 
-            R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group 
+            R.uid, R.title, R.thumbnail, R.create_time, R.child_update_time, R.user_id, C.like, C.design, C.group 
             FROM group_join_group G 
               JOIN opendesign.group R ON R.uid = G.group_id 
               LEFT JOIN group_counter C ON C.group_id = R.uid 

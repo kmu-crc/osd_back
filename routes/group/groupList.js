@@ -9,7 +9,7 @@ exports.groupList = (req, res, next) => {
   }
 
   let sql = `SELECT 
-            G.uid, G.title, G.thumbnail, G.create_time, G.update_time, G.user_id, G.explanation, C.like, C.design, C.group 
+            G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group 
             FROM opendesign.group G 
               LEFT JOIN group_counter C ON C.group_id = G.uid`;
   if (sort === "update") {
