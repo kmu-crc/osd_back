@@ -3,6 +3,12 @@ var connection = require("../../configs/connection");
 // 디자인 디테일 정보 가져오기 (GET)
 exports.designDetail = (req, res, next) => {
   const designId = req.params.id;
+  let loginId;
+  if (req.decoded !== null) {
+    loginId = req.decoded.uid;
+  } else {
+    loginId = null;
+  }
 
   // 디자인 기본 정보 가져오기
   function getDesignInfo (id) {
@@ -110,6 +116,7 @@ exports.designDetail = (req, res, next) => {
       connection.query("SELECT count(*) FROM design WHERE parent_design = ?", data.uid, (err, result) => {
         if (!err) {
           data.children_count = result[0];
+          console.log(data);
           resolve(data);
         } else {
           reject(err);
@@ -119,12 +126,55 @@ exports.designDetail = (req, res, next) => {
     return p;
   };
 
+  // 내가 디자인 멤버인지 검증하기
+  function isTeam (data) {
+    const p = new Promise((resolve, reject) => {
+      if (loginId === null) {
+        data.is_team = 0;
+        resolve(data);
+      } else {
+        connection.query(`SELECT * FROM design_member WHERE design_id = ${data.uid} AND user_id = ${loginId}`, (err, result) => {
+          if (!err && result.length === 0) {
+            data.is_team = 0;
+            resolve(data);
+          } else if (!err && result.length > 0) {
+            data.is_team = 1;
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+    return p;
+  };
+
+  // 가장 최근 업데이트된 이슈 제목 가져오기
+  function getIssueTitle (data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT uid, title, update_time FROM design_issue WHERE design_id = ${data.uid} ORDER BY update_time DESC`, (err, result) => {
+        if (!err && result.length === 0) {
+          data.mainIssue = null;
+          resolve(data);
+        } else if (!err && result.length > 0) {
+          data.mainIssue = result[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
     .then(getCount)
     .then(getMemberList)
     .then(getChildrenCount)
+    .then(isTeam)
+    .then(getIssueTitle)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };
