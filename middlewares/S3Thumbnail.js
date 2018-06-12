@@ -25,7 +25,7 @@ exports.S3Thumbnail = (res) => {
             res[key] = result.Location;
             // local에 있는 thumbnail 파일을 s3에 업로드 성공하면 삭제한다.
             fs.unlink(`thumbnails/${originFileName}`, (err) => {
-              if (err) throw err;
+              if (err) reject(err);
             });
             resolve(result);
           }
