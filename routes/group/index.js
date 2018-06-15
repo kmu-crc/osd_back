@@ -38,6 +38,6 @@ router.delete("/groupDetail/:id/deleteDesign/:designId", deleteDesign);
 router.delete("/groupDetail/:id/deleteGroup/:groupId", deleteGroup);
 
 router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
-router.post("/:id/updateGroup", updateGroup);
+router.post("/:id/updateGroup", auth, insertThumbnail, stringToNumber, updateGroup);
 
 module.exports = router;
