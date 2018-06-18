@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const connection = require("../configs/connection");
 
 const tokenDecoded = (req, res, next) => {
   // read the token from header or url
@@ -17,7 +18,22 @@ const tokenDecoded = (req, res, next) => {
         resolve(decoded);
       });
     }
-  )
+  );
+
+  const getThumbnail = decoded => {
+    return new Promise(
+      (resolve, reject) => {
+        connection.query(`SELECT * FROM thumbnail WHERE user_id=${decoded.uid}`, (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            decoded.thumbnail = rows[0];
+            resolve(decoded);
+          }
+        });
+      }
+    );
+  };
 
   // if it has failed to verify, it will return an error message
   const onError = (error) => {
@@ -28,10 +44,11 @@ const tokenDecoded = (req, res, next) => {
   };
 
   // process the promise
-  p.then((decoded) => {
-    req.decoded = decoded;
-    next();
-  }).catch(onError);
-}
+  p.then(getThumbnail)
+    .then((decoded) => {
+      req.decoded = decoded;
+      next();
+    }).catch(onError);
+};
 
 module.exports = tokenDecoded;
