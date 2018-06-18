@@ -3,12 +3,15 @@ var connection = require("../../configs/connection");
 exports.deleteAllGroup = (req, res, next) => {
   const id = req.params.id;
 
-  // 그룹 테이블에서 삭제
-  const deleteGroup = (id) => {
+  // 썸네일 id 가져오기
+  const getThumbnail = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM opendesign.group WHERE group_id = ${id}`, (err, row) => {
-        if (!err) {
-          resolve(row);
+      connection.query(`SELECT thumbnail FROM opendesign.group WHERE uid = ${id}`, (err, row) => {
+        if (!err && row.length > 0) {
+          const thumbId = row[0].thumbnail;
+          resolve(thumbId);
+        } else if (row.length === 0) {
+          resolve(null);
         } else {
           console.log(err);
           reject(err);
@@ -17,15 +20,38 @@ exports.deleteAllGroup = (req, res, next) => {
     });
   };
 
-  // 그룹 카운트 테이블에서 삭제
-
-  // 그룹 join 그룹 테이블에서 삭제
-
   // 썸네일 테이블에서 삭제
+  const deleteThumbnail = (thumbId) => {
+    return new Promise((resolve, reject) => {
+      if (!thumbId) {
+        resolve(null);
+      } else {
+        connection.query(`DELETE FROM thumbnail WHERE uid = ${thumbId}`, (err, row) => {
+          if (!err) {
+            resolve(row);
+          } else {
+            console.log(err);
+            reject(err);
+          }
+        });
+      }
+    });
+  };
 
-  // 그룹 이슈 삭제
-
-  // 그룹 좋아요 테이블에서 삭제
+  // 그룹 테이블에서 삭제
+  const deleteGroup = (id) => {
+    console.log("deleteGroup");
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM opendesign.group WHERE uid = ${id}`, (err, row) => {
+        if (!err) {
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
 
   const success = () => {
     res.status(200).json({
@@ -39,7 +65,9 @@ exports.deleteAllGroup = (req, res, next) => {
     });
   };
 
-  deleteGroup(id)
+  getThumbnail(id)
+    .then(deleteThumbnail)
+    .then(() => deleteGroup(id))
     .then(success)
     .catch(fail);
 };
