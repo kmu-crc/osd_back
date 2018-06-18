@@ -13,6 +13,7 @@ const { groupInGroup } = require("./groupInGroup");
 
 const { groupSignUp, groupSignUpGroup } = require("./groupSignUp");
 const { createGroup } = require("./createGroup");
+const { updateGroup } = require("./updateGroup");
 const { waitingDesign, waitingGroup } = require("./waitingList");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const { myDesignList, myGroupList } = require("./getMyList");
@@ -31,10 +32,12 @@ router.post("/groupDetail/:id/DesignJoinGroup", auth, groupSignUp);
 router.post("/groupDetail/:id/GroupJoinGroup", auth, groupSignUpGroup);
 router.get("/groupDetail/:id/waitingDesign/:sorting?", waitingDesign, getDesignList);
 router.get("/groupDetail/:id/waitingGroup/:sorting?", waitingGroup, getGroupList);
-router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
 router.post("/groupDetail/:id/acceptDesign/:designId", acceptDesign);
 router.post("/groupDetail/:id/acceptGroup/:groupId", acceptGroup);
 router.delete("/groupDetail/:id/deleteDesign/:designId", deleteDesign);
 router.delete("/groupDetail/:id/deleteGroup/:groupId", deleteGroup);
+
+router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
+router.post("/:id/updateGroup", updateGroup);
 
 module.exports = router;
