@@ -7,6 +7,21 @@ exports.createGroup = (req, res, next) => {
   req.body["user_id"] = req.decoded.uid;
   let groupId = null;
 
+  const insertDetailDB = (data) => {
+    console.log("22", data);
+    return new Promise((resolve, reject) => {
+      connection.query("INSERT INTO opendesign.group SET ?", data, (err, rows) => {
+        if (!err) {
+          console.log("detail: ", rows);
+          groupId = rows.insertId;
+          resolve(rows);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
   const groupUpdata = (id) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId} `, {thumbnail: id}, (err, rows) => {
@@ -20,14 +35,12 @@ exports.createGroup = (req, res, next) => {
     });
   };
 
-  const insertDetailDB = (data) => {
-    console.log("22", data);
+  const insertGroupCount = (data) => {
     return new Promise((resolve, reject) => {
-      connection.query("INSERT INTO opendesign.group SET ?", data, (err, rows) => {
+      const newCount = { group_id: groupId, like: 0, design: 0, group: 0 };
+      connection.query("INSERT INTO group_counter SET ? ", newCount, (err, row) => {
         if (!err) {
-          console.log("detail: ", rows);
-          groupId = rows.insertId;
-          resolve(rows);
+          resolve(groupId);
         } else {
           reject(err);
         }
@@ -47,6 +60,7 @@ exports.createGroup = (req, res, next) => {
   insertDetailDB(req.body)
     .then(() => createThumbnails({ uid: req.decoded.uid, image: req.file }))
     .then(groupUpdata)
+    .then(insertGroupCount)
     .then(respond)
     .catch(next);
 };
