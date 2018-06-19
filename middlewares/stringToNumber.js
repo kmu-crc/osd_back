@@ -2,6 +2,7 @@ const stringToNumber = (req, res, next) => {
   const StoN = () => {
     return new Promise((resolve, reject) => {
       let arr = [];
+      console.log(req.body);
       for (let key in req.body) {
         arr.push(new Promise((resolve, reject) => {
           if (!isNaN(parseInt(req.body[key]))) {
