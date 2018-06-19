@@ -4,6 +4,7 @@ const { createThumbnails } = require("../../middlewares/createThumbnails");
 exports.updateGroup = (req, res, next) => {
   console.log(req.body);
   console.log(req.file);
+  req.body["update_time"] = new Date();
   const groupId = req.params.id;
 
   const updateGroup = (data) => {
