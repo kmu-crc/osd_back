@@ -79,6 +79,27 @@ exports.updateIssue = (req, res, next) => {
     .then(updateDesign);
 };
 
+// 이슈 status 수정
+exports.updateIssueStatus = (req, res, next) => {
+  const designId = req.params.id;
+  const issueId = req.params.issue_id;
+
+  const updateIssueStatus = (data) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE design_issue SET is_complete = ? WHERE uid = ${issueId}`, data.status, (err, rows) => {
+        if (!err) {
+          res.status(200).json({success: true, id: issueId, design_id: designId});
+        } else {
+          console.log(err);
+          res.status(500).json({success: false, id: issueId, design_id: designId});
+        }
+      });
+    });
+  };
+
+  updateIssueStatus(req.body);
+};
+
 // 이슈 삭제
 exports.deleteIssue = (req, res, next) => {
   const designId = req.params.id;

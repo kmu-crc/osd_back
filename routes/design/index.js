@@ -6,7 +6,7 @@ const { designDetail } = require("./designDetail");
 const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
 const { designIssue, designIssueDetail } = require("./designIssue");
-const { createIssue, updateIssue, deleteIssue } = require("./createIssue");
+const { createIssue, updateIssue, updateIssueStatus, deleteIssue } = require("./createIssue");
 const auth = require("../../middlewares/auth");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
@@ -39,6 +39,7 @@ router.get("/designDetail/:id/issue", designIssue);
 router.get("/designDetail/:id/issueDetail/:issue_id", designIssueDetail);
 router.post("/designDetail/:id/createIssue", auth, createIssue);
 router.post("/designDetail/:id/updateIssue/:issue_id", auth, updateIssue);
+router.post("/designDetail/:id/updateIssueStatus/:issue_id", auth, updateIssueStatus);
 router.delete("/designDetail/:id/deleteIssue/:issue_id", auth, deleteIssue);
 
 module.exports = router;
