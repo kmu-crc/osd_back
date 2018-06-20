@@ -3,6 +3,7 @@ var connection = require("../../configs/connection");
 // 내 기본 정보 가져오기
 exports.myPage = (req, res, next) => {
   const id = req.decoded.uid;
+
   // 마이페이지 내 기본 정보 가져오기 (GET)
   function getMyInfo (id) {
     const p = new Promise((resolve, reject) => {
@@ -34,6 +35,7 @@ exports.myPage = (req, res, next) => {
             resolve(data);
           } else if (!err && row.length > 0) {
             data.profileImg = row[0];
+            resolve(data);
           } else {
             console.log(err);
             reject(err);
@@ -69,6 +71,7 @@ exports.myPage = (req, res, next) => {
       let sql;
       if (!data.category_level1 && !data.category_level2) {
         data.categoryName = null;
+        console.log("no cate");
         resolve(data);
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
@@ -80,6 +83,7 @@ exports.myPage = (req, res, next) => {
       connection.query(sql, cate, (err, result) => {
         if (!err) {
           data.categoryName = result[0].name;
+          console.log(data);
           resolve(data);
         } else {
           reject(err);

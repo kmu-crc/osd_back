@@ -5,6 +5,7 @@ const { S3Thumbnail } = require("../middlewares/S3Thumbnail");
 
 exports.createThumbnails = (data) => {
   console.log("createThumbnails");
+  console.log(data);
   return new Promise((resolve, reject) => {
     if (!data.image) resolve(null);
     let filename = data.image.filename; // thumbnail 이미지를 만들어야 하는 filename
