@@ -95,7 +95,7 @@ exports.updateBoard = (req, res, next) => {
 
   const update = (obj) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_board SET ? WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
+      connection.query(`UPDATE design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
