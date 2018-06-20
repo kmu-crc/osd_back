@@ -88,3 +88,34 @@ exports.getBoardList = (req, res, next) => {
     .then(respond)
     .catch(next);
 };
+
+// update
+exports.updateBoard = (req, res, next) => {
+  const board_id = req.params.board_id;
+
+  const update = (obj) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE design_board SET ? WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const respond = (data) => {
+    console.log(data);
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 등록되었습니다.",
+      list: data
+    });
+  };
+
+  update({board_id, data: req.body})
+    .then(respond)
+    .catch(next);
+};

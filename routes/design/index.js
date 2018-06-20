@@ -13,7 +13,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
-const { createBoard, getBoardList } = require("./designBoard");
+const { createBoard, getBoardList, updateBoard } = require("./designBoard");
 const { createCard, getCardList, updateCard, updateTitle, updateContent, getCardDetail, updateImages, updateSources } = require("./designCard");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
@@ -30,6 +30,7 @@ router.post("/createDesign", auth, uploadDesign, stringToNumber, createDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/:id/:boardId/createCard", auth, stringToNumber, createCard);
 router.post("/designDetail/:id/:boardId/updateCard/:cardId", auth, uploadDesign, stringToNumber, updateCard);
+router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
 router.post("/designDetail/updateCardTitle/:cardId", auth, stringToNumber, updateTitle);
 router.post("/designDetail/updateCardContent/:cardId", auth, stringToNumber, updateContent);
 router.post("/designDetail/updateCardImages/:cardId", auth, uploadDesign, stringToNumber, updateImages);
