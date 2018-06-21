@@ -7,7 +7,7 @@ exports.myPage = (req, res, next) => {
   // 마이페이지 내 기본 정보 가져오기 (GET)
   function getMyInfo (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U LEFT JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {

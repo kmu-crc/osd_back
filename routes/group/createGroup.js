@@ -42,6 +42,20 @@ exports.createGroup = (req, res, next) => {
         if (!err) {
           resolve(groupId);
         } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateUserCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE user_counter SET total_group = total_group + 1 WHERE user_id = ${req.decoded.uid}`, (err, row) => {
+        if (!err) {
+          resolve(groupId);
+        } else {
+          console.log(err);
           reject(err);
         }
       });
@@ -61,6 +75,7 @@ exports.createGroup = (req, res, next) => {
     .then(() => createThumbnails({ uid: req.decoded.uid, image: req.file }))
     .then(groupUpdata)
     .then(insertGroupCount)
+    .then(updateUserCount)
     .then(respond)
     .catch(next);
 };
