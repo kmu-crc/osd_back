@@ -19,6 +19,7 @@ const { waitingDesign, waitingGroup } = require("./waitingList");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const { myDesignList, myGroupList } = require("./getMyList");
 const { acceptDesign, acceptGroup, deleteDesign, deleteGroup } = require("./manageGroup");
+const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 
 router.get("/groupList/:page/:sorting?", groupList, getGroupList);
 router.get("/groupDetail/:id", groupDetail);
@@ -41,5 +42,9 @@ router.delete("/groupDetail/:id/deleteGroup/:groupId", deleteGroup);
 router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
 router.post("/:id/updateGroup", auth, insertThumbnail, stringToNumber, updateGroup);
 router.delete("/:id/deleteGroup", auth, deleteAllGroup);
+
+router.get("/getLike/:id", auth, getLikeGroup);
+router.post("/like/:id", auth, likeGroup);
+router.post("/unlike/:id", auth, unlikeGroup);
 
 module.exports = router;
