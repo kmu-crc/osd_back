@@ -119,3 +119,34 @@ exports.updateBoard = (req, res, next) => {
     .then(respond)
     .catch(next);
 };
+
+// update
+exports.deleteBoard = (req, res, next) => {
+  const board_id = req.params.board_id;
+
+  const deleteBoardDB = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM design_board WHERE uid = ${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const respond = (data) => {
+    console.log(data);
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 등록되었습니다.",
+      list: data
+    });
+  };
+
+  deleteBoardDB(board_id)
+    .then(respond)
+    .catch(next);
+};
