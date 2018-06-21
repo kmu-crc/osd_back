@@ -5,6 +5,7 @@ const { createBoardDB } = require("../design/designBoard");
 const { createCardDB, updateCardDB } = require("../design/designCard");
 const { joinMember } = require("../design/joinMember");
 
+// 디자인 생성
 const updateDesignFn = (req) => {
   return new Promise((resolve, reject) => {
     connection.query(`UPDATE design SET ? WHERE uid=${req.designId} AND user_id=${req.userId}`, req.data, (err, rows) => {
@@ -25,7 +26,7 @@ exports.updateDesign = (req, res, next) => {
   console.log("updateDesign");
 };
 
-// 디자인 디테일 정보 가져오기 (GET)
+// 디자인 디테일 정보 등록
 exports.createDesign = (req, res, next) => {
   console.log("createDesign", req.files);
   console.log(typeof req.body.is_project);
@@ -35,10 +36,12 @@ exports.createDesign = (req, res, next) => {
   req.body.user_id = userId;
   let designId = null;
   let cardId = null;
-  if (members.length > 0) {
-    members.push({uid: userId});
-    req.body.is_members = 1;
-  }
+  // if (members.length > 0) {
+  //   members.push({uid: userId});
+  //   req.body.is_members = 1;
+  // }
+  members.push({uid: userId});
+  req.body.is_members = 1;
   delete req.body.members;
 
   const insertDesign = (data) => {
@@ -48,6 +51,53 @@ exports.createDesign = (req, res, next) => {
           designId = rows.insertId;
           resolve();
         } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  // 디자인 count 정보 등록
+  const insertDesignCount = (data) => {
+    console.log(data);
+    return new Promise((resolve, reject) => {
+      const newCount = { design_id: designId, like_count: 0, view_count: 0 };
+      connection.query("INSERT INTO design_counter SET ? ", newCount, (err, row) => {
+        if (!err) {
+          resolve(designId);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  // 디자인 count에 카드수, 멤버수 업데이트
+  const updateDesignCount = () => {
+    return new Promise((resolve, reject) => {
+      const newCount = { card_count: req.body.is_project ? 0 : 1, member_count: members.length };
+      connection.query(`UPDATE design_counter SET ? WHERE design_id = ${designId}`, newCount, (err, row) => {
+        if (!err) {
+          console.log(row);
+          resolve(designId);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  // 디자인 생성한 유저 count 정보 업데이트
+  const updateUserCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE user_counter SET total_design = total_design + 1 WHERE user_id = ${userId}`, (err, row) => {
+        if (!err) {
+          console.log(row);
+          resolve(designId);
+        } else {
+          console.log(err);
           reject(err);
         }
       });
@@ -130,6 +180,9 @@ exports.createDesign = (req, res, next) => {
       if (data !== null) is_images = 1;
       return updateCardDB({ userId, cardId, data: {is_images} });
     })
+    .then(insertDesignCount)
+    .then(updateDesignCount)
+    .then(updateUserCount)
     .then(respond)
     .catch(next);
 }
