@@ -77,7 +77,7 @@ exports.insertDetail = (req, res) => {
 exports.modifyDetail = (req, res) => {
   const userId = req.decoded.uid;
   const userInfo = {
-    password: req.body.password.toString(),
+    password: req.body.password,
     nick_name: req.body.nick_name,
     update_time: new Date()
   }; // user 테이블에 들어가야 할 정보
@@ -108,7 +108,8 @@ exports.modifyDetail = (req, res) => {
   };
 
   function createHashPw (userInfo) {
-    console.log(userInfo);
+    console.log(userInfo.password);
+    console.log(typeof userInfo.password);
     const p = new Promise((resolve, reject) => {
       bcrypt.hash(userInfo.password, 10, function (err, hash) {
         if (!err) {
