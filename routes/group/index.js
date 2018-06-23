@@ -7,7 +7,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList } = require("./groupList");
-const { groupDetail } = require("./groupDetail");
+const { groupDetail, getCount } = require("./groupDetail");
 const { designInGroup } = require("./designInGroup");
 const { groupInGroup } = require("./groupInGroup");
 
@@ -46,5 +46,7 @@ router.delete("/:id/deleteGroup", auth, deleteAllGroup);
 router.get("/getLike/:id", auth, getLikeGroup);
 router.post("/like/:id", auth, likeGroup);
 router.post("/unlike/:id", auth, unlikeGroup);
+
+router.get("/getCount/:id", getCount);
 
 module.exports = router;

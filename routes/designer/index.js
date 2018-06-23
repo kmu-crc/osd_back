@@ -3,7 +3,7 @@ const router = express.Router();
 
 const auth = require("../../middlewares/auth");
 const { designerList } = require("./designerList");
-const { designerDetail } = require("./designerDetail");
+const { designerDetail, getCount } = require("./designerDetail");
 const getDesignerList = require("../../middlewares/getDesignerList");
 const { designInDesigner, likeInDesigner } = require("./designInDesigner");
 const getDesignList = require("../../middlewares/getDesignList");
@@ -17,5 +17,7 @@ router.get("/designerDetail/:id/like/:page", likeInDesigner, getDesignList);
 router.get("/getLike/:id", auth, getLikeDesigner);
 router.post("/like/:id", auth, likeDesigner);
 router.post("/unlike/:id", auth, unlikeDesigner);
+
+router.get("/getCount/:id", getCount);
 
 module.exports = router;
