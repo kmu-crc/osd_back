@@ -40,24 +40,6 @@ exports.groupDetail = (req, res, next) => {
     return p;
   };
 
-  // 그룹 count 정보 가져오기 (GET)
-  function getGroupCount (data) {
-    const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM group_counter WHERE uid = ?", data.uid, (err, row) => {
-        if (!err && row.length === 0) {
-          data.count = null;
-          resolve(data);
-        } else if (!err && row.length > 0) {
-          data.count = row[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
   // 그룹 issue 가져오기 (GET)
   function getGroupComment (data) {
     const p = new Promise((resolve, reject) => {
@@ -101,9 +83,32 @@ exports.groupDetail = (req, res, next) => {
 
   getGroupInfo(id)
     .then(getName)
-    .then(getGroupCount)
     .then(getGroupComment)
     .then(getThumnbail)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
+};
+
+exports.getCount = (req, res, next) => {
+  const groupId = req.params.id;
+  console.log("work");
+
+  // 그룹 count 정보 가져오기 (GET)
+  function getGroupCount (id) {
+    console.log("work2");
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT * FROM group_counter WHERE group_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log(row[0]);
+          res.status(200).json(row[0]);
+        } else {
+          console.log(err);
+          res.status(500).json(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  getGroupCount(groupId);
 };
