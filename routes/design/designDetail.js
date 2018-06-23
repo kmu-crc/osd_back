@@ -181,3 +181,45 @@ exports.getCount = (req, res, next) => {
 
   getCount(designId);
 };
+
+// 디자인 조회수 업데이트
+exports.updateViewCount = (req, res, next) => {
+  const designId = req.params.id;
+
+  function updateDesignView (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("UPDATE design_counter SET view_count = view_count + 1 WHERE design_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log(row[0]);
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  function updateUserView (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`UPDATE user_counter C 
+      INNER JOIN design D 
+      ON C.user_id = D.user_id
+      SET C.total_view = C.total_view + 1
+      WHERE D.uid = ${id}`, (err, row) => {
+        if (!err) {
+          console.log(row);
+          res.status(200).json({success: true});
+        } else {
+          console.log(err);
+          res.status(200).json({success: false});
+        }
+      });
+    });
+    return p;
+  };
+
+  updateDesignView(designId)
+    .then(updateUserView);
+};
