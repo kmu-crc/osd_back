@@ -75,6 +75,7 @@ exports.insertDetail = (req, res) => {
 
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
+  console.log(typeof req.file);
   const userId = req.decoded.uid;
   const userInfo = {
     password: req.body.password,
@@ -108,8 +109,6 @@ exports.modifyDetail = (req, res) => {
   };
 
   function createHashPw (userInfo) {
-    console.log(userInfo.password);
-    console.log(typeof userInfo.password);
     const p = new Promise((resolve, reject) => {
       bcrypt.hash(userInfo.password, 10, function (err, hash) {
         if (!err) {
@@ -127,7 +126,9 @@ exports.modifyDetail = (req, res) => {
 
   const userUpdata = (id) => {
     let info = userInfo;
-    info.thumbnail = id;
+    if (id !== null) {
+      info.thumbnail = id;
+    }
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE user SET ? WHERE uid = ${req.decoded.uid}`, info, (err, rows) => {
         if (!err) {
@@ -158,7 +159,13 @@ exports.modifyDetail = (req, res) => {
   isOnlyNicName(userInfo.nick_name)
     .then(() => createHashPw(userInfo))
     .then(() => updateDetailDB(detailInfo))
-    .then(() => createThumbnails({ uid: req.decoded.uid, image: req.file }))
+    .then(() => {
+      if (req.file == null) {
+        return Promise.resolve(null);
+      } else {
+        return createThumbnails({ uid: req.decoded.uid, image: req.file });
+      }
+    })
     .then(userUpdata)
     .then(respond)
     .catch(error);
