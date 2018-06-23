@@ -38,24 +38,6 @@ exports.designerDetail = (req, res, next) => {
     return p;
   };
 
-  // 디자이너 count 정보 가져오기 (GET)
-  function getDesignerCount (data) {
-    const p = new Promise((resolve, reject) => {
-      connection.query("SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id = ?", data.uid, (err, row) => {
-        if (!err && row.length === 0) {
-          data.count = null;
-          resolve(data);
-        } else if (!err && row.length > 0) {
-          data.count = row[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
   // 카테고리 이름 가져오기
   function getCategory (data) {
     const p = new Promise((resolve, reject) => {
@@ -85,8 +67,29 @@ exports.designerDetail = (req, res, next) => {
 
   getDesignerInfo(id)
     .then(getMyThumbnail)
-    .then(getDesignerCount)
     .then(getCategory)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
+};
+
+exports.getCount = (req, res, next) => {
+  const designerId = req.params.id;
+
+  // 디자이너 count 정보 가져오기 (GET)
+  function getDesignerCount (data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id = ?", designerId, (err, row) => {
+        if (!err) {
+          console.log(row[0]);
+          res.status(200).json(row[0]);
+        } else {
+          console.log(err);
+          res.status(500).json(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  getDesignerCount(designerId);
 };

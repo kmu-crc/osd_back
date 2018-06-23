@@ -74,24 +74,6 @@ exports.designDetail = (req, res, next) => {
     return p;
   };
 
-  // 좋아요 수, 조회수, 멤버수, 카드수 가져오기
-  function getCount (data) {
-    const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM design_counter WHERE design_id = ?", data.uid, (err, row) => {
-        if (!err && row.length === 0) {
-          data.count = null;
-          resolve(data);
-        } else if (!err && row.length > 0) {
-          data.count = row[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
-
   // 속한 멤버들의 id, 닉네임 리스트 가져오기
   function getMemberList (data) {
     const p = new Promise((resolve, reject) => {
@@ -170,11 +152,72 @@ exports.designDetail = (req, res, next) => {
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
-    .then(getCount)
     .then(getMemberList)
     .then(getChildrenCount)
     .then(isTeam)
     .then(getIssueTitle)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
+};
+
+// 좋아요 수, 조회수, 멤버수, 카드수 정보 가져오기
+exports.getCount = (req, res, next) => {
+  const designId = req.params.id;
+
+  function getCount (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT * FROM design_counter WHERE design_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log(row[0]);
+          res.status(200).json(row[0]);
+        } else {
+          console.log(err);
+          res.status(500).json(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  getCount(designId);
+};
+
+// 디자인 조회수 업데이트
+exports.updateViewCount = (req, res, next) => {
+  const designId = req.params.id;
+
+  function updateDesignView (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("UPDATE design_counter SET view_count = view_count + 1 WHERE design_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log(row[0]);
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  function updateUserView (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`UPDATE user_counter C 
+      INNER JOIN design D ON C.user_id = D.user_id
+      SET C.total_view = C.total_view + 1 WHERE D.uid = ${id}`, (err, row) => {
+        if (!err) {
+          console.log(row);
+          res.status(200).json({success: true});
+        } else {
+          console.log(err);
+          res.status(200).json({success: false});
+        }
+      });
+    });
+    return p;
+  };
+
+  updateDesignView(designId)
+    .then(updateUserView);
 };

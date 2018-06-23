@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const { designList } = require("./designList");
-const { designDetail } = require("./designDetail");
+const { designDetail, getCount, updateViewCount } = require("./designDetail");
+const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
 const { designIssue, designIssueDetail } = require("./designIssue");
@@ -25,6 +26,13 @@ router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
 router.get("/designDetail/:id/getBoardList", getBoardList);
 router.get("/designDetail/:id/getCardList", getCardList);
 router.get("/designDetail/getCardDetail/:cardId", getCardDetail);
+
+router.get("/getLike/:id", auth, getLikeDesign);
+router.post("/like/:id", auth, likeDesign);
+router.post("/unlike/:id", auth, unlikeDesign);
+
+router.get("/getCount/:id", getCount);
+router.post("/updateViewCount/:id", updateViewCount);
 
 router.post("/createDesign", auth, uploadDesign, stringToNumber, createDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
