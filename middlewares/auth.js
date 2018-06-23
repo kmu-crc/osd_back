@@ -25,7 +25,7 @@ const authMiddleware = (req, res, next) => {
   const getThumbnail = decoded => {
     return new Promise(
       (resolve, reject) => {
-        connection.query(`SELECT * FROM thumbnail WHERE user_id=${decoded.uid}`, (err, rows) => {
+        connection.query(`SELECT * FROM thumbnail WHERE user_id=${decoded.uid} AND uid=(SELECT thumbnail FROM user WHERE uid=${decoded.uid})`, (err, rows) => {
           if (err) {
             reject(err);
           } else {
