@@ -204,10 +204,8 @@ exports.updateViewCount = (req, res, next) => {
   function updateUserView (id) {
     const p = new Promise((resolve, reject) => {
       connection.query(`UPDATE user_counter C 
-      INNER JOIN design D 
-      ON C.user_id = D.user_id
-      SET C.total_view = C.total_view + 1
-      WHERE D.uid = ${id}`, (err, row) => {
+      INNER JOIN design D ON C.user_id = D.user_id
+      SET C.total_view = C.total_view + 1 WHERE D.uid = ${id}`, (err, row) => {
         if (!err) {
           console.log(row);
           res.status(200).json({success: true});
