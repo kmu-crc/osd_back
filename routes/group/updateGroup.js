@@ -25,8 +25,43 @@ exports.updateGroup = (req, res, next) => {
       connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId} `, {thumbnail: id}, (err, rows) => {
         if (!err) {
           console.log("detail: ", rows);
-          resolve(rows);
+          resolve(groupId);
         } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const findParentGroup = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT parent_group_id FROM group_join_group WHERE group_id = ?", id, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(row);
+        } else if (!err && row.length > 0) {
+          let arr = [];
+          row.map(data => {
+            arr.push(updateParentGroup(data));
+          });
+          Promise.all(arr).then(result => {
+            resolve(result);
+          });
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateParentGroup = (row) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE opendesign.group SET child_update_time = now() WHERE uid = ${row.parent_group_id}`, (err, result) => {
+        if (!err) {
+          console.log("result", result);
+          resolve(result);
+        } else {
+          console.log(err);
           reject(err);
         }
       });
@@ -48,6 +83,7 @@ exports.updateGroup = (req, res, next) => {
   updateGroup(req.body)
     .then(() => createThumbnails({ uid: req.decoded.uid, image: req.file }))
     .then(groupUpdata)
+    .then(findParentGroup)
     .then(success)
     .catch(fail);
 };
