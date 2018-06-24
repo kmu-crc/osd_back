@@ -123,6 +123,7 @@ exports.updateBoard = (req, res, next) => {
 // update
 exports.deleteBoard = (req, res, next) => {
   const board_id = req.params.board_id;
+  const design_id = req.params.design_id;
 
   const deleteBoardDB = (id) => {
     return new Promise((resolve, reject) => {
@@ -137,6 +138,40 @@ exports.deleteBoard = (req, res, next) => {
     });
   };
 
+  const getList = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT d.uid, d.order FROM design_board d WHERE d.design_id=${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const orderUpdate = (list) => {
+    return new Promise((resolve, reject) => {
+      let arr = [];
+      list.map((item, index) => {
+        arr.push(new Promise((resolve, reject) => {
+          connection.query(`UPDATE design_board SET ? WHERE uid=${item.uid}`, {order: index}, (err, rows) => {
+            if (!err) {
+              resolve(rows);
+            } else {
+              console.error("MySQL Error:", err);
+              reject(err);
+            }
+          });
+        }))
+      });
+      Promise.all(arr)
+        .then(resolve(true))
+        .catch(err => reject(err));
+    });
+  }
+
   const respond = (data) => {
     console.log(data);
     res.status(200).json({
@@ -147,6 +182,10 @@ exports.deleteBoard = (req, res, next) => {
   };
 
   deleteBoardDB(board_id)
+    .then(() => {
+      return getList(design_id);
+    })
+    .then(orderUpdate)
     .then(respond)
     .catch(next);
 };
