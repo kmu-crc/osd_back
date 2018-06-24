@@ -389,29 +389,3 @@ exports.updateSources = (req, res, next) => {
     .then(respond)
     .catch(next);
 };
-
-exports.updateCard = (req, res, next) => {
-  const userId = req.decoded.uid;
-  const cardId = req.params.cardId;
-  console.log("files: ", req.files);
-  console.log("body: ", req.body);
-
-  // updateCardFn()
-  //   .then(() => {
-  //     return insertSource({ uid: userId, card_id: cardId, tabel: "design_source_file", files: req.files["source_file[]"] });
-  //   })
-  //   .then((data) => {
-  //     let is_source = 0;
-  //     if (data !== null) is_source = 1;
-  //     return updateCardFn({ userId, cardId, data: { is_source } });
-  //   })
-  //   .then(() => {
-  //     return insertSource({ uid: userId, card_id: cardId, tabel: "design_source_file", files: req.files["source_file[]"] });
-  //   })
-  //   .then((data) => {
-  //     let is_source = 0;
-  //     if (data !== null) is_source = 1;
-  //     return updateCardFn({ userId, cardId, data: { is_source } });
-  //   })
-  //   .catch();
-};
