@@ -389,3 +389,72 @@ exports.updateSources = (req, res, next) => {
     .then(respond)
     .catch(next);
 };
+
+exports.deleteCard = (req, res, next) => {
+  const board_id = req.params.board_id;
+  const card_id = req.params.card_id;
+
+  const deleteCardDB = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM design_card WHERE uid = ${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const getList = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT d.uid, d.order FROM design_card d WHERE d.board_id=${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const orderUpdate = (list) => {
+    return new Promise((resolve, reject) => {
+      let arr = [];
+      list.map((item, index) => {
+        arr.push(new Promise((resolve, reject) => {
+          connection.query(`UPDATE design_card SET ? WHERE uid=${item.uid}`, {order: index}, (err, rows) => {
+            if (!err) {
+              resolve(rows);
+            } else {
+              console.error("MySQL Error:", err);
+              reject(err);
+            }
+          });
+        }))
+      });
+      Promise.all(arr)
+        .then(resolve(true))
+        .catch(err => reject(err));
+    });
+  }
+
+  const respond = (data) => {
+    console.log(data);
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 등록되었습니다.",
+      list: data
+    });
+  };
+
+  deleteCardDB(card_id)
+    .then(() => {
+      return getList(board_id);
+    })
+    .then(orderUpdate)
+    .then(respond)
+    .catch(next);
+};

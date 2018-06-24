@@ -15,7 +15,7 @@ const { createDesign } = require("./createDesign");
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./designBoard");
-const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources } = require("./designCard");
+const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard } = require("./designCard");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
@@ -36,13 +36,15 @@ router.post("/updateViewCount/:id", updateViewCount);
 
 router.post("/createDesign", auth, uploadDesign, stringToNumber, createDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
-router.post("/designDetail/:id/:boardId/createCard", auth, stringToNumber, createCard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
+router.delete("/designDetail/:design_id/deleteBoard/:board_id", auth, deleteBoard);
+
+router.post("/designDetail/:id/:boardId/createCard", auth, stringToNumber, createCard);
 router.post("/designDetail/updateCardTitle/:cardId", auth, stringToNumber, updateTitle);
 router.post("/designDetail/updateCardContent/:cardId", auth, stringToNumber, updateContent);
 router.post("/designDetail/updateCardImages/:cardId", auth, uploadDesign, stringToNumber, updateImages);
 router.post("/designDetail/updateCardSources/:cardId", auth, uploadDesign, stringToNumber, updateSources);
-router.delete("/designDetail/:design_id/deleteBoard/:board_id", auth, deleteBoard);
+router.delete("/designDetail/deleteCard/:board_id/:card_id", auth, deleteCard);
 
 router.get("/designDetail/:id/issue", designIssue);
 router.get("/designDetail/:id/issueDetail/:issue_id", designIssueDetail);
