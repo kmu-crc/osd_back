@@ -31,6 +31,12 @@ exports.createDesign = (req, res, next) => {
   console.log("createDesign", req.files);
   console.log(typeof req.body.is_project);
   console.log(req.body.members);
+  if (req.body.category_level1 === 0) {
+    req.body.category_level1 = null;
+  }
+  if (req.body.category_level2 === 0) {
+    req.body.category_level2 = null;
+  }
   let members = JSON.parse(req.body.members);
   const userId = req.decoded.uid;
   req.body.user_id = userId;
