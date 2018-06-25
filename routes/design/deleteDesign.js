@@ -38,6 +38,22 @@ exports.deleteDesign = (req, res, next) => {
     });
   };
 
+  // 유저 count 테이블에서 디자인 개수 삭제
+  const updateUserCount = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE user_counter C 
+      INNER JOIN design D ON C.user_id = D.user_id
+      SET C.total_design = C.total_design - 1 WHERE D.uid = ${id}`, (err, row) => {
+        if (!err) {
+          resolve(row);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   // 디자인 테이블에서 삭제
   const deleteDesign = (id) => {
     return new Promise((resolve, reject) => {
@@ -66,6 +82,7 @@ exports.deleteDesign = (req, res, next) => {
 
   getThumbnail(id)
     .then(deleteThumbnail)
+    .then(() => updateUserCount(id))
     .then(() => deleteDesign(id))
     .then(success)
     .catch(fail);
