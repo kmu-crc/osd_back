@@ -8,6 +8,7 @@ const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
 const { designIssue, designIssueDetail } = require("./designIssue");
 const { createIssue, updateIssue, updateIssueStatus, deleteIssue } = require("./createIssue");
+const { createIssueComment, deleteIssueComment } = require("./designIssueCmt");
 const auth = require("../../middlewares/auth");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
@@ -16,6 +17,7 @@ const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./designBoard");
 const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard } = require("./designCard");
+const { deleteDesign } = require("./deleteDesign");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
@@ -52,5 +54,9 @@ router.post("/designDetail/:id/createIssue", auth, createIssue);
 router.post("/designDetail/:id/updateIssue/:issue_id", auth, updateIssue);
 router.post("/designDetail/:id/updateIssueStatus/:issue_id", auth, updateIssueStatus);
 router.delete("/designDetail/:id/deleteIssue/:issue_id", auth, deleteIssue);
+router.post("/designDetail/:id/issue/:issue_id/createComment", auth, createIssueComment);
+router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", auth, deleteIssueComment);
+
+router.delete("/deleteDesign/:id", auth, deleteDesign);
 
 module.exports = router;
