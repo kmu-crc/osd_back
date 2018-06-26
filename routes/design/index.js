@@ -18,6 +18,7 @@ const stringToNumber = require("../../middlewares/stringToNumber");
 const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./designBoard");
 const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard } = require("./designCard");
 const { deleteDesign } = require("./deleteDesign");
+const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
@@ -29,10 +30,12 @@ router.get("/designDetail/:id/getBoardList", getBoardList);
 router.get("/designDetail/:id/getCardList", getCardList);
 router.get("/designDetail/getCardDetail/:cardId", getCardDetail);
 
+// 디자인 좋아요 기능 관련
 router.get("/getLike/:id", auth, getLikeDesign);
 router.post("/like/:id", auth, likeDesign);
 router.post("/unlike/:id", auth, unlikeDesign);
 
+// 조회수
 router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);
 
@@ -48,12 +51,18 @@ router.post("/designDetail/updateCardImages/:cardId", auth, uploadDesign, string
 router.post("/designDetail/updateCardSources/:cardId", auth, uploadDesign, stringToNumber, updateSources);
 router.delete("/designDetail/deleteCard/:board_id/:card_id", auth, deleteCard);
 
+// 디자인 issue 관련
 router.get("/designDetail/:id/issue", designIssue);
 router.get("/designDetail/:id/issueDetail/:issue_id", designIssueDetail);
 router.post("/designDetail/:id/createIssue", auth, createIssue);
 router.post("/designDetail/:id/updateIssue/:issue_id", auth, updateIssue);
 router.post("/designDetail/:id/updateIssueStatus/:issue_id", auth, updateIssueStatus);
 router.delete("/designDetail/:id/deleteIssue/:issue_id", auth, deleteIssue);
+
+// comment 관련
+router.get("/designDetail/:id/getCardComment/:card_id", getCardComment);
+router.post("/designDetail/:id/createCardComment/:card_id", auth, createCardComment);
+router.delete("/designDetail/:id/deleteCardComment/:card_id/:comment_id", auth, deleteCardComment);
 router.post("/designDetail/:id/issue/:issue_id/createComment", auth, createIssueComment);
 router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", auth, deleteIssueComment);
 
