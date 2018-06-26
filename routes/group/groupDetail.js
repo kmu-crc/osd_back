@@ -43,7 +43,7 @@ exports.groupDetail = (req, res, next) => {
   // 그룹 issue 가져오기 (GET)
   function getGroupComment (data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT uid, user_id, title, create_time, update_time FROM group_issue WHERE group_id = ?", data.uid, (err, row) => {
+      connection.query("SELECT uid, user_id, title, create_time, update_time FROM group_issue WHERE group_id = ? ORDER BY create_time DESC", data.uid, (err, row) => {
         if (!err && row.length === 0) {
           data.issue = null;
           resolve(data);

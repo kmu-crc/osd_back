@@ -32,7 +32,7 @@ const updateCardFn = (req) => {
       }
     });
   });
-}
+};
 
 exports.createCardDB = (req) => {
   return createCardFn(req);
@@ -49,7 +49,7 @@ exports.createCard = (req, res, next) => {
   data.user_id = req.decoded.uid;
   data.board_id = req.params.boardId;
 
-  const createCounte = (id) => {
+  const createCount = (id) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO card_counter SET ?", { card_id: id }, (err, rows) => {
         if (!err) {
@@ -60,7 +60,7 @@ exports.createCard = (req, res, next) => {
         }
       });
     });
-  }
+  };
 
   const respond = () => {
     res.status(200).json({
@@ -68,7 +68,9 @@ exports.createCard = (req, res, next) => {
       message: "성공적으로 등록되었습니다."
     });
   };
+
   createCardFn(data)
+    .then(createCount)
     .then(respond)
     .catch(next);
 };
