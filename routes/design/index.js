@@ -44,9 +44,9 @@ router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
 router.delete("/designDetail/:design_id/deleteBoard/:board_id", auth, deleteBoard);
 
-router.post("/designDetail/:id/:boardId/createCard", auth, stringToNumber, createCard);
-router.post("/designDetail/updateCardTitle/:cardId", auth, stringToNumber, updateTitle);
-router.post("/designDetail/updateCardContent/:cardId", auth, stringToNumber, updateContent);
+router.post("/designDetail/:id/:boardId/createCard", auth, createCard);
+router.post("/designDetail/updateCardTitle/:cardId", auth, updateTitle);
+router.post("/designDetail/updateCardContent/:cardId", auth, updateContent);
 router.post("/designDetail/updateCardImages/:cardId", auth, uploadDesign, stringToNumber, updateImages);
 router.post("/designDetail/updateCardSources/:cardId", auth, uploadDesign, stringToNumber, updateSources);
 router.delete("/designDetail/deleteCard/:board_id/:card_id", auth, deleteCard);

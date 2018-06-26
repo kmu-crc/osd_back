@@ -95,7 +95,6 @@ exports.insertDetail = (req, res) => {
 
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
-  console.log(typeof req.file);
   const userId = req.decoded.uid;
   const userInfo = {
     password: req.body.password,
@@ -155,9 +154,7 @@ exports.modifyDetail = (req, res) => {
     }
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`,
-        info,
-        (err, rows) => {
+        `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`, info, (err, rows) => {
           if (!err) {
             console.log("detail: ", rows);
             resolve(rows);
