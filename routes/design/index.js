@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { designList } = require("./designList");
-const { designDetail, getCount, updateViewCount } = require("./designDetail");
+const { designDetail, getCount, updateViewCount, changeToProject } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
@@ -67,5 +67,8 @@ router.post("/designDetail/:id/issue/:issue_id/createComment", auth, createIssue
 router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", auth, deleteIssueComment);
 
 router.delete("/deleteDesign/:id", auth, deleteDesign);
+
+// 블로그형 디자인 프로젝트형으로 변경
+router.post("/changeToProject/:id", auth, changeToProject);
 
 module.exports = router;

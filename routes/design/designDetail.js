@@ -221,3 +221,25 @@ exports.updateViewCount = (req, res, next) => {
   updateDesignView(designId)
     .then(updateUserView);
 };
+
+// 블로그형 디자인 프로젝트형으로 변경
+exports.changeToProject = (req, res, next) => {
+  const id = req.params.id;
+
+  function changeToProject (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`UPDATE design SET is_project = 1, update_time = now() WHERE uid = ${id}`, (err, row) => {
+        if (!err) {
+          console.log(row);
+          res.status(200).json({success: true});
+        } else {
+          console.log(err);
+          res.status(200).json({success: false});
+        }
+      });
+    });
+    return p;
+  }
+
+  changeToProject(id);
+};
