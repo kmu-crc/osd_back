@@ -20,7 +20,7 @@ const { createCard, getCardList, updateTitle, updateContent, getCardDetail, upda
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 
-router.get("/designList/:page/:sorting?/:cate1?/:cate2?", designList, getDesignList);
+router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
 router.get("/designDetail/:id/view", designView);
 router.get("/designDetail/:id/step", designStep);

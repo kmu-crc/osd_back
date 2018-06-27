@@ -9,7 +9,7 @@ const { designInDesigner, likeInDesigner } = require("./designInDesigner");
 const getDesignList = require("../../middlewares/getDesignList");
 const { getLikeDesigner, likeDesigner, unlikeDesigner } = require("./likeDesigner");
 
-router.get("/designerList/:page/:sorting?/:cate1?/:cate2?", designerList, getDesignerList);
+router.get("/designerList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designerList, getDesignerList);
 router.get("/designerDetail/:id", designerDetail);
 router.get("/designerDetail/:id/design/:page", designInDesigner, getDesignList);
 router.get("/designerDetail/:id/like/:page", likeInDesigner, getDesignList);

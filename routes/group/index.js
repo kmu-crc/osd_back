@@ -22,7 +22,7 @@ const { acceptDesign, acceptGroup, deleteDesign, deleteGroup } = require("./mana
 const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 
 // 그룹에 대한 정보들 가져오기
-router.get("/groupList/:page/:sorting?", groupList, getGroupList);
+router.get("/groupList/:page/:sorting?/:keyword?", groupList, getGroupList);
 router.get("/groupDetail/:id", groupDetail);
 router.get("/groupDetail/:id/design/:page/:sorting?", designInGroup, getDesignList);
 router.get("/groupDetail/:id/group/:page/:sorting?", groupInGroup, getGroupList);
