@@ -5,7 +5,6 @@ exports.searchIssue = (req, res, next) => {
   const keyword = req.params.keyword;
   const designId = req.params.id;
   console.log(keyword);
-  console.log(typeof keyword); // string
 
   function getIssueList (id, keyword) {
     const p = new Promise((resolve, reject) => {

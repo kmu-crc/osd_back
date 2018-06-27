@@ -2,6 +2,8 @@
 exports.groupList = (req, res, next) => {
   const page = req.params.page;
   let sort;
+  const keyword = req.params.keyword;
+
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
     sort = req.params.sorting;
   } else {
@@ -12,6 +14,11 @@ exports.groupList = (req, res, next) => {
             G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group 
             FROM opendesign.group G 
               LEFT JOIN group_counter C ON C.group_id = G.uid`;
+
+  if (keyword && keyword !== "null" && keyword !== "undefined") {
+    sql = sql + ` WHERE G.title LIKE "%${keyword}%"`;
+  }
+
   if (sort === "update") {
     sql = sql + " ORDER BY G.child_update_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "create") {
