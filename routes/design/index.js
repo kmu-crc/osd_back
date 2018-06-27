@@ -19,6 +19,7 @@ const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./desig
 const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard } = require("./designCard");
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
+const { getTopList } = require("./topList");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
@@ -70,5 +71,8 @@ router.delete("/deleteDesign/:id", auth, deleteDesign);
 
 // 블로그형 디자인 프로젝트형으로 변경
 router.post("/changeToProject/:id", auth, changeToProject);
+
+// top 5개 리스트 가져오기 (메인용)
+router.get("/TopList", getTopList, getDesignList);
 
 module.exports = router;
