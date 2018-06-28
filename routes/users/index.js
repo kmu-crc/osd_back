@@ -16,6 +16,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 const getDesignerList = require("../../middlewares/getDesignerList");
 const { myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner } = require("./myPage");
+const { getMyMsgList } = require("./myMsg");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -44,4 +45,5 @@ router.get("/myPage/group/:page", auth, myGroup, getGroupList);
 router.get("/myPage/likeDesign/:page", auth, myLikeDesign, getDesignList);
 router.get("/myPage/likeDesigner/:page", auth, myLikeDesigner, getDesignerList);
 
+router.get("/msgList", auth, getMyMsgList);
 module.exports = router;
