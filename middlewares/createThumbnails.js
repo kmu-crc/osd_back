@@ -50,6 +50,7 @@ exports.createThumbnails = (data) => {
       return new Promise((resolve, reject) => {
         connection.query("INSERT INTO thumbnail SET ?", thumbnailObj, (err, rows) => {
           if (!err) {
+            console.log(rows.insertId);
             resolve(rows.insertId);
           } else {
             reject(err);
