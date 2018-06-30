@@ -12,7 +12,6 @@ const upload = multer({ storage: storage });
 
 const imageUpload = (req, res, next) => {
   const thisUpload = upload.single("thumbnail");
-  console.log(thisUpload);
   thisUpload(req, res, (err) => {
     if (err) {
       next(err);
