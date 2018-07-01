@@ -7,7 +7,7 @@ exports.getTopList = (req, res, next) => {
     JOIN user U ON U.uid = D.user_id 
     LEFT JOIN user_counter C ON C.user_id = U.uid 
     WHERE D.is_designer = 1
-    ORDER BY C.total_like DESC LIMIT 0, 10`;
+    ORDER BY C.total_like DESC LIMIT 0, 5`;
 
   req.sql = sql;
   next();

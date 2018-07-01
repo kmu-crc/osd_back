@@ -110,6 +110,21 @@ exports.createDesign = (req, res, next) => {
     });
   };
 
+  // card_counter 생성
+  const createCount = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("INSERT INTO card_counter SET ?", { card_id: id }, (err, rows) => {
+        if (!err) {
+          console.log(rows);
+          resolve(id);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   const respond = () => {
     res.status(200).json({
       success: true,
@@ -164,6 +179,10 @@ exports.createDesign = (req, res, next) => {
         content: req.body.explanation,
         order: 0
       });
+    })
+    .then((cardId) => {
+      if (req.body.is_project) return;
+      return createCount(cardId);
     })
     .then((id) => {
       cardId = id;

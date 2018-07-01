@@ -6,7 +6,7 @@ exports.getTopList = (req, res, next) => {
     FROM design D 
     LEFT JOIN design_counter C ON C.design_id = D.uid 
     WHERE D.is_public = 1
-    ORDER BY C.like_count DESC LIMIT 0, 10`;
+    ORDER BY C.like_count DESC LIMIT 0, 5`;
 
   req.sql = sql;
   next();

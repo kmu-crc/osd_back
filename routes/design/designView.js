@@ -66,31 +66,31 @@ exports.designView = (req, res, next) => {
   };
 
   // 코멘트 가져오기
-  function getComment (data) {
-    const p = new Promise((resolve, reject) => {
-      if (data === null) {
-        resolve(null);
-      } else {
-        connection.query("SELECT C.uid, C.user_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM card_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.card_id = ?", data.uid, (err, row) => {
-          if (!err && row.length === 0) {
-            data.commentInfo = null;
-            resolve(data);
-          } else if (!err & row.length > 0) {
-            data.commentInfo = row;
-            resolve(data);
-          } else {
-            reject(err);
-          }
-        });
-      }
-    });
-    return p;
-  };
+  // function getComment (data) {
+  //   const p = new Promise((resolve, reject) => {
+  //     if (data === null) {
+  //       resolve(null);
+  //     } else {
+  //       connection.query("SELECT C.uid, C.user_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM card_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.card_id = ?", data.uid, (err, row) => {
+  //         if (!err && row.length === 0) {
+  //           data.commentInfo = null;
+  //           resolve(data);
+  //         } else if (!err & row.length > 0) {
+  //           data.commentInfo = row;
+  //           resolve(data);
+  //         } else {
+  //           reject(err);
+  //         }
+  //       });
+  //     }
+  //   });
+  //   return p;
+  // };
 
   getViewCard(designId)
     .then(getImage)
     .then(getSource)
-    .then(getComment)
+    // .then(getComment)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };

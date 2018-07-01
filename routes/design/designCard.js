@@ -62,6 +62,19 @@ exports.createCard = (req, res, next) => {
     });
   };
 
+  const updateDesignCount = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("UPDATE design_counter SET card_count = card_count + 1 WHERE design_id = ?", id, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   const respond = () => {
     res.status(200).json({
       success: true,
@@ -71,6 +84,7 @@ exports.createCard = (req, res, next) => {
 
   createCardFn(data)
     .then(createCount)
+    .then(() => updateDesignCount(data.design_id))
     .then(respond)
     .catch(next);
 };
@@ -396,6 +410,19 @@ exports.deleteCard = (req, res, next) => {
   const board_id = req.params.board_id;
   const card_id = req.params.card_id;
 
+  const updateDesignCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE design_counter SET card_count = card_count - 1 WHERE design_id = (SELECT design_id FROM design_card WHERE uid = ${card_id})`, (err, rows) => {
+        if (!err) {
+          resolve(rows);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   const deleteCardDB = (id) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM design_card WHERE uid = ${id}`, (err, rows) => {
@@ -441,7 +468,7 @@ exports.deleteCard = (req, res, next) => {
         .then(resolve(true))
         .catch(err => reject(err));
     });
-  }
+  };
 
   const respond = (data) => {
     console.log(data);
@@ -452,11 +479,13 @@ exports.deleteCard = (req, res, next) => {
     });
   };
 
-  deleteCardDB(card_id)
+  updateDesignCount(card_id)
+    .then(() => deleteCardDB(card_id))
     .then(() => {
       return getList(board_id);
     })
     .then(orderUpdate)
+    .then(() => updateDesignCount())
     .then(respond)
     .catch(next);
 };
