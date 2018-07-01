@@ -29,10 +29,10 @@ exports.designView = (req, res, next) => {
       } else {
         connection.query("SELECT uid, name, link FROM design_images WHERE card_id = ?", data.uid, (err, row) => {
           if (!err && row.length === 0) {
-            data.imageInfo = null;
+            data.images = null;
             resolve(data);
           } else if (!err && row.length > 0) {
-            data.imageInfo = row;
+            data.images = row;
             resolve(data);
           } else {
             reject(err);
@@ -51,10 +51,10 @@ exports.designView = (req, res, next) => {
       } else {
         connection.query("SELECT uid, name, link FROM design_source_file WHERE card_id = ?", data.uid, (err, row) => {
           if (!err && row.length === 0) {
-            data.sourceInfo = null;
+            data.sources = null;
             resolve(data);
           } else if (!err && row.length > 0) {
-            data.sourceInfo = row;
+            data.sources = row;
             resolve(data);
           } else {
             reject(err);

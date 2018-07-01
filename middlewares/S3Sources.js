@@ -3,7 +3,6 @@ const fs = require("fs");
 require("dotenv").config();
 
 exports.S3Sources = (res) => {
-  console.log("res", res)
   return new Promise((resolve, reject) => {
     fs.readFile(res.file.path, function (err, file_buffer) {
       if (err) reject(err);

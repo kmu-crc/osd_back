@@ -10,6 +10,7 @@ const { designIssue, designIssueDetail } = require("./designIssue");
 const { createIssue, updateIssue, updateIssueStatus, deleteIssue } = require("./createIssue");
 const { createIssueComment, deleteIssueComment } = require("./designIssueCmt");
 const auth = require("../../middlewares/auth");
+const insertThumbnail = require("../../middlewares/insertThumbnail");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
@@ -20,6 +21,7 @@ const { createCard, getCardList, updateTitle, updateContent, getCardDetail, upda
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
+const { updateDesignInfo } = require("./updateDesign");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
@@ -41,6 +43,8 @@ router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);
 
 router.post("/createDesign", auth, uploadDesign, stringToNumber, createDesign);
+router.post("/updateDesignInfo/:id", auth, insertThumbnail, stringToNumber, updateDesignInfo);
+router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
 router.delete("/designDetail/:design_id/deleteBoard/:board_id", auth, deleteBoard);
@@ -66,8 +70,6 @@ router.post("/designDetail/:id/createCardComment/:card_id", auth, createCardComm
 router.delete("/designDetail/:id/deleteCardComment/:card_id/:comment_id", auth, deleteCardComment);
 router.post("/designDetail/:id/issue/:issue_id/createComment", auth, createIssueComment);
 router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", auth, deleteIssueComment);
-
-router.delete("/deleteDesign/:id", auth, deleteDesign);
 
 // 블로그형 디자인 프로젝트형으로 변경
 router.post("/changeToProject/:id", auth, changeToProject);

@@ -96,6 +96,7 @@ exports.insertDetail = (req, res) => {
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
   const userId = req.decoded.uid;
+  console.log(req.body);
   const userInfo = {
     password: req.body.password,
     nick_name: req.body.nick_name,

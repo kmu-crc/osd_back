@@ -254,7 +254,7 @@ exports.updateImages = (req, res, next) => {
       connection.query(`SELECT count(*) FROM design_images WHERE card_id = ${id}`, (err, rows) => {
         if (!err) {
           if (rows[0]["count(*)"] === 0) {
-            return updateCardFn({ userId: id, cardId, data: { is_images: 0 } });
+            return resolve(updateCardFn({ userId, cardId, data: { is_images: 0 } }));
           }
           resolve(rows);
         } else {
@@ -263,7 +263,7 @@ exports.updateImages = (req, res, next) => {
         }
       });
     });
-  }
+  };
 
   const DeleteS3 = (data) => {
     let deletes = JSON.parse(data);
@@ -335,7 +335,7 @@ exports.updateSources = (req, res, next) => {
       connection.query(`SELECT count(*) FROM design_source_file WHERE card_id = ${id}`, (err, rows) => {
         if (!err) {
           if (rows[0]["count(*)"] === 0) {
-            return updateCardFn({ userId: id, cardId, data: { is_source: 0 } });
+            return resolve(updateCardFn({ userId, cardId, data: { is_source: 0 } }));
           }
           resolve(rows);
         } else {

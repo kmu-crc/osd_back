@@ -87,10 +87,8 @@ exports.updateGroup = (req, res, next) => {
   updateGroup(req.body)
     .then(() => {
       if (req.file == null) {
-        console.log("hi");
         return Promise.resolve(null);
       } else {
-        console.log("e");
         return createThumbnails({ uid: req.decoded.uid, image: req.file });
       }
     })
