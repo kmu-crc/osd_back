@@ -38,6 +38,7 @@ exports.createThumbnails = (data) => {
         fs.unlink(`uploads/${filename}`, (err) => {
           if (err) throw err;
         });
+        console.log("thumbnailObj", thumbnailObj)
         resolve(thumbnailObj);
       });
     };
