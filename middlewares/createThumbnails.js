@@ -22,24 +22,27 @@ exports.createThumbnails = (data) => {
       "l_img": null
     };
     const createThumbnailForSize = async (file) => {
-      let arr = [];
-      for (let key in thumbnailSizeObj) {
-        await thumbnail.ensureThumbnail(file, null, thumbnailSizeObj[key], function (err, filename) {
-          if (err) {
-            reject(err);
-          } else {
-            thumbnailObj[key] = `${filename}`;
-            arr.push(resolve(true));
-          }
+      return new Promise((resolve, reject) => {
+        let arr = [];
+        for (let key in thumbnailSizeObj) {
+          arr.push(new Promise((resolve, reject) => {
+            thumbnail.ensureThumbnail(file, null, thumbnailSizeObj[key], function (err, filename) {
+              if (err) {
+                reject(err);
+              } else {
+                thumbnailObj[key] = `${filename}`;
+                resolve(true);
+              }
+            });
+          }));
+        }
+        Promise.all(arr).then(() => {
+          // 업로드된 파일을 thumbnail로 변환이 끝나면 원본파일을 삭제한다.
+          // fs.unlink(`uploads/${filename}`, (err) => {
+          //   if (err) throw err;
+          // });
+          resolve(thumbnailObj);
         });
-      }
-      return Promise.all(arr).then(() => {
-        // 업로드된 파일을 thumbnail로 변환이 끝나면 원본파일을 삭제한다.
-        fs.unlink(`uploads/${filename}`, (err) => {
-          if (err) throw err;
-        });
-        console.log("thumbnailObj", thumbnailObj)
-        resolve(thumbnailObj);
       });
     };
 

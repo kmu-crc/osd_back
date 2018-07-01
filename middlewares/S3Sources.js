@@ -17,9 +17,9 @@ exports.S3Sources = (res) => {
           reject(err);
         } else {
           // local에 있는 thumbnail 파일을 s3에 업로드 성공하면 삭제한다.
-          fs.unlink(res.file.path, (err) => {
-            if (err) reject(err);
-          });
+          // fs.unlink(res.file.path, (err) => {
+          //   if (err) reject(err);
+          // });
           resolve(result.Location);
         }
       });
