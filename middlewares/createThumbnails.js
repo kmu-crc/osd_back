@@ -38,9 +38,9 @@ exports.createThumbnails = (data) => {
         }
         Promise.all(arr).then(() => {
           // 업로드된 파일을 thumbnail로 변환이 끝나면 원본파일을 삭제한다.
-          fs.unlink(`uploads/${filename}`, (err) => {
-            if (err) throw err;
-          });
+          // fs.unlink(`uploads/${filename}`, (err) => {
+          //   if (err) throw err;
+          // });
           resolve(thumbnailObj);
         });
       });
