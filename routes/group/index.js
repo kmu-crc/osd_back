@@ -43,7 +43,7 @@ router.delete("/groupDetail/:id/deleteGroup/:groupId", deleteGroup);
 
 // 그룹 생성, 수정, 삭제
 router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
-router.post("/:id/updateGroup", auth, insertThumbnail, stringToNumber, updateGroup);
+router.post("/:id/updateGroup", auth, insertThumbnail, updateGroup);
 router.post("/groupDetail/:id/createIssue", auth, createGroupIssue);
 router.delete("/groupDetail/:id/deleteIssue/:issue_id", auth, deleteGroupIssue);
 router.delete("/:id/deleteGroup", auth, deleteAllGroup);
