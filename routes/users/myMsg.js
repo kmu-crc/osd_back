@@ -32,7 +32,7 @@ exports.getMyMsgList = (req, res, next) => {
         } else {
           const result = await getNameFrom(item);
           item.friend_name = result.nick_name;
-          item.frined_id = result.uid;
+          item.friend_id = result.uid;
         }
       }
       return data;
