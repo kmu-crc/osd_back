@@ -6,7 +6,7 @@ const stringToNumber = (req, res, next) => {
       for (let key in req.body) {
         arr.push(new Promise((resolve, reject) => {
           if (!isNaN(parseInt(req.body[key]))) {
-            if (key === "password") {
+            if (key === "password" || key === "nick_name" || key === "explanation" || key === "title" || key === "about_me") {
               resolve(true);
             } else {
               req.body[key] = parseInt(req.body[key]);
