@@ -108,9 +108,19 @@ exports.modifyDetail = (req, res) => {
     category_level2: req.body.category_level2,
     is_designer: req.body.is_designer
   }; // user detail 테이블에 들어가야 할 정보
+  if (req.body.category_level1 === 0) {
+    detailInfo.category_level1 = null;
+  }
+  if (req.body.category_level2 === 0) {
+    detailInfo.category_level2 = null;
+  }
+  if (req.body.is_designer) {
+    detailInfo.is_designer = 1;
+  } else {
+    detailInfo.is_designer = 0;
+  }
 
   const updateDetailDB = data => {
-    console.log(data);
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user_detail SET ? WHERE user_id=${userId}`,
