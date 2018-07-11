@@ -75,6 +75,6 @@ router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", aut
 router.post("/changeToProject/:id", auth, changeToProject);
 
 // top 5개 리스트 가져오기 (메인용)
-router.get("/TopList", getTopList, getDesignList);
+router.get("/TopList/:page", getTopList, getDesignList);
 
 module.exports = router;
