@@ -29,8 +29,7 @@ exports.updateDesign = (req, res, next) => {
 // 디자인 디테일 정보 등록
 exports.createDesign = (req, res, next) => {
   console.log("createDesign", req.files);
-  console.log(typeof req.body.is_project);
-  console.log(req.body.members);
+
   if (req.body.category_level1 === 0) {
     req.body.category_level1 = null;
   }
@@ -48,6 +47,7 @@ exports.createDesign = (req, res, next) => {
   // }
   members.push({uid: userId});
   req.body.is_members = 1;
+  req.body["is_public"] = 1;
   delete req.body.members;
 
   const insertDesign = (data) => {
