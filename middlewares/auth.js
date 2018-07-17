@@ -4,8 +4,10 @@ const connection = require("../configs/connection");
 const authMiddleware = (req, res, next) => {
   // read the token from header or url
   const token = req.headers["x-access-token"] || req.query.token;
+  console.log(token);
   // token does not exist
   if (!token) {
+    console.log("no token");
     return res.status(403).json({
       success: false,
       message: "not logged in"
@@ -22,23 +24,9 @@ const authMiddleware = (req, res, next) => {
     }
   );
 
-  const getThumbnail = decoded => {
-    return new Promise(
-      (resolve, reject) => {
-        connection.query(`SELECT * FROM thumbnail WHERE user_id=${decoded.uid} AND uid=(SELECT thumbnail FROM user WHERE uid=${decoded.uid})`, (err, rows) => {
-          if (err) {
-            reject(err);
-          } else {
-            decoded.thumbnail = rows[0];
-            resolve(decoded);
-          }
-        });
-      }
-    );
-  };
-
   // if it has failed to verify, it will return an error message
   const onError = (error) => {
+    console.log(error);
     res.status(403).json({
       success: false,
       message: error.message
@@ -47,7 +35,7 @@ const authMiddleware = (req, res, next) => {
 
   // process the promise
   p
-    .then(getThumbnail)
+    // .then(getThumbnail)
     .then((decoded) => {
       req.decoded = decoded;
       next();
