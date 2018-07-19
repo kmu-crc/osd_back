@@ -1,6 +1,7 @@
 const connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { isOnlyNicName } = require("../../middlewares/verifications");
 
 // 유저 detail 등록
@@ -96,18 +97,22 @@ exports.insertDetail = (req, res) => {
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
   const userId = req.decoded.uid;
-  console.log(req.body);
+
+  // user 테이블에 들어가야 할 정보
   const userInfo = {
     password: req.body.password,
     nick_name: req.body.nick_name,
     update_time: new Date()
-  }; // user 테이블에 들어가야 할 정보
+  };
+
+  // user detail 테이블에 들어가야 할 정보
   const detailInfo = {
     about_me: req.body.about_me,
     category_level1: req.body.category_level1,
     category_level2: req.body.category_level2,
     is_designer: req.body.is_designer
-  }; // user detail 테이블에 들어가야 할 정보
+  };
+
   if (req.body.category_level1 === 0) {
     detailInfo.category_level1 = null;
   }
@@ -147,7 +152,6 @@ exports.modifyDetail = (req, res) => {
       bcrypt.hash(userInfo.password, 10, function (err, hash) {
         if (!err) {
           userInfo.password = hash;
-          console.log("createHashPW", userInfo);
           resolve(userInfo);
         } else {
           console.log(err);
@@ -181,7 +185,8 @@ exports.modifyDetail = (req, res) => {
   const respond = data => {
     res.status(200).json({
       success: true,
-      message: "성공적으로 업데이트되었습니다."
+      message: "성공적으로 업데이트되었습니다.",
+      token: data
     });
   };
 
