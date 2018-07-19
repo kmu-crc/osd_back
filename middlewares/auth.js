@@ -4,7 +4,6 @@ const connection = require("../configs/connection");
 const authMiddleware = (req, res, next) => {
   // read the token from header or url
   const token = req.headers["x-access-token"] || req.query.token;
-  console.log(token);
   // token does not exist
   if (!token) {
     console.log("no token");
@@ -26,7 +25,6 @@ const authMiddleware = (req, res, next) => {
 
   // if it has failed to verify, it will return an error message
   const onError = (error) => {
-    console.log(error);
     res.status(403).json({
       success: false,
       message: error.message

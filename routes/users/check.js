@@ -24,7 +24,6 @@ const check = (req, res, next) => {
           if (err) {
             reject(err);
           } else {
-            console.log("eeee", rows[0]);
             decoded.nickName = rows[0].nick_name;
             resolve(decoded);
           }
@@ -34,7 +33,6 @@ const check = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log(data);
     res.status(200).json({
       success: true,
       info: req.decoded
