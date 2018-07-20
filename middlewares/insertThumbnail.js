@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const imageUpload = (req, res, next) => {
-  const thisUpload = upload.single("thumbnail");
+  const thisUpload = upload.single("thumbnail[]");
   thisUpload(req, res, (err) => {
     if (err) {
       next(err);
