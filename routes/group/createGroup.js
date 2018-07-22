@@ -67,7 +67,7 @@ exports.createGroup = (req, res, next) => {
     res.status(200).json({
       message: "성공적으로 등록되었습니다.",
       success: true,
-      id: groupId
+      id: data
     });
   };
 
