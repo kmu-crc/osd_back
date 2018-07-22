@@ -13,7 +13,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const uploadDesign = (req, res, next) => {
-  const thisUpload = upload.fields([{name: "thumbnail", maxCount: 1}, {name: "design_file[]", limits: {fileSize: 1000*1000*1000*3}}, {name: "source_file[]", limits: {fileSize: 1000*1000*1000*3}}]);
+  console.log("upload")
+  const thisUpload = upload.fields([{name: "thumbnail[]", maxCount: 1}, {name: "design_file[]", limits: {fileSize: 1000*1000*1000*3}}, {name: "source_file[]", limits: {fileSize: 1000*1000*1000*3}}]);
   thisUpload(req, res, (err) => {
     if (err) {
       next(err);
