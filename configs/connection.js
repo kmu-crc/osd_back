@@ -6,7 +6,7 @@ var options;
 
 console.log(process.env.OPERATION_DB_HOST);
 
-if (process.env.DEVELOP === "true") {
+if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
   options = {
     host: process.env.DEV_MYSQL_HOST,
     user: process.env.DEV_MYSQL_USER_NAME,
@@ -14,7 +14,7 @@ if (process.env.DEVELOP === "true") {
     port: process.env.DEV_MYSQL_PORT,
     database: process.env.DEV_DATABASE_NAME
   };
-} else if (process.env.OPERATION === "true") {
+} else if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
   options = {
     host: process.env.OPERATION_DB_HOST,
     user: process.env.MYSQL_USER_NAME,
@@ -22,7 +22,7 @@ if (process.env.DEVELOP === "true") {
     port: process.env.MYSQL_PORT,
     database: process.env.DATABASE_NAME
   };
-} else if (process.env.LOCAL === "true") {
+} else if (process.env.LOCAL === "true" || process.env.LOCAL === true) {
   options = {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER_NAME,
