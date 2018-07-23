@@ -4,7 +4,9 @@ require("dotenv").config();
 var db;
 var options;
 
-if (process.env.DEVELOP) {
+console.log(process.env.OPERATION_DB_HOST);
+
+if (process.env.DEVELOP === "true") {
   options = {
     host: process.env.DEV_MYSQL_HOST,
     user: process.env.DEV_MYSQL_USER_NAME,
@@ -12,7 +14,15 @@ if (process.env.DEVELOP) {
     port: process.env.DEV_MYSQL_PORT,
     database: process.env.DEV_DATABASE_NAME
   };
-} else {
+} else if (process.env.OPERATION === "true") {
+  options = {
+    host: process.env.OPERATION_DB_HOST,
+    user: process.env.MYSQL_USER_NAME,
+    password: process.env.MYSQL_PASSWARD,
+    port: process.env.MYSQL_PORT,
+    database: process.env.DATABASE_NAME
+  };
+} else if (process.env.LOCAL === "true") {
   options = {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER_NAME,
