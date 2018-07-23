@@ -16,6 +16,32 @@ const createCardFn = (req) => {
   });
 };
 
+const createCount = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query("INSERT INTO card_counter SET ?", { card_id: id }, (err, rows) => {
+      if (!err) {
+        resolve(rows);
+      } else {
+        console.error("MySQL Error:", err);
+        reject(err);
+      }
+    });
+  });
+};
+
+const updateDesignCount = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query("UPDATE design_counter SET card_count = card_count + 1 WHERE design_id = ?", id, (err, rows) => {
+      if (!err) {
+        resolve(rows);
+      } else {
+        console.error("MySQL Error:", err);
+        reject(err);
+      }
+    });
+  });
+};
+
 const updateCardFn = (req) => {
   console.log("fn", req);
   return new Promise((resolve, reject) => {
@@ -35,7 +61,9 @@ const updateCardFn = (req) => {
 };
 
 exports.createCardDB = (req) => {
-  return createCardFn(req);
+  return createCardFn(req)
+    .then(createCount)
+    .then(() => updateDesignCount(req.design_id));
 };
 
 exports.updateCardDB = (req) => {

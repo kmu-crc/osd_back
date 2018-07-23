@@ -2,17 +2,19 @@ const connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
 const { createBoardDB } = require("../design/designBoard");
-const { createCardDB, updateCardDB } = require("../design/designCard");
+const { createCard, createCardDB, updateCardDB } = require("../design/designCard");
 const { joinMember } = require("../design/joinMember");
 
-// 디자인 생성
+// 2. 생성된 디자인에 썸네일 업데이트
 const updateDesignFn = (req) => {
+  console.log("2번", req.designId);
   return new Promise((resolve, reject) => {
     connection.query(`UPDATE design SET ? WHERE uid=${req.designId} AND user_id=${req.userId}`, req.data, (err, rows) => {
       if (!err) {
         if (rows.affectedRows) {
           resolve(rows);
         } else {
+          console.log("2번", err);
           throw err;
         }
       } else {
@@ -36,7 +38,8 @@ exports.createDesign = (req, res, next) => {
   if (req.body.category_level2 === 0) {
     req.body.category_level2 = null;
   }
-  let members = JSON.parse(req.body.members);
+
+  let members = JSON.parse(req.body.member);
   const userId = req.decoded.uid;
   req.body.user_id = userId;
   let designId = null;
@@ -48,77 +51,51 @@ exports.createDesign = (req, res, next) => {
   members.push({uid: userId});
   req.body.is_members = 1;
   req.body["is_public"] = 1;
-  delete req.body.members;
+  req.body["is_project"] = 0;
+  delete req.body.member;
 
+  // 1. 디자인 생성
   const insertDesign = (data) => {
+    console.log("1번", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design SET ?", data, (err, rows) => {
         if (!err) {
           designId = rows.insertId;
           resolve();
         } else {
+          console.log("1번", err);
           reject(err);
         }
       });
     });
   };
 
-  // 디자인 count 정보 등록
+  // 3. 디자인 count 정보 생성
   const insertDesignCount = (data) => {
-    console.log(data);
+    console.log("3번", data, designId);
     return new Promise((resolve, reject) => {
-      const newCount = { design_id: designId, like_count: 0, view_count: 0 };
+      const newCount = { design_id: designId, like_count: 0, view_count: 0, card_count: 0, member_count: members.length };
       connection.query("INSERT INTO design_counter SET ? ", newCount, (err, row) => {
         if (!err) {
           resolve(designId);
         } else {
-          console.log(err);
+          console.log("3", err);
           reject(err);
         }
       });
     });
   };
 
-  // 디자인 count에 카드수, 멤버수 업데이트
-  const updateDesignCount = () => {
-    return new Promise((resolve, reject) => {
-      const newCount = { card_count: req.body.is_project ? 0 : 1, member_count: members.length };
-      connection.query(`UPDATE design_counter SET ? WHERE design_id = ${designId}`, newCount, (err, row) => {
-        if (!err) {
-          console.log(row);
-          resolve(designId);
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
-  // 디자인 생성한 유저 count 정보 업데이트
+  // 4. 디자인 생성한 유저 count 정보 업데이트
   const updateUserCount = () => {
+    console.log("4번", userId);
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE user_counter SET total_design = total_design + 1 WHERE user_id = ${userId}`, (err, row) => {
         if (!err) {
           console.log(row);
           resolve(designId);
         } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
-  // card_counter 생성
-  const createCount = (id) => {
-    return new Promise((resolve, reject) => {
-      connection.query("INSERT INTO card_counter SET ?", { card_id: id }, (err, rows) => {
-        if (!err) {
-          console.log(rows);
-          resolve(id);
-        } else {
-          console.error("MySQL Error:", err);
+          console.log("4", err);
           reject(err);
         }
       });
@@ -145,7 +122,7 @@ exports.createDesign = (req, res, next) => {
   // 6. card가 성공적으로 생성되었다면 source파일을 업로드 한다.
   insertDesign(req.body)
     .then(() => {
-      return createThumbnails({ uid: userId, image: req.files.thumbnail[0] });
+      return createThumbnails({ uid: userId, image: req.files["thumbnail[]"][0] });
     })
     .then((thumbnailId) => {
       return updateDesignFn({
@@ -159,9 +136,10 @@ exports.createDesign = (req, res, next) => {
     .then(() => {
       return joinMember({design_id: designId, members});
     })
+    .then(insertDesignCount)
+    .then(updateUserCount)
     .then(() => {
-      console.log(typeof req.body.is_project)
-      if (req.body.is_project) return;
+      console.log("createBoard");
       return createBoardDB({
         user_id: userId,
         design_id: designId,
@@ -170,7 +148,7 @@ exports.createDesign = (req, res, next) => {
       });
     })
     .then((boardId) => {
-      if (req.body.is_project) return;
+      console.log("createCard");
       return createCardDB({
         design_id: designId,
         board_id: boardId,
@@ -180,34 +158,6 @@ exports.createDesign = (req, res, next) => {
         order: 0
       });
     })
-    .then((cardId) => {
-      if (req.body.is_project) return;
-      return createCount(cardId);
-    })
-    .then((id) => {
-      cardId = id;
-      if (req.body.is_project) return;
-      insertSource({ uid: userId, card_id: id, tabel: "design_source_file", files: req.files["source_file[]"] });
-    })
-    .then((data) => {
-      if (req.body.is_project) return;
-      let is_source = 0;
-      if (data !== null) is_source = 1;
-      return updateCardDB({ userId, cardId, data: {is_source} });
-    })
-    .then(() => {
-      if (req.body.is_project) return;
-      insertSource({ uid: userId, card_id: cardId, tabel: "design_images", files: req.files["design_file[]"] });
-    })
-    .then((data) => {
-      if (req.body.is_project) return;
-      let is_images = 0;
-      if (data !== null) is_images = 1;
-      return updateCardDB({ userId, cardId, data: {is_images} });
-    })
-    .then(insertDesignCount)
-    .then(updateDesignCount)
-    .then(updateUserCount)
     .then(respond)
-    .catch(next);
-}
+    .catch(error);
+};
