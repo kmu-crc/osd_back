@@ -4,7 +4,7 @@ require("dotenv").config();
 var db;
 var options;
 
-console.log(process.env.OPERATION_DB_HOST);
+console.log(process.env.OPERATION_DB_HOST, "process.env.OPERATION", process.env.OPERATION);
 
 if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
   options = {
