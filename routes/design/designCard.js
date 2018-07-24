@@ -273,9 +273,9 @@ exports.updateContent = (req, res, next) => {
 };
 
 exports.updateImages = (req, res, next) => {
-  console.log(req.body);
   const cardId = req.params.cardId;
   const userId = req.decoded.uid;
+  console.log(cardId, userId);
 
   const DeleteSourceDB = (data) => {
     return new Promise((resolve, reject) => {
@@ -308,6 +308,9 @@ exports.updateImages = (req, res, next) => {
   };
 
   const DeleteS3 = (data) => {
+    if (!data) {
+      return Promise.resolve(true);
+    }
     let deletes = JSON.parse(data);
     console.log("deletes", deletes);
     if (deletes.length === 0) return Promise.resolve();
@@ -339,6 +342,7 @@ exports.updateImages = (req, res, next) => {
 
   DeleteS3(req.body.deleteImages)
     .then(() => {
+      console.log(req.files);
       return insertSource({ uid: userId, card_id: cardId, tabel: "design_images", files: req.files["design_file[]"] });
     }).then((data) => {
       let is_images = 0;

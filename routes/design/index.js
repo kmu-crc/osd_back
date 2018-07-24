@@ -14,7 +14,7 @@ const insertThumbnail = require("../../middlewares/insertThumbnail");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
-const { createDesignView } = require("./createDesignView");
+
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const stringToBoolean = require("../../middlewares/stringToBoolean");
@@ -45,7 +45,6 @@ router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);
 
 router.post("/createDesign", auth, uploadDesign, stringToNumber, stringToBoolean, createDesign);
-router.post("/createDesignView/:id", auth, createDesignView);
 router.post("/updateDesignInfo/:id", auth, insertThumbnail, stringToNumber, updateDesignInfo);
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
