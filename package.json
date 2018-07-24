@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www.js",
-    "dev": "DEVELOP=true nodemon ./bin/www.js"
+    "start": "OPERATION=true nodemon ./bin/www.js",
+    "dev": "DEVELOP=true nodemon ./bin/www.js",
+    "local": "LOCAL=true nodemon ./bin/www.js"
   },
   "dependencies": {
     "aws-sdk": "^2.243.1",

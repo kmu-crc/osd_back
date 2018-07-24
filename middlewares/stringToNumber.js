@@ -1,4 +1,5 @@
 const stringToNumber = (req, res, next) => {
+  console.log(req.files);
   const StoN = () => {
     return new Promise((resolve, reject) => {
       let arr = [];
