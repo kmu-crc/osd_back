@@ -8,7 +8,6 @@ const { joinMember } = require("../design/joinMember");
 exports.updateDesignInfo = (req, res, next) => {
   const designId = req.params.id;
   req.body["update_time"] = new Date();
-  console.log(req.file);
 
   if (req.body.category_level1 === 0) {
     req.body.category_level1 = null;
@@ -17,8 +16,11 @@ exports.updateDesignInfo = (req, res, next) => {
     req.body.category_level2 = null;
   }
 
-  let members = JSON.parse(req.body.members);
-  delete req.body.members;
+  let members = JSON.parse(req.body.member);
+  if (members.length === 0) {
+    members.push({uid: req.decoded.uid});
+  }
+  delete req.body.member;
 
   const updateDesign = (data) => {
     return new Promise((resolve, reject) => {
@@ -82,7 +84,8 @@ exports.updateDesignInfo = (req, res, next) => {
 
   const success = () => {
     res.status(200).json({
-      success: true
+      success: true,
+      design_id: designId
     });
   };
 
