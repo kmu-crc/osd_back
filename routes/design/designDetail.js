@@ -74,6 +74,29 @@ exports.designDetail = (req, res, next) => {
     return p;
   };
 
+  // 디자인 썸네일 가져오기 (GET)
+  function getThumnbail (data) {
+    const p = new Promise((resolve, reject) => {
+      if (data.thumbnail === null) {
+        data.img = null;
+        resolve(data);
+      } else {
+        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+          if (!err && row.length === 0) {
+            data.img = null;
+            resolve(data);
+          } else if (!err && row.length > 0) {
+            data.img = row[0];
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+    return p;
+  };
+
   // 속한 멤버들의 id, 닉네임 리스트 가져오기
   function getMemberList (data) {
     const p = new Promise((resolve, reject) => {
@@ -152,6 +175,7 @@ exports.designDetail = (req, res, next) => {
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
+    .then(getThumnbail)
     .then(getMemberList)
     .then(getChildrenCount)
     .then(isTeam)
@@ -203,7 +227,7 @@ exports.updateViewCount = (req, res, next) => {
 
   function updateUserView (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query(`UPDATE user_counter C 
+      connection.query(`UPDATE user_counter C
       INNER JOIN design D ON C.user_id = D.user_id
       SET C.total_view = C.total_view + 1 WHERE D.uid = ${id}`, (err, row) => {
         if (!err) {
