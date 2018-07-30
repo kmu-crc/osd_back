@@ -76,13 +76,15 @@ exports.insertDetail = (req, res) => {
 
   const respond = data => {
     res.status(200).json({
-      message: "성공적으로 등록되었습니다."
+      message: "성공적으로 등록되었습니다.",
+      success: true
     });
   };
 
   const error = err => {
     res.status(500).json({
-      error: err
+      error: err,
+      success: false
     });
   };
 
