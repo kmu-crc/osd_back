@@ -19,7 +19,7 @@ const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const stringToBoolean = require("../../middlewares/stringToBoolean");
 const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./designBoard");
-const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard } = require("./designCard");
+const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard, getCardSource, updateCardSource } = require("./designCard");
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
@@ -78,5 +78,9 @@ router.post("/changeToProject/:id", auth, changeToProject);
 
 // top 5개 리스트 가져오기 (메인용)
 router.get("/TopList/:page", getTopList, getDesignList);
+
+// 새로운 디자인 디테일 로직
+router.get("/designDetail/getCardSource/:card_id", getCardSource);
+router.post("/designDetail/updateCardSource/:card_id", auth, updateCardSource);
 
 module.exports = router;
