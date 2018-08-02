@@ -27,7 +27,7 @@ const { updateDesignInfo } = require("./updateDesign");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
-router.get("/designDetail/:id/view", designView);
+router.get("/designDetail/:id/view", tokenDecoded, designView);
 router.get("/designDetail/:id/step", designStep);
 router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
 
