@@ -1,13 +1,13 @@
-const connection = require("../../configs/connection");
-const { createThumbnails } = require("../../middlewares/createThumbnails");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { isOnlyNicName } = require("../../middlewares/verifications");
+const connection = require('../../configs/connection');
+const {createThumbnails} = require('../../middlewares/createThumbnails');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const {isOnlyNicName} = require('../../middlewares/verifications');
 
 // 유저 detail 등록
 exports.insertDetail = (req, res) => {
-  console.log("insert", req.file);
-  req.body["user_id"] = req.decoded.uid;
+  console.log('insert', req.file);
+  req.body['user_id'] = req.decoded.uid;
   if (req.body.category_level1 === 0) {
     req.body.category_level1 = null;
   }
@@ -23,10 +23,10 @@ exports.insertDetail = (req, res) => {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE uid = ${req.decoded.uid} `,
-        { thumbnail: id },
+        {thumbnail: id},
         (err, rows) => {
           if (!err) {
-            console.log("detail: ", rows);
+            console.log('detail: ', rows);
             resolve(rows);
           } else {
             reject(err);
@@ -37,11 +37,11 @@ exports.insertDetail = (req, res) => {
   };
 
   const insertDetailDB = data => {
-    console.log("22", data);
+    console.log('22', data);
     return new Promise((resolve, reject) => {
-      connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
+      connection.query('INSERT INTO user_detail SET ?', data, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          console.log('detail: ', rows);
           resolve(rows);
         } else {
           reject(err);
@@ -49,9 +49,24 @@ exports.insertDetail = (req, res) => {
       });
     });
   };
-
-  const insertUserCount = () => {
+  const isCount = (id) => {
     return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT uid FROM user_counter WHERE user_id = ${req.decoded.uid}`,
+        (err, row) => {
+          if (!err && row.length === 0) {
+            resolve(true);
+          } else if (!err && row.length > 0) {
+            resolve(false);
+          } else {
+            reject(err);
+          }
+        }
+      );
+    });
+  };
+  const insertUserCount = async () => {
+    return new Promise(async (resolve, reject) => {
       const newCount = {
         user_id: req.decoded.uid,
         total_like: 0,
@@ -59,36 +74,37 @@ exports.insertDetail = (req, res) => {
         total_group: 0,
         total_view: 0
       };
-      connection.query(
-        "INSERT INTO user_counter SET ? ",
-        newCount,
-        (err, row) => {
+      let isCountInfo = await isCount(req.decoded.uid);
+      if (isCountInfo) {
+        connection.query("INSERT INTO user_counter SET ?", newCount, (err, row) => {
           if (!err) {
             resolve(row);
           } else {
             console.log(err);
             reject(err);
           }
-        }
-      );
+        });
+      } else {
+        resolve(true);
+      }
     });
   };
 
   const respond = data => {
     res.status(200).json({
-      message: "성공적으로 등록되었습니다.",
-      success: true
+      message: '성공적으로 등록되었습니다.',
+      success: true,
     });
   };
 
   const error = err => {
     res.status(500).json({
       error: err,
-      success: false
+      success: false,
     });
   };
 
-  createThumbnails({ uid: req.decoded.uid, image: req.file })
+  createThumbnails({uid: req.decoded.uid, image: req.file})
     .then(userUpdata)
     .then(() => insertDetailDB(req.body))
     .then(insertUserCount)
@@ -104,7 +120,7 @@ exports.modifyDetail = (req, res) => {
   const userInfo = {
     password: req.body.password,
     nick_name: req.body.nick_name,
-    update_time: new Date()
+    update_time: new Date(),
   };
 
   // user detail 테이블에 들어가야 할 정보
@@ -112,7 +128,7 @@ exports.modifyDetail = (req, res) => {
     about_me: req.body.about_me,
     category_level1: req.body.category_level1,
     category_level2: req.body.category_level2,
-    is_designer: req.body.is_designer
+    is_designer: req.body.is_designer,
   };
 
   if (req.body.category_level1 === 0) {
@@ -149,9 +165,9 @@ exports.modifyDetail = (req, res) => {
     });
   };
 
-  function createHashPw (userInfo) {
+  function createHashPw(userInfo) {
     const p = new Promise((resolve, reject) => {
-      bcrypt.hash(userInfo.password, 10, function (err, hash) {
+      bcrypt.hash(userInfo.password, 10, function(err, hash) {
         if (!err) {
           userInfo.password = hash;
           resolve(userInfo);
@@ -171,9 +187,11 @@ exports.modifyDetail = (req, res) => {
     }
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`, info, (err, rows) => {
+        `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`,
+        info,
+        (err, rows) => {
           if (!err) {
-            console.log("detail: ", rows);
+            console.log('detail: ', rows);
             resolve(rows);
           } else {
             console.log(err);
@@ -187,15 +205,15 @@ exports.modifyDetail = (req, res) => {
   const respond = data => {
     res.status(200).json({
       success: true,
-      message: "성공적으로 업데이트되었습니다.",
-      token: data
+      message: '성공적으로 업데이트되었습니다.',
+      token: data,
     });
   };
 
   const error = err => {
     res.status(500).json({
       success: false,
-      error: err
+      error: err,
     });
   };
 
@@ -206,7 +224,7 @@ exports.modifyDetail = (req, res) => {
       if (req.file == null) {
         return Promise.resolve(null);
       } else {
-        return createThumbnails({ uid: req.decoded.uid, image: req.file });
+        return createThumbnails({uid: req.decoded.uid, image: req.file});
       }
     })
     .then(userUpdata)

@@ -7,6 +7,7 @@ const auth = require("../../middlewares/auth");
 const { FBSignIn, FBSignUp } = require("./FBRegistration");
 const { insertDetail, modifyDetail } = require("./userDetail");
 const stringToNumber = require("../../middlewares/stringToNumber");
+const stringToBoolean = require("../../middlewares/stringToBoolean");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const secession = require("./secession");
 const checkEmail = require("./checkEmail");
@@ -27,9 +28,9 @@ router.post("/FBSignUp", FBSignUp, FBSignIn);
 
 router.post("/FBSignIn", FBSignIn);
 
-router.post("/insertDetail", auth, insertThumbnail, stringToNumber, insertDetail);
+router.post("/insertDetail", auth, insertThumbnail, stringToNumber, stringToBoolean, insertDetail);
 
-router.post("/modifyDetail", auth, insertThumbnail, stringToNumber, modifyDetail);
+router.post("/modifyDetail", auth, insertThumbnail, stringToNumber, stringToBoolean, modifyDetail);
 
 router.delete("/deleteUser", auth, secession);
 
