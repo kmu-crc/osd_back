@@ -11,6 +11,7 @@ const getDesignerList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
+          console.log(row);
           row.map(data => {
             arr.push(newData(data));
           });
@@ -62,15 +63,19 @@ const getDesignerList = (req, res, next) => {
   // 디자이너 본인의 썸네일 가져오는 함수
   function getMyThumbnail (data) {
     return new Promise((resolve, reject) => {
-      connection.query("SELECT s_img, m_img FROM thumbnail WHERE user_id = ?", data.uid, (err, row) => {
-        if (!err && row.length === 0) {
-          resolve(null);
-        } else if (!err && row.length > 0) {
-          resolve(row[0]);
-        } else {
-          return err;
-        }
-      });
+      if (!data.thumbnail) {
+        resolve(null);
+      } else {
+        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+          if (!err && row.length === 0) {
+            resolve(null);
+          } else if (!err && row.length > 0) {
+            resolve(row[0]);
+          } else {
+            return err;
+          }
+        });
+      }
     });
   };
 
