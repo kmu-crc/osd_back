@@ -107,7 +107,10 @@ const getDesignList = (req, res, next) => {
   }
 
   getList(sql)
-    .then(data => res.status(200).json(data))
+    .then(data => {
+      console.log("list", data);
+      res.status(200).json(data)
+    })
     .catch(err => res.status(500).json(err));
 };
 
