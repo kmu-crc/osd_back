@@ -1,13 +1,13 @@
-const connection = require('../../configs/connection');
-const {createThumbnails} = require('../../middlewares/createThumbnails');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const {isOnlyNicName} = require('../../middlewares/verifications');
+const connection = require("../../configs/connection");
+const {createThumbnails} = require("../../middlewares/createThumbnails");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const {isOnlyNicName} = require("../../middlewares/verifications");
 
 // 유저 detail 등록
 exports.insertDetail = (req, res) => {
-  console.log('insert', req.file);
-  req.body['user_id'] = req.decoded.uid;
+  console.log("insert", req.file);
+  req.body["user_id"] = req.decoded.uid;
   if (req.body.category_level1 === 0) {
     req.body.category_level1 = null;
   }
@@ -26,7 +26,7 @@ exports.insertDetail = (req, res) => {
         {thumbnail: id},
         (err, rows) => {
           if (!err) {
-            console.log('detail: ', rows);
+            console.log("detail: ", rows);
             resolve(rows);
           } else {
             reject(err);
@@ -37,11 +37,11 @@ exports.insertDetail = (req, res) => {
   };
 
   const insertDetailDB = data => {
-    console.log('22', data);
+    console.log("22", data);
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO user_detail SET ?', data, (err, rows) => {
+      connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
         if (!err) {
-          console.log('detail: ', rows);
+          console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -92,15 +92,15 @@ exports.insertDetail = (req, res) => {
 
   const respond = data => {
     res.status(200).json({
-      message: '성공적으로 등록되었습니다.',
-      success: true,
+      message: "성공적으로 등록되었습니다.",
+      success: true
     });
   };
 
   const error = err => {
     res.status(500).json({
       error: err,
-      success: false,
+      success: false
     });
   };
 
@@ -120,7 +120,7 @@ exports.modifyDetail = (req, res) => {
   const userInfo = {
     password: req.body.password,
     nick_name: req.body.nick_name,
-    update_time: new Date(),
+    update_time: new Date()
   };
 
   // user detail 테이블에 들어가야 할 정보
@@ -128,7 +128,7 @@ exports.modifyDetail = (req, res) => {
     about_me: req.body.about_me,
     category_level1: req.body.category_level1,
     category_level2: req.body.category_level2,
-    is_designer: req.body.is_designer,
+    is_designer: req.body.is_designer
   };
 
   if (req.body.category_level1 === 0) {
@@ -137,7 +137,7 @@ exports.modifyDetail = (req, res) => {
   if (req.body.category_level2 === 0) {
     detailInfo.category_level2 = null;
   }
-  if (req.body.is_designer) {
+  if (req.body.is_designer === 1) {
     detailInfo.is_designer = 1;
   } else {
     detailInfo.is_designer = 0;
@@ -165,7 +165,7 @@ exports.modifyDetail = (req, res) => {
     });
   };
 
-  function createHashPw(userInfo) {
+  function createHashPw (userInfo) {
     const p = new Promise((resolve, reject) => {
       bcrypt.hash(userInfo.password, 10, function(err, hash) {
         if (!err) {
@@ -191,7 +191,7 @@ exports.modifyDetail = (req, res) => {
         info,
         (err, rows) => {
           if (!err) {
-            console.log('detail: ', rows);
+            console.log("detail: ", rows);
             resolve(rows);
           } else {
             console.log(err);
@@ -205,19 +205,20 @@ exports.modifyDetail = (req, res) => {
   const respond = data => {
     res.status(200).json({
       success: true,
-      message: '성공적으로 업데이트되었습니다.',
+      message: "성공적으로 업데이트되었습니다.",
       token: data,
     });
   };
 
   const error = err => {
+    console.log(err);
     res.status(500).json({
       success: false,
       error: err,
     });
   };
 
-  isOnlyNicName(userInfo.nick_name)
+  isOnlyNicName(userInfo.nick_name, userId)
     .then(() => createHashPw(userInfo))
     .then(() => updateDetailDB(detailInfo))
     .then(() => {

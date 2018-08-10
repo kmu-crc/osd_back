@@ -1,14 +1,18 @@
 const connection = require("../configs/connection");
 // 닉네임이 중복되는지 확인하는 로직
-exports.isOnlyNicName = (name) => {
+exports.isOnlyNicName = (name, userId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(nick_name) FROM user WHERE nick_name='${name}'`, (err, rows) => {
+    connection.query(`SELECT nick_name, uid FROM user WHERE nick_name='${name}'`, (err, rows) => {
       if (!err) {
-        if (rows[0]["count(nick_name)"] === 0) {
+        if (rows.length === 0) {
           resolve(true);
         } else {
-          const errorMessage = "중복된 닉네임입니다.";
-          reject(errorMessage);
+          if (userId && userId === rows[0].uid) {
+            resolve(true);
+          } else {
+            const errorMessage = "중복된 닉네임입니다.";
+            reject(errorMessage);
+          }
         }
       } else {
         const errorMessage = "isOnlyNicName err : " + err;
