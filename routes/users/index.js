@@ -18,6 +18,7 @@ const getGroupList = require("../../middlewares/getGroupList");
 const getDesignerList = require("../../middlewares/getDesignerList");
 const { myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner } = require("./myPage");
 const { getMyMsgList, getMyMsgDetail, sendMsg } = require("./myMsg");
+const { findPw } = require("./resetMail");
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);
@@ -49,4 +50,6 @@ router.get("/myPage/likeDesigner/:page", auth, myLikeDesigner, getDesignerList);
 router.get("/msgList", auth, getMyMsgList);
 router.get("/msgDetail/:id", auth, getMyMsgDetail);
 router.post("/sendMsg/:id", auth, sendMsg);
+
+router.post("/findPw", findPw);
 module.exports = router;
