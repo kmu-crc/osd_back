@@ -1,6 +1,7 @@
 const connection = require("../../configs/connection");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 exports.findPw = (req, res, next) => {
   const email = req.body.email;
@@ -74,8 +75,8 @@ exports.findPw = (req, res, next) => {
       const smtpTransport = nodemailer.createTransport({
         service: "Gmail",
         auth: {
-          user: "opensrcdesign@gmail.com",
-          pass: "crc503kmucs"
+          user: process.env.MAIL_ID,
+          pass: process.env.MAIL_PASSWORD
         }
       });
       const mailOptions = {
