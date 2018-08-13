@@ -72,6 +72,7 @@ exports.findPw = (req, res, next) => {
 
   const sendMail = (mail, pw) => {
     return new Promise((resolve, reject) => {
+      console.log("process.env.MAIL_ID", process.env.MAIL_ID);
       const smtpTransport = nodemailer.createTransport({
         service: "Gmail",
         auth: {
