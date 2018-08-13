@@ -130,6 +130,7 @@ exports.modifyDetail = (req, res) => {
     category_level2: req.body.category_level2,
     is_designer: req.body.is_designer
   };
+  console.log(req.body);
 
   if (req.body.category_level1 === 0) {
     detailInfo.category_level1 = null;
@@ -137,7 +138,7 @@ exports.modifyDetail = (req, res) => {
   if (req.body.category_level2 === 0) {
     detailInfo.category_level2 = null;
   }
-  if (req.body.is_designer === 1) {
+  if (req.body.is_designer === 1 || req.body.is_designer === true) {
     detailInfo.is_designer = 1;
   } else {
     detailInfo.is_designer = 0;
