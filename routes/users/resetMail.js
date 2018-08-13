@@ -87,6 +87,7 @@ exports.findPw = (req, res, next) => {
       };
       smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error) {
+          console.log("mailError", error)
           reject(error);
         } else {
           resolve("등록된 e-mail로 새로운 비밀번호가 전송되었습니다.");
