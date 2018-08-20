@@ -1,3 +1,4 @@
+const connection = require("../../configs/connection");
 
 exports.designerList = (req, res, next) => {
   const page = req.params.page;
@@ -34,4 +35,35 @@ exports.designerList = (req, res, next) => {
   }
   req.sql = sql;
   next();
+};
+
+exports.getTotalCount = (req, res, next) => {
+  const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
+  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
+  let sql;
+
+  if (!category1 && !category2) { // 카테고리 파라미터가 없는 경우
+    sql = "SELECT count(*) FROM user U LEFT JOIN user_detail D ON U.uid = D.user_id WHERE D.is_designer = 1";
+  } else if (category2) { // 카테고리 2가 설정된 경우 먼저 빼감
+    sql = "SELECT count(*) FROM user U LEFT JOIN user_detail D ON U.uid = D.user_id WHERE D.is_designer = 1 AND category_level2 = " + category2;
+  } else if (category1) { // 카테고리 1이 설정된 경우
+    sql = "SELECT count(*) FROM user U LEFT JOIN user_detail D ON U.uid = D.user_id WHERE D.is_designer = 1 AND category_level1 = " + category1;
+  }
+
+  const getCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(sql, (err, result) => {
+        if (!err && result.length) {
+          console.log(result);
+          resolve(result[0]);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  getCount()
+    .then(num => res.status(200).json(num))
+    .catch(err => res.status(500).json(err));
 };
