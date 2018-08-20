@@ -74,8 +74,58 @@ exports.getBoardList = (req, res, next) => {
     });
   };
 
+  const getThumbnail = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT * FROM thumbnail WHERE uid = ${id}`, (err, rows) => {
+        if (!err) {
+          console.log(rows);
+          resolve(rows[0]);
+        } else {
+          console.error("MySQL Error:", err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const addThumbnail = list => {
+    return new Promise(async (resolve, reject) => {
+      let newArr = [];
+      for (let item of list) {
+        try {
+          if (item.first_img) {
+            item.first_img = await getThumbnail(item.first_img);
+            newArr.push(item);
+          } else {
+            newArr.push(item);
+          }
+        } catch (err) {
+          newArr.push(err);
+        }
+      }
+
+      Promise.all(newArr).then(data => resolve(data)).catch(err => reject(err));
+    });
+  };
+
+  const pickCard = list => {
+    return new Promise(async (resolve, reject) => {
+      let newArr = [];
+      for (let item of list) {
+        try {
+          item.cards = await addThumbnail(item.cards);
+          newArr.push(item);
+        } catch (err) {
+          newArr.push(err);
+        }
+      }
+
+      Promise.all(newArr).then(data => resolve(data)).catch(err => reject(err));
+    });
+  };
+
   const respond = (data) => {
-    console.log(data);
+    console.log("getBoards", data);
     res.status(200).json({
       success: true,
       message: "성공적으로 등록되었습니다.",
@@ -85,6 +135,7 @@ exports.getBoardList = (req, res, next) => {
 
   getList(design_id)
     .then(getCardList)
+    .then(pickCard)
     .then(respond)
     .catch(next);
 };
