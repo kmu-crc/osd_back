@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../../middlewares/auth");
-const { designerList } = require("./designerList");
+const { designerList, getTotalCount } = require("./designerList");
 const { designerDetail, getCount } = require("./designerDetail");
 const getDesignerList = require("../../middlewares/getDesignerList");
 const { designInDesigner, likeInDesigner } = require("./designInDesigner");
@@ -11,6 +11,7 @@ const { getLikeDesigner, likeDesigner, unlikeDesigner } = require("./likeDesigne
 const { getTopList } = require("./topList");
 
 router.get("/designerList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designerList, getDesignerList);
+router.get("/designerCount/:cate1?/:cate2?", getTotalCount);
 router.get("/designerDetail/:id", designerDetail);
 router.get("/designerDetail/:id/design/:page", designInDesigner, getDesignList);
 router.get("/designerDetail/:id/like/:page", likeInDesigner, getDesignList);

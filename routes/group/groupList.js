@@ -1,3 +1,4 @@
+const connection = require("../../configs/connection");
 
 exports.groupList = (req, res, next) => {
   const page = req.params.page;
@@ -36,4 +37,23 @@ exports.groupList = (req, res, next) => {
   }
   req.sql = sql;
   next();
+};
+
+exports.getTotalCount = (req, res, next) => {
+  const getCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT count(*) FROM opendesign.group G WHERE NOT EXISTS (SELECT J.group_id FROM group_join_group J WHERE J.group_id = G.uid)", (err, result) => {
+        if (!err && result.length) {
+          console.log(result);
+          resolve(result[0]);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  getCount()
+    .then(num => res.status(200).json(num))
+    .catch(err => res.status(500).json(err));
 };

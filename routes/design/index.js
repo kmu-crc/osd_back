@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { designList } = require("./designList");
+const { designList, getTotalCount } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
@@ -26,6 +26,7 @@ const { getTopList } = require("./topList");
 const { updateDesignInfo } = require("./updateDesign");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
+router.get("/designCount/:cate1?/:cate2?", getTotalCount);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
 router.get("/designDetail/:id/view", tokenDecoded, designView);
 router.get("/designDetail/:id/step", designStep);
