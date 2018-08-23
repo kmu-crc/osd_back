@@ -81,10 +81,39 @@ exports.groupDetail = (req, res, next) => {
     return p;
   };
 
+  // 그룹 부모그룹 있는지 확인 후 가져오기
+  function getParentInfo (data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT * FROM group_join_group WHERE group_id = ?", data.uid, async (err, row) => {
+        if (!err && row.length === 0) {
+          data.parentName = null;
+          data.parentId = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          await connection.query("SELECT title, uid FROM opendesign.group WHERE uid = ?", row[0].parent_group_id, (err, name) => {
+            if (!err) {
+              data.parentName = name[0].title;
+              data.parentId = name[0].uid;
+              resolve(data);
+            } else {
+              data.parentName = null;
+              data.parentId = null;
+              resolve(data);
+            }
+          });
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
   getGroupInfo(id)
     .then(getName)
     .then(getGroupComment)
     .then(getThumnbail)
+    .then(getParentInfo)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
 };
