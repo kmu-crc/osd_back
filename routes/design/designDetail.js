@@ -11,7 +11,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 디자인 기본 정보 가져오기
-  function getDesignInfo (id) {
+  function getDesignInfo(id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design WHERE uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
@@ -25,30 +25,34 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   // 등록자 닉네임 가져오기
-  function getName (data) {
+  function getName(data) {
     const p = new Promise((resolve, reject) => {
       if (data.user_id === null) {
         data.userName = null;
         resolve(data);
       } else {
-        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
-          if (!err) {
-            data.userName = result[0].nick_name;
-            resolve(data);
-          } else {
-            reject(err);
+        connection.query(
+          "SELECT nick_name FROM user WHERE uid = ?",
+          data.user_id,
+          (err, result) => {
+            if (!err) {
+              data.userName = result[0].nick_name;
+              resolve(data);
+            } else {
+              reject(err);
+            }
           }
-        });
+        );
       }
     });
     return p;
-  };
+  }
 
   // 카테고리 이름 가져오기
-  function getCategory (data) {
+  function getCategory(data) {
     const p = new Promise((resolve, reject) => {
       let cate;
       let sql;
@@ -72,102 +76,194 @@ exports.designDetail = (req, res, next) => {
       });
     });
     return p;
-  };
+  }
 
   // 디자인 썸네일 가져오기 (GET)
-  function getThumnbail (data) {
+  function getThumnbail(data) {
     const p = new Promise((resolve, reject) => {
       if (data.thumbnail === null) {
         data.img = null;
         resolve(data);
       } else {
-        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        connection.query(
+          "SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?",
+          data.thumbnail,
+          (err, row) => {
+            if (!err && row.length === 0) {
+              data.img = null;
+              resolve(data);
+            } else if (!err && row.length > 0) {
+              data.img = row[0];
+              resolve(data);
+            } else {
+              reject(err);
+            }
+          }
+        );
+      }
+    });
+    return p;
+  }
+
+  // 속한 멤버들의 id, 닉네임 리스트 가져오기
+  function getMemberList(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE design_id = ?",
+        data.uid,
+        (err, row) => {
           if (!err && row.length === 0) {
-            data.img = null;
+            data.member = null;
             resolve(data);
           } else if (!err && row.length > 0) {
-            data.img = row[0];
+            data.member = row;
             resolve(data);
           } else {
             reject(err);
           }
-        });
-      }
-    });
-    return p;
-  };
-
-  // 속한 멤버들의 id, 닉네임 리스트 가져오기
-  function getMemberList (data) {
-    const p = new Promise((resolve, reject) => {
-      connection.query("SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE design_id = ?", data.uid, (err, row) => {
-        if (!err && row.length === 0) {
-          data.member = null;
-          resolve(data);
-        } else if (!err && row.length > 0) {
-          data.member = row;
-          resolve(data);
-        } else {
-          reject(err);
         }
-      });
+      );
     });
     return p;
-  };
+  }
 
   // 파생된 디자인 수 가져오기
-  function getChildrenCount (data) {
+  function getChildrenCount(data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM design WHERE parent_design = ?", data.uid, (err, result) => {
-        if (!err) {
-          data.children_count = result[0];
-          console.log(data);
-          resolve(data);
-        } else {
-          reject(err);
+      connection.query(
+        "SELECT count(*) FROM design WHERE parent_design = ?",
+        data.uid,
+        (err, result) => {
+          if (!err) {
+            data.children_count = result[0];
+            console.log(data);
+            resolve(data);
+          } else {
+            reject(err);
+          }
         }
-      });
+      );
     });
     return p;
-  };
+  }
 
   // 내가 디자인 멤버인지 검증하기
-  function isTeam (data) {
+  function isTeam(data) {
     const p = new Promise((resolve, reject) => {
       if (loginId === null) {
         data.is_team = 0;
         resolve(data);
       } else {
-        connection.query(`SELECT * FROM design_member WHERE design_id = ${data.uid} AND user_id = ${loginId}`, (err, result) => {
+        connection.query(
+          `SELECT * FROM design_member WHERE design_id = ${
+            data.uid
+          } AND user_id = ${loginId}`,
+          (err, result) => {
+            if (!err && result.length === 0) {
+              data.is_team = 0;
+              resolve(data);
+            } else if (!err && result.length > 0) {
+              data.is_team = 1;
+              resolve(data);
+            } else {
+              reject(err);
+            }
+          }
+        );
+      }
+    });
+    return p;
+  }
+
+  // 맴버 섬네일 가져오기
+  const getThumbnailId = id => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT thumbnail FROM user WHERE uid = ${id}`,
+        (err, result) => {
+          if (!err) {
+            console.log("member: ", result[0]);
+            resolve(result[0].thumbnail);
+          } else {
+            reject(err);
+          }
+        }
+      );
+    });
+  };
+
+  const getThumbnail = id => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT * FROM thumbnail WHERE uid = ${id}`,
+        (err, result) => {
+          if (!err) {
+            console.log("member: ", result[0]);
+            resolve(result[0]);
+          } else {
+            reject(err);
+          }
+        }
+      );
+    });
+  };
+
+  const memberLoop = list => {
+    return new Promise(async (resolve, reject) => {
+      let newList = [];
+      for (let item of list) {
+        try {
+          let thumbnail = await getThumbnailId(item.user_id);
+          if (thumbnail) {
+            item.thumbnail = await getThumbnail(thumbnail);
+          } else {
+            item.thumbnail = null;
+          }
+          newList.push(item);
+        } catch (err) {
+          newList.push(err);
+        }
+      }
+      Promise.all(newList)
+        .then(data => {
+          console.log("members", data);
+          return resolve(data);
+        })
+        .catch(err => reject(err));
+    });
+  };
+
+  // 맴버 가져오기
+  const getMembers = (data, designId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        data.member = await memberLoop(data.member);
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  // 가장 최근 업데이트된 이슈 제목 가져오기
+  function getIssueTitle(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT uid, title, update_time FROM design_issue WHERE design_id = ${
+          data.uid
+        } ORDER BY update_time DESC`,
+        (err, result) => {
           if (!err && result.length === 0) {
-            data.is_team = 0;
+            data.mainIssue = null;
             resolve(data);
           } else if (!err && result.length > 0) {
-            data.is_team = 1;
+            data.mainIssue = result[0];
             resolve(data);
           } else {
             reject(err);
           }
-        });
-      }
-    });
-    return p;
-  };
-
-  // 가장 최근 업데이트된 이슈 제목 가져오기
-  function getIssueTitle (data) {
-    const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT uid, title, update_time FROM design_issue WHERE design_id = ${data.uid} ORDER BY update_time DESC`, (err, result) => {
-        if (!err && result.length === 0) {
-          data.mainIssue = null;
-          resolve(data);
-        } else if (!err && result.length > 0) {
-          data.mainIssue = result[0];
-          resolve(data);
-        } else {
-          reject(err);
         }
-      });
+      );
     });
     return p;
   }
@@ -180,6 +276,7 @@ exports.designDetail = (req, res, next) => {
     .then(getChildrenCount)
     .then(isTeam)
     .then(getIssueTitle)
+    .then(data => getMembers(data, designId))
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };
@@ -188,20 +285,24 @@ exports.designDetail = (req, res, next) => {
 exports.getCount = (req, res, next) => {
   const designId = req.params.id;
 
-  function getCount (id) {
+  function getCount(id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM design_counter WHERE design_id = ?", id, (err, row) => {
-        if (!err) {
-          console.log(row[0]);
-          res.status(200).json(row[0]);
-        } else {
-          console.log(err);
-          res.status(500).json(err);
+      connection.query(
+        "SELECT * FROM design_counter WHERE design_id = ?",
+        id,
+        (err, row) => {
+          if (!err) {
+            console.log(row[0]);
+            res.status(200).json(row[0]);
+          } else {
+            console.log(err);
+            res.status(500).json(err);
+          }
         }
-      });
+      );
     });
     return p;
-  };
+  }
 
   getCount(designId);
 };
@@ -210,57 +311,66 @@ exports.getCount = (req, res, next) => {
 exports.updateViewCount = (req, res, next) => {
   const designId = req.params.id;
 
-  function updateDesignView (id) {
+  function updateDesignView(id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("UPDATE design_counter SET view_count = view_count + 1 WHERE design_id = ?", id, (err, row) => {
-        if (!err) {
-          console.log(row[0]);
-          resolve(id);
-        } else {
-          console.log(err);
-          reject(err);
+      connection.query(
+        "UPDATE design_counter SET view_count = view_count + 1 WHERE design_id = ?",
+        id,
+        (err, row) => {
+          if (!err) {
+            console.log(row[0]);
+            resolve(id);
+          } else {
+            console.log(err);
+            reject(err);
+          }
         }
-      });
+      );
     });
     return p;
-  };
+  }
 
-  function updateUserView (id) {
+  function updateUserView(id) {
     const p = new Promise((resolve, reject) => {
-      connection.query(`UPDATE user_counter C
+      connection.query(
+        `UPDATE user_counter C
       INNER JOIN design D ON C.user_id = D.user_id
-      SET C.total_view = C.total_view + 1 WHERE D.uid = ${id}`, (err, row) => {
-        if (!err) {
-          console.log(row);
-          res.status(200).json({success: true});
-        } else {
-          console.log(err);
-          res.status(200).json({success: false});
+      SET C.total_view = C.total_view + 1 WHERE D.uid = ${id}`,
+        (err, row) => {
+          if (!err) {
+            console.log(row);
+            res.status(200).json({ success: true });
+          } else {
+            console.log(err);
+            res.status(200).json({ success: false });
+          }
         }
-      });
+      );
     });
     return p;
-  };
+  }
 
-  updateDesignView(designId)
-    .then(updateUserView);
+  updateDesignView(designId).then(updateUserView);
 };
 
 // 블로그형 디자인 프로젝트형으로 변경
 exports.changeToProject = (req, res, next) => {
   const id = req.params.id;
 
-  function changeToProject (id) {
+  function changeToProject(id) {
     const p = new Promise((resolve, reject) => {
-      connection.query(`UPDATE design SET is_project = 1, update_time = now() WHERE uid = ${id}`, (err, row) => {
-        if (!err) {
-          console.log(row);
-          res.status(200).json({success: true});
-        } else {
-          console.log(err);
-          res.status(200).json({success: false});
+      connection.query(
+        `UPDATE design SET is_project = 1, update_time = now() WHERE uid = ${id}`,
+        (err, row) => {
+          if (!err) {
+            console.log(row);
+            res.status(200).json({ success: true });
+          } else {
+            console.log(err);
+            res.status(200).json({ success: false });
+          }
         }
-      });
+      );
     });
     return p;
   }
