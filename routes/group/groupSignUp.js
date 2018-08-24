@@ -62,6 +62,18 @@ exports.groupSignUpGroup = (req, res, next) => {
     });
   };
 
+  const JoinLoop = (data) => {
+    console.log(data);
+    return new Promise((resolve, reject) => {
+      let arr = data.join_group.map(item => {
+        groupSignUpDB({parent_group_id, group_id: item})
+          .then(resolve(true))
+          .catch(err => reject(err));
+      });
+      Promise.all(arr).then(true).catch(err => reject(err));
+    });
+  };
+
   const respond = (data) => {
     res.status(200).json({
       message: "그룹가입신청 성공",
@@ -70,7 +82,7 @@ exports.groupSignUpGroup = (req, res, next) => {
   };
 
   isGroup(parent_group_id)
-    .then(() => groupSignUpDB({parent_group_id, group_id: req.body.join_group}))
+    .then(() => JoinLoop(req.body))
     .then(respond)
     .catch(next);
 };
