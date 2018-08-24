@@ -1,6 +1,7 @@
 const connection = require("../../configs/connection");
 const { insertSource } = require("../../middlewares/insertSource");
 const { S3SourcesDetele, S3Upload } = require("../../middlewares/S3Sources");
+const { createThumbnails } = require("../../middlewares/createThumbnails");
 var fs = require("fs");
 
 const createCardFn = req => {
@@ -658,7 +659,8 @@ exports.updateCardSource = async (req, res, next) => {
   const userId = req.decoded.uid;
 
   const WriteFile = (file, filename) => {
-    let name = new Date().valueOf() + "." + filename.split(".")[1];
+    let originname = filename.split(".");
+    let name = new Date().valueOf() + "." + originname[originname.length - 1];
     return new Promise((resolve, reject) => {
       fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
         if (err) {
@@ -692,7 +694,9 @@ exports.updateCardSource = async (req, res, next) => {
         }
       }
       console.log(pArr);
-      Promise.all(pArr).then(data => resolve(data)).catch(err => reject(err));
+      Promise.all(pArr)
+        .then(data => resolve(data))
+        .catch(err => reject(err));
     });
   };
 
@@ -715,7 +719,9 @@ exports.updateCardSource = async (req, res, next) => {
         );
       }
       console.log(pArr);
-      Promise.all(pArr).then(data => resolve(data)).catch(err => reject(err));
+      Promise.all(pArr)
+        .then(data => resolve(data))
+        .catch(err => reject(err));
     });
   };
 
@@ -749,8 +755,10 @@ exports.updateCardSource = async (req, res, next) => {
         );
       }
 
-      Promise.all(pArr).then(resolve(true)).catch(err => reject(err));
-    })
+      Promise.all(pArr)
+        .then(resolve(true))
+        .catch(err => reject(err));
+    });
   };
 
   const updateDB = async arr => {
@@ -800,4 +808,70 @@ exports.updateCardSource = async (req, res, next) => {
     .then(insertDB)
     .then(respond)
     .catch(next);
+};
+
+exports.updateCardAllData = async (req, res, next) => {
+  const cardId = req.params.card_id;
+  const userId = req.decoded.uid;
+
+  const WriteFile = (file, filename) => {
+    let originname = filename.split(".");
+    let name = new Date().valueOf() + "." + originname[originname.length - 1];
+    return new Promise((resolve, reject) => {
+      fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(`uploads/${name}`);
+        }
+      });
+    });
+  };
+
+  const upLoadFile = async (userId, res) => {
+    return new Promise(async (resolve, reject) => {
+      if (!res) resolve(null);
+      try {
+        let fileStr = res.img.split("base64,")[1];
+        let data = await WriteFile(fileStr, res.file_name);
+        let thumbnail = await createThumbnails({
+          image: data,
+          filename: data.split("/")[1],
+          uid: userId
+        });
+        console.log("22222", thumbnail);
+        resolve(thumbnail);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  updateCardFn({ userId, cardId, data: { title: req.body.title } })
+    .then(() =>
+      updateCardFn({
+        userId,
+        cardId,
+        data: { content: req.body.content }
+      })
+    )
+    .then(() => upLoadFile(userId, req.body.thumbnail))
+    .then(thumbnail => {
+      if (thumbnail) {
+        updateCardFn({
+          userId,
+          cardId,
+          data: {
+            first_img: thumbnail
+          }
+        });
+      } else {
+        return Promise.resolve(true);
+      }
+    }).then(() => {
+      req.body = req.body.data;
+      return next();
+    }).catch(next);
+
+  console.log("updateCardAllData", req.body.thumbnail);
 };
