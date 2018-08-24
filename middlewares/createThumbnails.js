@@ -7,8 +7,13 @@ exports.createThumbnails = (data) => {
   console.log("createThumbnails");
   console.log(data);
   return new Promise((resolve, reject) => {
+    let filename = null;
     if (!data.image) resolve(null);
-    let filename = data.image.filename; // thumbnail 이미지를 만들어야 하는 filename
+    if (data.image.filename) {
+      filename = data.image.filename; // thumbnail 이미지를 만들어야 하는 filename
+    } else {
+      filename = data.filename; // thumbnail 이미지를 만들어야 하는 filename
+    }
     let thumbnail = new Thumbnail("uploads", "thumbnails"); // uploads 폴더에 있는 대상 파일을 작업 후에는 thumbnails폴더로 이동
     const thumbnailSizeObj = {
       "s_img": 50,
