@@ -33,11 +33,11 @@ exports.myDesignList = (req, res, next) => {
 
 exports.myGroupList = (req, res, next) => {
   const groupId = req.params.id;
-  console.log(groupId, req.decoded.uid)
+  console.log(groupId, req.decoded.uid);
 
   const getList = (obj) => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT g.uid, g.user_id, g.title FROM opendesign.group g WHERE g.user_id = ${obj.user_id} AND NOT g.uid = ${groupId} AND NOT EXISTS ( SELECT p.group_id, p.parent_group_id FROM group_join_group p WHERE p.group_id = g.uid AND p.parent_group_id = ${obj.groupId})`, (err, rows) => {
+      connection.query(`SELECT g.uid, g.user_id, g.title FROM opendesign.group g WHERE g.user_id = ${obj.user_id} AND NOT g.uid = ${groupId} AND NOT EXISTS ( SELECT p.group_id FROM group_join_group p WHERE p.group_id = g.uid )`, (err, rows) => {
         if (!err) {
           console.log("detail: ", rows);
           resolve(rows);
