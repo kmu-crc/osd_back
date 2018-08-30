@@ -15,15 +15,15 @@ exports.designList = (req, res, next) => {
   }
 
   if (!category1 && !category2) { // 카테고리 파라미터가 없는 경우
-    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE D.is_public = 1";
+    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count, U.nick_name FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid JOIN user U ON U.uid = D.user_id";
   } else if (category2) { // 카테고리 2가 설정된 경우 먼저 빼감
-    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE D.is_public = 1 AND category_level2 = " + category2;
+    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count, U.nick_name FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid JOIN user U ON U.uid = D.user_id WHERE category_level2 = " + category2;
   } else if (category1) { // 카테고리 1이 설정된 경우
-    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE D.is_public = 1 AND category_level1 = " + category1;
+    sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count, U.nick_name FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid JOIN user U ON U.uid = D.user_id WHERE category_level1 = " + category1;
   }
 
   if (keyword && keyword !== "null" && keyword !== "undefined") {
-    sql = sql + ` AND D.title LIKE "%${keyword}%"`;
+    sql = sql + ` AND ( D.title LIKE "%${keyword}%" OR U.nick_name LIKE "%${keyword}%" )`;
   }
 
   if (sort === "update") {

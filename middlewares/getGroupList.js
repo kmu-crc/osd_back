@@ -29,11 +29,6 @@ const getGroupList = (req, res, next) => {
     return new Promise((resolve, reject) => {
       getMyThumbnail(data).then(url => {
         data.thumbnailUrl = url;
-        return data;
-      }).then(
-        getUserName
-      ).then(name => {
-        data.userName = name;
         resolve(data);
       }).catch(err => {
         reject(err);

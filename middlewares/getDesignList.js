@@ -27,12 +27,7 @@ const getDesignList = (req, res, next) => {
 
   function newData (data) {
     return new Promise((resolve, reject) => {
-      getUserName(data).then(name => {
-        data.userName = name;
-        return data;
-      }).then(
-        getCategory
-      ).then(name => {
+      getCategory(data).then(name => {
         data.categoryName = name;
         return data;
       }).then(
