@@ -84,7 +84,7 @@ exports.groupDetail = (req, res, next) => {
   // 그룹 부모그룹 있는지 확인 후 가져오기
   function getParentInfo (data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM group_join_group WHERE group_id = ?", data.uid, async (err, row) => {
+      connection.query("SELECT * FROM group_join_group WHERE group_id = ? AND is_join = 1", data.uid, async (err, row) => {
         if (!err && row.length === 0) {
           data.parentName = null;
           data.parentId = null;
