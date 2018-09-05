@@ -82,6 +82,42 @@ exports.updateDesignInfo = (req, res, next) => {
     });
   };
 
+  const findParentGroup = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT parent_group_id FROM group_join_design WHERE design_id = ?", id, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(row);
+        } else if (!err && row.length > 0) {
+          let arr = [];
+          row.map(data => {
+            arr.push(updateParentGroup(data));
+          });
+          Promise.all(arr).then(result => {
+            resolve(result);
+          });
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateParentGroup = (row) => {
+    return new Promise((resolve, reject) => {
+      const now = { "child_update_time": new Date() };
+      connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${row.parent_group_id}`, now, (err, result) => {
+        if (!err) {
+          console.log("result", result);
+          resolve(result);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   const success = () => {
     res.status(200).json({
       success: true,
@@ -103,6 +139,7 @@ exports.updateDesignInfo = (req, res, next) => {
         return createThumbnails({ uid: req.decoded.uid, image: req.file });
       }
     }).then(designUpdata)
+    .then(() => findParentGroup(designId))
     // .then(clearMember)
     // .then(() => {
     //   return joinMember({design_id: designId, members});
