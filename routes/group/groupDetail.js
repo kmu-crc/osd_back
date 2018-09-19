@@ -120,15 +120,61 @@ exports.groupDetail = (req, res, next) => {
 
 exports.getCount = (req, res, next) => {
   const groupId = req.params.id;
-  console.log("work");
+  let design;
+  let group;
 
-  // 그룹 count 정보 가져오기 (GET)
-  function getGroupCount (id) {
-    console.log("work2");
+  // 그룹 디자인 정보 가져오기 (GET)
+  function getDesignCount (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM group_counter WHERE group_id = ?", id, (err, row) => {
+      connection.query("SELECT count(*) FROM group_join_design WHERE parent_group_id = ?", id, (err, row) => {
         if (!err) {
-          console.log(row[0]);
+          design = row[0]["count(*)"];
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  // 그룹 하위그룹 정보 가져오기 (GET)
+  function getGroupCount (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT count(*) FROM group_join_group WHERE parent_group_id = ?", id, (err, row) => {
+        if (!err) {
+          group = row[0]["count(*)"];
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  // 그룹 count 정보 업데이트
+  function updateCount (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`UPDATE group_counter SET ? WHERE group_id = ${id}`, {design: design, group: group}, (err, row) => {
+        if (!err) {
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  // 그룹 count 정보 가져오기
+  function getCount (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT * FROM group_counter WHERE group_id = ${id}`, (err, row) => {
+        if (!err) {
           res.status(200).json(row[0]);
         } else {
           console.log(err);
@@ -139,5 +185,8 @@ exports.getCount = (req, res, next) => {
     return p;
   };
 
-  getGroupCount(groupId);
+  getDesignCount(groupId)
+    .then(getGroupCount)
+    .then(updateCount)
+    .then(getCount);
 };

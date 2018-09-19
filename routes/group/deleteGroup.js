@@ -53,6 +53,20 @@ exports.deleteAllGroup = (req, res, next) => {
     });
   };
 
+  // 유저 카운트 업데이트
+  const updateUserCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE user_counter SET total_group = total_group - 1 WHERE user_id = ${req.decoded.uid}`, (err, row) => {
+        if (!err) {
+          resolve(id);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   const success = () => {
     res.status(200).json({
       success: true
@@ -68,6 +82,7 @@ exports.deleteAllGroup = (req, res, next) => {
   getThumbnail(id)
     .then(deleteThumbnail)
     .then(() => deleteGroup(id))
+    .then(() => updateUserCount())
     .then(success)
     .catch(fail);
 };
