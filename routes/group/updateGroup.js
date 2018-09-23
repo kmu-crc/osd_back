@@ -89,7 +89,7 @@ exports.updateGroup = (req, res, next) => {
       if (req.file == null) {
         return Promise.resolve(null);
       } else {
-        return createThumbnails({ uid: req.decoded.uid, image: req.file });
+        return createThumbnails(req.file);
       }
     })
     .then(groupUpdata)

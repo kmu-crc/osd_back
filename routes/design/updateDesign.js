@@ -15,11 +15,6 @@ exports.updateDesignInfo = (req, res, next) => {
   if (req.body.category_level2 === 0) {
     req.body.category_level2 = null;
   }
-
-  let members = JSON.parse(req.body.member);
-  if (members.length === 0) {
-    members.push({uid: req.decoded.uid});
-  }
   delete req.body.member;
 
   const updateDesign = (data) => {
@@ -100,14 +95,9 @@ exports.updateDesignInfo = (req, res, next) => {
       if (req.file == null) {
         return Promise.resolve(null);
       } else {
-        return createThumbnails({ uid: req.decoded.uid, image: req.file });
+        return createThumbnails(req.file);
       }
     }).then(designUpdata)
-    .then(clearMember)
-    .then(() => {
-      return joinMember({design_id: designId, members});
-    })
-    .then(() => updateMemberCount(designId))
     .then(success)
     .catch(fail);
 };

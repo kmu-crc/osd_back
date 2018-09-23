@@ -72,7 +72,7 @@ exports.createGroup = (req, res, next) => {
   };
 
   insertDetailDB(req.body)
-    .then(() => createThumbnails({ uid: req.decoded.uid, image: req.file }))
+    .then(() => createThumbnails(req.file))
     .then(groupUpdata)
     .then(insertGroupCount)
     .then(updateUserCount)

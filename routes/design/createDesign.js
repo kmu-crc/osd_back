@@ -4,6 +4,7 @@ const { insertSource } = require("../../middlewares/insertSource");
 const { createBoardDB } = require("../design/designBoard");
 const { createCard, createCardDB, updateCardDB } = require("../design/designCard");
 const { joinMember } = require("../design/joinMember");
+const fs = require("fs");
 
 // 2. 생성된 디자인에 썸네일 업데이트
 const updateDesignFn = (req) => {
@@ -29,9 +30,34 @@ exports.updateDesign = (req, res, next) => {
 };
 
 // 디자인 디테일 정보 등록
-exports.createDesign = (req, res, next) => {
+exports.createDesign = async (req, res, next) => {
   console.log("createDesign", req.files);
 
+  const WriteFile = (file, filename) => {
+    let originname = filename.split(".");
+    let name = new Date().valueOf() + "." + originname[originname.length - 1];
+    return new Promise((resolve, reject) => {
+      fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(`uploads/${name}`);
+        }
+      });
+    });
+  };
+
+  let file = null;
+  if (req.body.files) {
+    let fileStr = req.body.files[0].value.split("base64,")[1];
+    let data = await WriteFile(fileStr, req.body.files[0].name);
+    file = {
+      image: data,
+      filename: data.split("/")[1],
+      uid: req.decoded.uid
+    };
+  };
+  delete req.body.files;
   if (req.body.category_level1 === 0) {
     req.body.category_level1 = null;
   }
@@ -122,7 +148,7 @@ exports.createDesign = (req, res, next) => {
   // 6. card가 성공적으로 생성되었다면 source파일을 업로드 한다.
   insertDesign(req.body)
     .then(() => {
-      return createThumbnails({ uid: userId, image: req.files["thumbnail[]"][0] });
+      return createThumbnails(file);
     })
     .then((thumbnailId) => {
       return updateDesignFn({
