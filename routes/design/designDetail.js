@@ -357,17 +357,16 @@ exports.updateViewCount = (req, res, next) => {
 exports.changeToProject = (req, res, next) => {
   const id = req.params.id;
 
-  function changeToProject(id) {
+  function changeToProject (id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `UPDATE design SET is_project = 1, update_time = now() WHERE uid = ${id}`,
         (err, row) => {
           if (!err) {
-            console.log(row);
-            res.status(200).json({ success: true });
+            resolve(true);
           } else {
             console.log(err);
-            res.status(200).json({ success: false });
+            reject(err);
           }
         }
       );
@@ -375,5 +374,60 @@ exports.changeToProject = (req, res, next) => {
     return p;
   }
 
-  changeToProject(id);
+  // 기존 블로그형 디자인에 컨텐츠가 없을 경우, 보드와 카드 삭제 (초기화 상태로 만듦)
+  function ifExistContent (id) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT * FROM design_content C JOIN design_card D ON D.design_id = ${id} WHERE C.card_id = D.uid`, (err, row) => {
+        if (!err && row.length === 0) {
+          console.log("디자인 없음", row);
+          resolve(false);
+        } else if (!err && row.length > 0) {
+          console.log("디자인 있음", row);
+          resolve(true);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+
+  function clearBoardCard (result) {
+    const p = new Promise((resolve, reject) => {
+      if (result) {
+        resolve(true);
+      } else {
+        connection.query(`DELETE FROM design_board WHERE design_id = ${id}`, (err, row) => {
+          if (!err) {
+            console.log("디자인 지움");
+            resolve(true);
+          } else {
+            console.log(err);
+            reject(err);
+          }
+        });
+      }
+    });
+    return p;
+  }
+
+  const respond = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const error = (err) => {
+    res.status(500).json({
+      err: err,
+      success: false
+    });
+  };
+
+  ifExistContent(id)
+    .then(clearBoardCard)
+    .then(() => changeToProject(id))
+    .then(respond)
+    .catch(error);
 };

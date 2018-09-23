@@ -17,7 +17,7 @@ const { updateGroup, createGroupIssue, deleteGroupIssue } = require("./updateGro
 const { deleteAllGroup } = require("./deleteGroup");
 const { waitingDesign, waitingGroup } = require("./waitingList");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
-const { myDesignList, myGroupList } = require("./getMyList");
+const { myDesignList, myGroupList, myExistDesignList, myExistGroupList } = require("./getMyList");
 const { acceptDesign, acceptGroup, deleteDesign, deleteGroup } = require("./manageGroup");
 const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 
@@ -41,6 +41,8 @@ router.post("/groupDetail/:id/acceptDesign/:designId", acceptDesign);
 router.post("/groupDetail/:id/acceptGroup/:groupId", acceptGroup);
 router.delete("/groupDetail/:id/deleteDesign/:designId", deleteDesign);
 router.delete("/groupDetail/:id/deleteGroup/:groupId", deleteGroup);
+router.get("/:id/join/myExistDesignList", auth, myExistDesignList);
+router.get("/:id/join/myExistGroupList", auth, myExistGroupList);
 
 // 그룹 생성, 수정, 삭제
 router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);

@@ -11,21 +11,14 @@ exports.groupList = (req, res, next) => {
     sort = "update";
   }
 
-  let sql;
+  let sql = `SELECT
+            G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group, U.nick_name
+            FROM opendesign.group G
+            LEFT JOIN group_counter C ON C.group_id = G.uid
+            JOIN user U ON U.uid = G.user_id`;
 
   if (keyword && keyword !== "null" && keyword !== "undefined") {
-    sql = `SELECT
-      G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group
-      FROM opendesign.group G
-      LEFT JOIN group_counter C ON C.group_id = G.uid`;
-    sql = sql + ` WHERE G.title LIKE "%${keyword}%"`;
-  } else {
-    sql = `SELECT
-      G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group
-      FROM opendesign.group G
-      LEFT JOIN group_counter C ON C.group_id = G.uid
-      WHERE NOT EXISTS
-      (SELECT J.group_id FROM group_join_group J WHERE J.group_id = G.uid)`;
+    sql = sql + ` WHERE G.title LIKE "%${keyword}%" OR U.nick_name LIKE "%${keyword}%"`;
   }
 
   if (sort === "update") {
@@ -42,7 +35,7 @@ exports.groupList = (req, res, next) => {
 exports.getTotalCount = (req, res, next) => {
   const getCount = () => {
     return new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM opendesign.group G WHERE NOT EXISTS (SELECT J.group_id FROM group_join_group J WHERE J.group_id = G.uid)", (err, result) => {
+      connection.query("SELECT count(*) FROM opendesign.group G", (err, result) => {
         if (!err && result.length) {
           console.log(result);
           resolve(result[0]);
