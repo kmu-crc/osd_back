@@ -1,28 +1,34 @@
-const path = require("path");
-const multer = require("multer"); // express에 multer모듈 적용 (for 파일업로드);
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // cb 콜백함수를 통해 전송된 파일 저장 디렉토리 설정
-  },
-  filename: function (req, file, cb) {
-    cb(null, new Date().valueOf() + path.extname(file.originalname)); // cb 콜백함수를 통해 전송된 파일 이름 설정
-  }
-});
-const upload = multer({ storage: storage });
+const fs = require("fs");
 
-const imageUpload = (req, res, next) => {
-  const thisUpload = upload.single("thumbnail[]");
-  thisUpload(req, res, (err) => {
-    if (err) {
-      next(err);
-    }
-    if (req.file) {
-      next();
-    } else {
-      req.file = null;
-      next();
-    }
-  });
+const imageUpload = async (req, res, next) => {
+  console.log(req.body);
+  if (req.body.files) {
+    const WriteFile = (file, filename) => {
+      let originname = filename.split(".");
+      let name = new Date().valueOf() + "." + originname[originname.length - 1];
+      return new Promise((resolve, reject) => {
+        fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(`uploads/${name}`);
+          }
+        });
+      });
+    };
+    let fileStr = req.body.files[0].value.split("base64,")[1];
+    let data = await WriteFile(fileStr, req.body.files[0].name);
+    let file = {
+      image: data,
+      filename: data.split("/")[1],
+      uid: req.decoded.uid
+    };
+    req.file = file;
+  } else {
+    req.file = null;
+  }
+  delete req.body.files;
+  next();
 };
 
 module.exports = imageUpload;

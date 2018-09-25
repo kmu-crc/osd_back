@@ -53,7 +53,7 @@ router.post("/unlike/:id", auth, unlikeDesign);
 router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);
 
-router.post("/createDesign", auth, uploadDesign, stringToNumber, stringToBoolean, createDesign);
+router.post("/createDesign", auth, stringToNumber, stringToBoolean, createDesign);
 router.post("/updateDesignInfo/:id", auth, insertThumbnail, stringToNumber, updateDesignInfo);
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
