@@ -42,7 +42,7 @@ router.post("/designDetail/:id/joinDesign", auth, joinDesign);
 // 디자인에 가입 승인
 router.post("/designDetail/:id/acceptDesign", auth, acceptMember);
 // 디자인 탈퇴
-router.delete("/designDetail/:id/getoutDesign", auth, getoutMember);
+router.delete("/designDetail/:id/getoutDesign/:member_id", auth, getoutMember);
 
 // 디자인 좋아요 기능 관련
 router.get("/getLike/:id", auth, getLikeDesign);

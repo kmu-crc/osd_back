@@ -67,15 +67,32 @@ exports.acceptMember = (designId, userId) => {
 };
 
 // 디자인 멤버 탈퇴
-exports.getoutMember = (designId, userId) => {
-  return new Promise((resolve, reject) => {
-    connection.query(`DELETE design_member WHERE user_id = ${userId} AND design_id = ${designId}`, (err, rows) => {
-      if (!err) {
-        resolve(rows.insertId);
-      } else {
-        console.error(err);
-        reject(err);
-      }
+exports.getoutMember = (req, res, next) => {
+  const getout = (designId, memberId) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, (err, rows) => {
+        if (!err) {
+          resolve(rows.insertId);
+        } else {
+          console.error(err);
+          reject(err);
+        }
+      });
     });
-  });
+  };
+
+  getout(req.params.id, req.params.member_id)
+    .then(data => {
+      res.status(200).json({
+        design_id: req.params.id,
+        success: true
+      });
+    })
+    .catch(err => {
+      res.status(500).json({
+        design_id: req.params.id,
+        success: false,
+        err: err
+      });
+    });
 };
