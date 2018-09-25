@@ -11,7 +11,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 디자인 기본 정보 가져오기
-  function getDesignInfo(id) {
+  function getDesignInfo (id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design WHERE uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
@@ -28,7 +28,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 등록자 닉네임 가져오기
-  function getName(data) {
+  function getName (data) {
     const p = new Promise((resolve, reject) => {
       if (data.user_id === null) {
         data.userName = null;
@@ -52,7 +52,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 카테고리 이름 가져오기
-  function getCategory(data) {
+  function getCategory (data) {
     const p = new Promise((resolve, reject) => {
       let cate;
       let sql;
@@ -79,7 +79,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 디자인 썸네일 가져오기 (GET)
-  function getThumnbail(data) {
+  function getThumnbail (data) {
     const p = new Promise((resolve, reject) => {
       if (data.thumbnail === null) {
         data.img = null;
@@ -106,10 +106,10 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 속한 멤버들의 id, 닉네임 리스트 가져오기
-  function getMemberList(data) {
+  function getMemberList (data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
-        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE design_id = ?",
+        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE D.design_id = ? AND D.is_join = 1",
         data.uid,
         (err, row) => {
           if (!err && row.length === 0) {
@@ -128,7 +128,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 파생된 디자인 수 가져오기
-  function getChildrenCount(data) {
+  function getChildrenCount (data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "SELECT count(*) FROM design WHERE parent_design = ?",
@@ -148,7 +148,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 내가 디자인 멤버인지 검증하기
-  function isTeam(data) {
+  function isTeam (data) {
     const p = new Promise((resolve, reject) => {
       if (loginId === null) {
         data.is_team = 0;
@@ -157,7 +157,7 @@ exports.designDetail = (req, res, next) => {
         connection.query(
           `SELECT * FROM design_member WHERE design_id = ${
             data.uid
-          } AND user_id = ${loginId}`,
+          } AND user_id = ${loginId} AND is_join = 1`,
           (err, result) => {
             if (!err && result.length === 0) {
               data.is_team = 0;
@@ -246,7 +246,7 @@ exports.designDetail = (req, res, next) => {
   };
 
   // 가장 최근 업데이트된 이슈 제목 가져오기
-  function getIssueTitle(data) {
+  function getIssueTitle (data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `SELECT uid, title, update_time FROM design_issue WHERE design_id = ${
@@ -285,7 +285,7 @@ exports.designDetail = (req, res, next) => {
 exports.getCount = (req, res, next) => {
   const designId = req.params.id;
 
-  function getCount(id) {
+  function getCount (id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "SELECT * FROM design_counter WHERE design_id = ?",
@@ -311,7 +311,7 @@ exports.getCount = (req, res, next) => {
 exports.updateViewCount = (req, res, next) => {
   const designId = req.params.id;
 
-  function updateDesignView(id) {
+  function updateDesignView (id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "UPDATE design_counter SET view_count = view_count + 1 WHERE design_id = ?",
@@ -330,7 +330,7 @@ exports.updateViewCount = (req, res, next) => {
     return p;
   }
 
-  function updateUserView(id) {
+  function updateUserView (id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user_counter C
@@ -350,7 +350,8 @@ exports.updateViewCount = (req, res, next) => {
     return p;
   }
 
-  updateDesignView(designId).then(updateUserView);
+  updateDesignView(designId)
+    .then(updateUserView);
 };
 
 // 블로그형 디자인 프로젝트형으로 변경

@@ -3,7 +3,7 @@ const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
 const { createBoardDB } = require("../design/designBoard");
 const { createCard, createCardDB, updateCardDB } = require("../design/designCard");
-const { joinMember } = require("../design/joinMember");
+const { joinMember, acceptMember } = require("../design/joinMember");
 
 // 2. 생성된 디자인에 썸네일 업데이트
 const updateDesignFn = (req) => {
@@ -74,7 +74,7 @@ exports.createDesign = (req, res, next) => {
   const insertDesignCount = (data) => {
     console.log("3번", data, designId);
     return new Promise((resolve, reject) => {
-      const newCount = { design_id: designId, like_count: 0, view_count: 0, card_count: 0, member_count: members.length };
+      const newCount = { design_id: designId, like_count: 0, view_count: 0, card_count: 0, member_count: 1 };
       connection.query("INSERT INTO design_counter SET ? ", newCount, (err, row) => {
         if (!err) {
           resolve(designId);
@@ -135,6 +135,9 @@ exports.createDesign = (req, res, next) => {
     })
     .then(() => {
       return joinMember({design_id: designId, members});
+    })
+    .then(() => {
+      return acceptMember(designId, userId);
     })
     .then(insertDesignCount)
     .then(updateUserCount)

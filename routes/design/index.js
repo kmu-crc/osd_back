@@ -24,6 +24,7 @@ const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
 const { updateDesignInfo } = require("./updateDesign");
+const { joinMember, joinDesign, acceptMember, getoutMember } = require("../design/joinMember");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designCount/:cate1?/:cate2?", getTotalCount);
@@ -35,6 +36,13 @@ router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
 router.get("/designDetail/:id/getBoardList", getBoardList);
 router.get("/designDetail/:id/getCardList", getCardList);
 router.get("/designDetail/getCardDetail/:cardId", getCardDetail);
+
+// 디자인에 가입 신청
+router.post("/designDetail/:id/joinDesign", auth, joinDesign);
+// 디자인에 가입 승인
+router.post("/designDetail/:id/acceptDesign", auth, acceptMember);
+// 디자인 탈퇴
+router.delete("/designDetail/:id/getoutDesign", auth, getoutMember);
 
 // 디자인 좋아요 기능 관련
 router.get("/getLike/:id", auth, getLikeDesign);
