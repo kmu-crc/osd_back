@@ -3,6 +3,7 @@ const connection = require("../../configs/connection");
 // 디자인 멤버 초대하는 로직 함수로 따로 분리
 const joinMemberFn = (req, flag) => {
   return new Promise((resolve, reject) => {
+    console.log(req, flag, "+++");
     let arr = req.members.map(item => {
       return new Promise((resolve, reject) => {
         connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: flag}, (err, rows) => {
@@ -53,50 +54,53 @@ exports.joinDesign = (req, res, next) => {
     });
 };
 
+// 디자인 승인하는 로직 따로 분리
+const acceptMember = (designId, memberId) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 2}, (err, rows) => {
+      if (!err) {
+        resolve(rows.insertId);
+      } else {
+        console.error(err);
+        reject(err);
+      }
+    });
+  });
+};
+
+// 카운트 값 가져오기
+const getCount = (designId) => {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 2", designId, (err, result) => {
+      if (!err) {
+        resolve(result[0]["count(*)"]);
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+};
+
+// 카운트 값 업데이트
+const updateCount = (count, designId) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE design_counter SET member_count = ${count} WHERE design_id = ${designId}`, (err, row) => {
+      if (!err) {
+        resolve(row.insertId);
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+};
+
 // 디자인 멤버 승인
 exports.acceptMember = (req, res, next) => {
-  const acceptMember = (designId, memberId) => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 2}, (err, rows) => {
-        if (!err) {
-          resolve(rows.insertId);
-        } else {
-          console.error(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const getCount = (designId) => {
-    return new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 2", designId, (err, result) => {
-        if (!err) {
-          resolve(result[0]["count(*)"]);
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const updateCount = (count) => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_counter SET member_count = ${count} WHERE design_id = ${req.params.id}`, (err, row) => {
-        if (!err) {
-          resolve(row.insertId);
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
   acceptMember(req.params.id, req.params.member_id)
     .then(() => getCount(req.params.id))
-    .then(updateCount)
+    .then(data => updateCount(data, req.params.id))
     .then(data => {
       res.status(200).json({
         design_id: req.params.id,
@@ -110,6 +114,12 @@ exports.acceptMember = (req, res, next) => {
         err: err
       });
     });
+};
+
+exports.acceptLeader = (designId, userId) => {
+  acceptMember(designId, userId)
+    .then(() => getCount(designId))
+    .then(data => updateCount(data, designId));
 };
 
 // 디자인 멤버 탈퇴
@@ -127,35 +137,9 @@ exports.getoutMember = (req, res, next) => {
     });
   };
 
-  const getCount = (designId) => {
-    return new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 2", designId, (err, result) => {
-        if (!err) {
-          resolve(result[0]["count(*)"]);
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
-  const updateCount = (count) => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_counter SET member_count = ${count} WHERE design_id = ${req.params.id}`, (err, row) => {
-        if (!err) {
-          resolve(row.insertId);
-        } else {
-          console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
   getout(req.params.id, req.params.member_id)
     .then(() => getCount(req.params.id))
-    .then(updateCount)
+    .then(data => updateCount(data, req.params.id))
     .then(data => {
       res.status(200).json({
         design_id: req.params.id,
