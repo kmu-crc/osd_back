@@ -1,12 +1,11 @@
 const connection = require("../../configs/connection");
-const { joinMember } = require("../design/joinMember");
 
 // 디자인 멤버 초대하는 로직 함수로 따로 분리
-const joinMemberFn = (req) => {
+const joinMemberFn = (req, flag) => {
   return new Promise((resolve, reject) => {
     let arr = req.members.map(item => {
       return new Promise((resolve, reject) => {
-        connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: 0}, (err, rows) => {
+        connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: flag}, (err, rows) => {
           if (!err) {
             resolve(rows.insertId);
           } else {
@@ -20,20 +19,23 @@ const joinMemberFn = (req) => {
       .then(() => resolve(true))
       .catch(() => reject(new Error("멤버등록 실패")));
   });
-}
+};
 
+// 디자인 멤버 초대 (디자인 처음 생성시)
 exports.joinMember = (req) => {
-  return joinMemberFn(req);
+  const flag = 1; // 팀장이 초대
+  return joinMemberFn(req, flag);
 };
 
 // 디자인 멤버 신청 || 초대
 exports.joinDesign = (req, res, next) => {
+  const flag = req.params.flag;
   const data = {
     design_id: req.params.id,
-    members: [ { uid: req.decoded.uid } ]
+    members: req.body
   };
 
-  joinMemberFn(data)
+  joinMemberFn(data, flag)
     .then(data => {
       if (data) {
         res.status(200).json({
@@ -55,7 +57,7 @@ exports.joinDesign = (req, res, next) => {
 exports.acceptMember = (req, res, next) => {
   const acceptMember = (designId, memberId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 1}, (err, rows) => {
+      connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 2}, (err, rows) => {
         if (!err) {
           resolve(rows.insertId);
         } else {
@@ -66,7 +68,35 @@ exports.acceptMember = (req, res, next) => {
     });
   };
 
+  const getCount = (designId) => {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 2", designId, (err, result) => {
+        if (!err) {
+          resolve(result[0]["count(*)"]);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateCount = (count) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE design_counter SET member_count = ${count} WHERE design_id = ${req.params.id}`, (err, row) => {
+        if (!err) {
+          resolve(row.insertId);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   acceptMember(req.params.id, req.params.member_id)
+    .then(() => getCount(req.params.id))
+    .then(updateCount)
     .then(data => {
       res.status(200).json({
         design_id: req.params.id,
@@ -97,7 +127,35 @@ exports.getoutMember = (req, res, next) => {
     });
   };
 
+  const getCount = (designId) => {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 2", designId, (err, result) => {
+        if (!err) {
+          resolve(result[0]["count(*)"]);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateCount = (count) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE design_counter SET member_count = ${count} WHERE design_id = ${req.params.id}`, (err, row) => {
+        if (!err) {
+          resolve(row.insertId);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
   getout(req.params.id, req.params.member_id)
+    .then(() => getCount(req.params.id))
+    .then(updateCount)
     .then(data => {
       res.status(200).json({
         design_id: req.params.id,
@@ -117,7 +175,7 @@ exports.getoutMember = (req, res, next) => {
 exports.getWaitingMember = (req, res, next) => {
   const getMember = (designId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM design_member WHERE design_id = ${designId} AND is_join = 0`, (err, rows) => {
+      connection.query(`SELECT M.user_id, U.nick_name, T.s_img, T.m_img FROM design_member M JOIN user U ON U.uid = M.user_id LEFT JOIN thumbnail T ON T.user_id = M.user_id AND T.uid = U.thumbnail WHERE design_id = ${designId} AND is_join = 0`, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
