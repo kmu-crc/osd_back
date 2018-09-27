@@ -20,6 +20,7 @@ exports.insertDetail = (req, res) => {
     req.body.is_designer = 0;
   }
   const userUpdata = id => {
+    console.log("id", id);
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE uid = ${req.decoded.uid} `,
@@ -98,7 +99,6 @@ exports.insertDetail = (req, res) => {
   };
 
   const error = err => {
-    console.log(err);
     res.status(500).json({
       error: err,
       success: false
