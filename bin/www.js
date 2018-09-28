@@ -6,7 +6,6 @@ var app = require("../app");
 var debug = require("debug")("opendesign:server");
 var http = require("http");
 require("dotenv").config();
-
 /**
  * Get port from environment and store in Express.
  */
@@ -19,7 +18,10 @@ app.set("port", port);
  */
 
 var server = http.createServer(app);
+exports.WServer = server;
 
+var {SocketConnection} = require("../socket");
+SocketConnection();
 /**
  * Listen on provided port, on all network interfaces.
  */
