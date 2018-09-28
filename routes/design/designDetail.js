@@ -109,7 +109,7 @@ exports.designDetail = (req, res, next) => {
   function getMemberList (data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
-        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE D.design_id = ? AND D.is_join = 2",
+        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE D.design_id = ? AND D.is_join = 1",
         data.uid,
         (err, row) => {
           if (!err && row.length === 0) {
@@ -157,7 +157,7 @@ exports.designDetail = (req, res, next) => {
         connection.query(
           `SELECT * FROM design_member WHERE design_id = ${
             data.uid
-          } AND user_id = ${loginId} AND is_join = 2`,
+          } AND user_id = ${loginId} AND is_join = 1`,
           (err, result) => {
             if (!err && result.length === 0) {
               data.is_team = 0;
@@ -211,25 +211,29 @@ exports.designDetail = (req, res, next) => {
   const memberLoop = list => {
     return new Promise(async (resolve, reject) => {
       let newList = [];
-      for (let item of list) {
-        try {
-          let thumbnail = await getThumbnailId(item.user_id);
-          if (thumbnail) {
-            item.thumbnail = await getThumbnail(thumbnail);
-          } else {
-            item.thumbnail = null;
+      if (!list || list.length === 0) {
+        resolve(null);
+      } else {
+        for (let item of list) {
+          try {
+            let thumbnail = await getThumbnailId(item.user_id);
+            if (thumbnail) {
+              item.thumbnail = await getThumbnail(thumbnail);
+            } else {
+              item.thumbnail = null;
+            }
+            newList.push(item);
+          } catch (err) {
+            newList.push(err);
           }
-          newList.push(item);
-        } catch (err) {
-          newList.push(err);
         }
+        Promise.all(newList)
+          .then(data => {
+            console.log("members", data);
+            return resolve(data);
+          })
+          .catch(err => reject(err));
       }
-      Promise.all(newList)
-        .then(data => {
-          console.log("members", data);
-          return resolve(data);
-        })
-        .catch(err => reject(err));
     });
   };
 
@@ -238,6 +242,7 @@ exports.designDetail = (req, res, next) => {
     return new Promise(async (resolve, reject) => {
       try {
         data.member = await memberLoop(data.member);
+        console.log("dddddata", data);
         resolve(data);
       } catch (err) {
         reject(err);

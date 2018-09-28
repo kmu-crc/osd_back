@@ -6,7 +6,7 @@ const joinMemberFn = (req, flag) => {
     console.log(req, flag, "+++");
     let arr = req.members.map(item => {
       return new Promise((resolve, reject) => {
-        connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: flag}, (err, rows) => {
+        connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag}, (err, rows) => {
           if (!err) {
             resolve(rows.insertId);
           } else {
@@ -57,7 +57,7 @@ exports.joinDesign = (req, res, next) => {
 // 디자인 승인하는 로직 따로 분리
 const acceptMember = (designId, memberId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 2}, (err, rows) => {
+    connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 1}, (err, rows) => {
       if (!err) {
         resolve(rows.insertId);
       } else {
@@ -71,7 +71,7 @@ const acceptMember = (designId, memberId) => {
 // 카운트 값 가져오기
 const getCount = (designId) => {
   return new Promise((resolve, reject) => {
-    connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 2", designId, (err, result) => {
+    connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 1", designId, (err, result) => {
       if (!err) {
         resolve(result[0]["count(*)"]);
       } else {
@@ -116,6 +116,7 @@ exports.acceptMember = (req, res, next) => {
     });
 };
 
+// 디자인 생성 시에 리더를 멤버로 승인
 exports.acceptLeader = (designId, userId) => {
   acceptMember(designId, userId)
     .then(() => getCount(designId))
@@ -159,7 +160,7 @@ exports.getoutMember = (req, res, next) => {
 exports.getWaitingMember = (req, res, next) => {
   const getMember = (designId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT M.user_id, U.nick_name, T.s_img, T.m_img FROM design_member M JOIN user U ON U.uid = M.user_id LEFT JOIN thumbnail T ON T.user_id = M.user_id AND T.uid = U.thumbnail WHERE design_id = ${designId} AND is_join = 0`, (err, rows) => {
+      connection.query(`SELECT M.user_id, U.nick_name, T.s_img, T.m_img FROM design_member M JOIN user U ON U.uid = M.user_id LEFT JOIN thumbnail T ON T.user_id = M.user_id AND T.uid = U.thumbnail WHERE design_id = ${designId} AND is_join = 0 AND invited = 0`, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
