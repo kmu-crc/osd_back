@@ -4,11 +4,12 @@ const fs = require("fs");
 const { S3Thumbnail } = require("../middlewares/S3Thumbnail");
 
 exports.createThumbnails = (data) => {
-  console.log("createThumbnails");
-  console.log(data);
   return new Promise((resolve, reject) => {
     let filename = null;
-    if (!data.image) resolve(null);
+    if (data === null || !data.image) {
+      console.log("이미지 없음");
+      resolve(null);
+    }
     if (data.image.filename) {
       filename = data.image.filename; // thumbnail 이미지를 만들어야 하는 filename
     } else {

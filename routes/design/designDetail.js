@@ -109,7 +109,7 @@ exports.designDetail = (req, res, next) => {
   function getMemberList (data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
-        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE D.design_id = ? AND D.is_join = 1",
+        "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE D.design_id = ? AND D.is_join = 2",
         data.uid,
         (err, row) => {
           if (!err && row.length === 0) {
@@ -157,7 +157,7 @@ exports.designDetail = (req, res, next) => {
         connection.query(
           `SELECT * FROM design_member WHERE design_id = ${
             data.uid
-          } AND user_id = ${loginId} AND is_join = 1`,
+          } AND user_id = ${loginId} AND is_join = 2`,
           (err, result) => {
             if (!err && result.length === 0) {
               data.is_team = 0;

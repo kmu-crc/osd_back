@@ -3,7 +3,7 @@ const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
 const { createBoardDB } = require("../design/designBoard");
 const { createCard, createCardDB, updateCardDB } = require("../design/designCard");
-const { joinMember, acceptMember } = require("../design/joinMember");
+const { joinMember, acceptLeader } = require("../design/joinMember");
 const fs = require("fs");
 
 // 2. 생성된 디자인에 썸네일 업데이트
@@ -163,7 +163,7 @@ exports.createDesign = async (req, res, next) => {
       return joinMember({design_id: designId, members});
     })
     .then(() => {
-      return acceptMember(designId, userId);
+      return acceptLeader(designId, userId);
     })
     .then(insertDesignCount)
     .then(updateUserCount)
