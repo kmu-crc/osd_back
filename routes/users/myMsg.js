@@ -179,11 +179,36 @@ exports.sendMsg = (req, res, next) => {
     return p;
   };
 
-  const respond = data => {
-    res.status(200).json({success: true, groupId: data});
+  const getSocketId = (data, uid) => {
+    return new Promise((resolve, reject) => {
+      console.log("uid", uid);
+      connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve({data, socketId: row[0].socket_id});
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const respond = (data) => {
+    const { sendAlarm } = require("../../socket");
+    console.log(sendAlarm);
+    console.log("socketId", data.socketId);
+    try {
+      sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg");
+      res.status(200).json({success: true, groupId: data.data});
+    } catch (err) {
+      next(err);
+    }
   };
 
   const error = err => {
+    console.log("err", err);
     res.status(500).json({success: false, groupId: null, error: err});
   };
 
@@ -196,6 +221,7 @@ exports.sendMsg = (req, res, next) => {
       }
     })
     .then(sendMsg)
+    .then(data => getSocketId(data, toUserId))
     .then(respond)
     .catch(error);
 };
@@ -209,11 +235,11 @@ exports.getMyMsgDetail = (req, res, next) => {
       if (!groupId) {
         resolve(null);
       } else {
-        connection.query(`SELECT 
-                    M.uid, M.group_id, M.from_user_id, M.to_user_id, M.message, M.create_time, U.nick_name, T.s_img 
-                          FROM message M 
-                          JOIN user U ON U.uid = M.from_user_id 
-                          LEFT JOIN thumbnail T ON T.uid = U.thumbnail 
+        connection.query(`SELECT
+                    M.uid, M.group_id, M.from_user_id, M.to_user_id, M.message, M.create_time, U.nick_name, T.s_img
+                          FROM message M
+                          JOIN user U ON U.uid = M.from_user_id
+                          LEFT JOIN thumbnail T ON T.uid = U.thumbnail
                           WHERE M.group_id = ${groupId}`, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
