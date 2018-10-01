@@ -16,7 +16,7 @@ const checkFBUser = require("./checkFBUser");
 const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 const getDesignerList = require("../../middlewares/getDesignerList");
-const { myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner } = require("./myPage");
+const { myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner, getMyInvitedList, getMyInvitingList } = require("./myPage");
 const { getMyMsgList, getMyMsgDetail, sendMsg } = require("./myMsg");
 const { findPw } = require("./resetMail");
 
@@ -46,6 +46,8 @@ router.get("/myPage/design/:page", auth, myDesign, getDesignList);
 router.get("/myPage/group/:page", auth, myGroup, getGroupList);
 router.get("/myPage/likeDesign/:page", auth, myLikeDesign, getDesignList);
 router.get("/myPage/likeDesigner/:page", auth, myLikeDesigner, getDesignerList);
+router.get("/myPage/invited", auth, getMyInvitedList, getDesignList);
+router.get("/myPage/inviting", auth, getMyInvitingList, getDesignList);
 
 router.get("/msgList", auth, getMyMsgList);
 router.get("/msgDetail/:id", auth, getMyMsgDetail);

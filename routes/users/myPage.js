@@ -205,3 +205,21 @@ exports.myLikeDesigner = (req, res, next) => {
   req.sql = sql;
   next();
 };
+
+// 내가 받은 초대 리스트 가져오기
+exports.getMyInvitedList = (req, res, next) => {
+  const id = req.decoded.uid;
+  const sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.is_project FROM design D RIGHT JOIN design_member M ON M.invited = 1 AND is_join = 0 AND M.user_id = ${id} WHERE M.design_id = D.uid`;
+
+  req.sql = sql;
+  next();
+};
+
+// 내가 보낸 가입 신청 리스트 가져오기
+exports.getMyInvitingList = (req, res, next) => {
+  const id = req.decoded.uid;
+  const sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.is_project FROM design D RIGHT JOIN design_member M ON M.invited = 0 AND is_join = 0 AND M.user_id = ${id} WHERE M.design_id = D.uid`;
+
+  req.sql = sql;
+  next();
+};
