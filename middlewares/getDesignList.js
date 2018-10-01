@@ -11,6 +11,7 @@ const getDesignList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
+          console.log("+++", row);
           row.map(data => {
             arr.push(newData(data));
           });
