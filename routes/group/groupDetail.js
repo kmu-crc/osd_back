@@ -126,7 +126,7 @@ exports.getCount = (req, res, next) => {
   // 그룹 디자인 정보 가져오기 (GET)
   function getDesignCount (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM group_join_design WHERE parent_group_id = ?", id, (err, row) => {
+      connection.query("SELECT count(*) FROM group_join_design WHERE parent_group_id = ? AND is_join = 1", id, (err, row) => {
         if (!err) {
           design = row[0]["count(*)"];
           resolve(id);
@@ -142,7 +142,7 @@ exports.getCount = (req, res, next) => {
   // 그룹 하위그룹 정보 가져오기 (GET)
   function getGroupCount (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM group_join_group WHERE parent_group_id = ?", id, (err, row) => {
+      connection.query("SELECT count(*) FROM group_join_group WHERE parent_group_id = ? AND is_join = 1", id, (err, row) => {
         if (!err) {
           group = row[0]["count(*)"];
           resolve(id);

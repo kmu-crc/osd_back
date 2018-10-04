@@ -133,7 +133,7 @@ exports.myGroup = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
+  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.child_update_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
   if (sort === "date") {
     sql = sql + " ORDER BY R.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
