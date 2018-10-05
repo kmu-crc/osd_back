@@ -14,6 +14,7 @@ function SocketConnection () {
   io.on("connection", socket => {
     console.log("New client connected");
     socket.on("INIT", (uid) => {
+      console.log("socket", uid, socket.id);
       connection.query(`UPDATE user SET ? WHERE uid=${uid}`, {socket_id: socket.id}, (err, rows) => {
         if (!err) {
           GetAlarm(socket.id, uid, io);
