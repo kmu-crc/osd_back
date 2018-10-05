@@ -160,7 +160,7 @@ exports.createDesign = async (req, res, next) => {
       });
     })
     .then(() => {
-      return joinMember({design_id: designId, members});
+      return joinMember({decoded: req.decoded, design_id: designId, members});
     })
     .then(() => {
       return acceptLeader(designId, userId);

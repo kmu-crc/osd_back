@@ -34,6 +34,16 @@ function SocketConnection () {
       });
     });
 
+    socket.on("confirm", (obj) => {
+      connection.query(`UPDATE alarm SET ? WHERE uid=${obj.alramId}`, {confirm: 1}, (err, rows) => {
+        if (!err) {
+          GetAlarm(socket.id, obj.uid, io);
+        } else {
+          console.log("2번", err);
+        }
+      });
+    });
+
     // disconnect is fired when a client leaves the server
     socket.on("disconnect", () => {
       connection.query(`UPDATE user SET ? WHERE socket_id='${socket.id}'`, {socket_id: null}, (err, rows) => {
@@ -47,8 +57,12 @@ function SocketConnection () {
   });
 };
 
-exports.sendAlarm = (socketId, uid, contentId, message) => {
-  SendAlarm(socketId, uid, contentId, message, io);
+exports.sendAlarm = (socketId, uid, contentId, message, fromUserId) => {
+  SendAlarm(socketId, uid, contentId, message, fromUserId, io);
+};
+
+exports.getAlarm = (socketId, uid) => {
+  GetAlarm(socketId, uid, io);
 };
 
 exports.SocketConnection = SocketConnection;

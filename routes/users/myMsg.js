@@ -200,7 +200,7 @@ exports.sendMsg = (req, res, next) => {
     console.log(sendAlarm);
     console.log("socketId", data.socketId);
     try {
-      sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg");
+      sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
       res.status(200).json({success: true, groupId: data.data});
     } catch (err) {
       next(err);
@@ -256,8 +256,44 @@ exports.getMyMsgDetail = (req, res, next) => {
     return p;
   };
 
-  const respond = data => {
-    res.status(200).json(data);
+  const getSocketId = (data, uid) => {
+    return new Promise((resolve, reject) => {
+      console.log("uid", uid);
+      connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve({data, socketId: row[0].socket_id});
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const AlarmConfirm = (uid, groupId) => {
+    return new Promise((resolve, reject) => {
+      console.log("uid", uid);
+      connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, {confirm: 1}, (err, row) => {
+        if (!err) {
+          resolve(true);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  }
+
+  const respond = async data => {
+    const { getAlarm } = require("../../socket");
+    await AlarmConfirm(userId, groupId);
+    getSocketId(data, userId).then(data => {
+      getAlarm(data.socketId, userId);
+      res.status(200).json(data.data);
+    }
+    ).catch(next);
   };
 
   const error = err => {

@@ -1,13 +1,50 @@
 const connection = require("../../configs/connection");
 
 // 디자인 멤버 초대하는 로직 함수로 따로 분리
+
+const getSocketId = (data, uid) => {
+  return new Promise((resolve, reject) => {
+    console.log("uid", uid);
+    connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+      if (!err && row.length === 0) {
+        resolve(null);
+      } else if (!err && row.length > 0) {
+        resolve({data, socketId: row[0].socket_id});
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+};
+
+const getCreateDesignUser = (designId) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT user_id FROM design WHERE uid = ${designId}`, (err, row) => {
+      if (!err) {
+        resolve(row[0].user_id);
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
+
 const joinMemberFn = (req, flag) => {
   return new Promise((resolve, reject) => {
     console.log(req, flag, "+++");
     let arr = req.members.map(item => {
-      return new Promise((resolve, reject) => {
-        connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag}, (err, rows) => {
+      return new Promise(async (resolve, reject) => {
+        connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag}, async (err, rows) => {
           if (!err) {
+            const { sendAlarm } = require("../../socket");
+            if (req.decoded.uid !== item.uid && (flag === "1" || flag === 1)) {
+              await getSocketId(rows.insertId, item.uid).then(data => sendAlarm(data.socketId, item.uid, req.design_id, (flag === "1" || flag === 1) ? "DesignInvite" : "DesignRequest", req.decoded.uid));
+            } else if (flag === "0" || flag === 0) {
+              let userId = await getCreateDesignUser(req.design_id);
+              await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, req.design_id, (flag === "1" || flag === 1) ? "DesignInvite" : "DesignRequest", req.decoded.uid));
+            }
             resolve(rows.insertId);
           } else {
             console.error("MySQL Error:", err);
@@ -32,6 +69,7 @@ exports.joinMember = (req) => {
 exports.joinDesign = (req, res, next) => {
   const flag = req.params.flag;
   const data = {
+    decoded: req.decoded,
     design_id: req.params.id,
     members: req.body
   };
@@ -54,11 +92,34 @@ exports.joinDesign = (req, res, next) => {
     });
 };
 
-// 디자인 승인하는 로직 따로 분리
-const acceptMember = (designId, memberId) => {
+// 초대인지 요청인지 구분하는 함수
+const whatIsAccept = (designId, memberId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 1}, (err, rows) => {
+    connection.query(`SELECT * FROM design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, (err, rows) => {
       if (!err) {
+        resolve(rows[0].invited);
+      } else {
+        console.error(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+// 디자인 승인하는 로직 따로 분리
+const acceptMember = (designId, memberId, isLeader) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 1}, async (err, rows, fields) => {
+      if (!err) {
+        // 초대인지 요청인지 구분하여 알람 전송 기능을 추가해야함
+        let userId = memberId;
+        let designerId = await getCreateDesignUser(designId);
+        if (!isLeader) {
+          let invited = await whatIsAccept(designId, memberId);
+          console.log("invited", typeof invited);
+          const { sendAlarm } = require("../../socket");
+          await getSocketId(rows.insertId, invited ? designerId : userId).then(data => sendAlarm(data.socketId, invited ? designerId : userId, designId, invited === 0 ? "DesignRequestTrue" : "DesignInvitedTrue", invited ? userId : designerId));
+        }
         resolve(rows.insertId);
       } else {
         console.error(err);
@@ -118,17 +179,28 @@ exports.acceptMember = (req, res, next) => {
 
 // 디자인 생성 시에 리더를 멤버로 승인
 exports.acceptLeader = (designId, userId) => {
-  acceptMember(designId, userId)
+  acceptMember(designId, userId, true)
     .then(() => getCount(designId))
     .then(data => updateCount(data, designId));
 };
 
 // 디자인 멤버 탈퇴
 exports.getoutMember = (req, res, next) => {
+  console.log(req.params, typeof req.params.refuse);
+  let refuse = req.params.refuse === "true";
   const getout = (designId, memberId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, (err, rows) => {
+      connection.query(`DELETE FROM design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, async (err, rows) => {
         if (!err) {
+          if (refuse) {
+            let userId = await getCreateDesignUser(designId);
+            const { sendAlarm } = require("../../socket");
+            console.log("?????", userId, memberId);
+            if (userId === req.decoded.uid) {
+              userId = memberId;
+            }
+            await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, designId, "DesignRefuse", req.decoded.uid));
+          }
           resolve(rows.insertId);
         } else {
           console.error(err);
