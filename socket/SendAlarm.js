@@ -57,10 +57,10 @@ function getTitle (query, target) {
     connection.query(query, (err, rows) => {
       if (!err && rows.length > 0) {
         resolve(rows[0][target]);
-      } else if (rows.length) {
+      } else if (!err && rows.length) {
         resolve(null);
       } else {
-        console.log("2번", err);
+        console.log("3번", err);
         reject(err);
       }
     });
@@ -76,7 +76,7 @@ function getNickName (uid) {
       } else if (rows.length) {
         resolve(null);
       } else {
-        console.log("2번", err);
+        console.log("1번", err);
         reject(err);
       }
     });
