@@ -67,7 +67,6 @@ exports.myGroupList = (req, res, next) => {
 };
 
 // 그룹 탈퇴 기능을 위해 지금 가입되어 있는 내 디자인 && 그룹 조회하기
-
 exports.myExistDesignList = (req, res, next) => {
   const groupId = req.params.id;
 
