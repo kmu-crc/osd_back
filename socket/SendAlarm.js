@@ -44,6 +44,8 @@ function addTitle (socketId, alarm, io, uid) {
       }
       if (isDesign) {
         item.title = await getTitle(query, target);
+      } else {
+        continue;
       }
       item.fromUser = await getNickName(item.from_user_id);
       newList.push(item);
