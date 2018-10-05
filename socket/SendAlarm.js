@@ -33,14 +33,18 @@ function addTitle (socketId, alarm, io, uid) {
       let query = null;
       let target = null;
       let fromUserId = null;
+      let isDesign = 1;
       if (item.type === "MESSAGE") {
         query = `SELECT nick_name FROM user WHERE uid = ${item.from_user_id}`;
         target = "nick_name";
       } else if (item.type === "DESIGN") {
+        isDesign = await DoesItExistDesign(item.content_id);
         query = `SELECT title FROM design WHERE uid = ${item.content_id}`;
         target = "title";
       }
-      item.title = await getTitle(query, target);
+      if (isDesign) {
+        item.title = await getTitle(query, target);
+      }
       item.fromUser = await getNickName(item.from_user_id);
       newList.push(item);
     }
@@ -49,6 +53,19 @@ function addTitle (socketId, alarm, io, uid) {
       alarm.list = item;
       io.to(`${socketId}`).emit("getNoti", alarm);
     }).catch(err => console.log(err));
+  });
+}
+
+function DoesItExistDesign (uid) {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT count(uid) FROM design WHERE uid = ${uid}`, (err, rows) => {
+      if (!err) {
+        resolve(rows[0]["count(uid)"]);
+      } else {
+        console.log("2번", err);
+        reject(err);
+      }
+    });
   });
 }
 
