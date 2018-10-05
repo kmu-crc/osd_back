@@ -133,7 +133,7 @@ exports.myGroup = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
+  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.child_update_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
   if (sort === "date") {
     sql = sql + " ORDER BY R.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
@@ -209,7 +209,10 @@ exports.myLikeDesigner = (req, res, next) => {
 // 내가 받은 초대 리스트 가져오기
 exports.getMyInvitedList = (req, res, next) => {
   const id = req.decoded.uid;
-  const sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.is_project FROM design D RIGHT JOIN design_member M ON M.invited = 1 AND is_join = 0 AND M.user_id = ${id} WHERE M.design_id = D.uid`;
+  const sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.is_project
+               FROM design D
+               RIGHT JOIN design_member M ON M.invited = 1 AND is_join = 0 AND M.user_id = ${id}
+               WHERE M.design_id = D.uid`;
 
   req.sql = sql;
   next();
@@ -218,7 +221,10 @@ exports.getMyInvitedList = (req, res, next) => {
 // 내가 보낸 가입 신청 리스트 가져오기
 exports.getMyInvitingList = (req, res, next) => {
   const id = req.decoded.uid;
-  const sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.is_project FROM design D RIGHT JOIN design_member M ON M.invited = 0 AND is_join = 0 AND M.user_id = ${id} WHERE M.design_id = D.uid`;
+  const sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.is_project, M.is_join
+               FROM design D
+               RIGHT JOIN design_member M ON M.invited = 0 AND M.user_id = ${id}
+               WHERE M.design_id = D.uid`;
 
   req.sql = sql;
   next();

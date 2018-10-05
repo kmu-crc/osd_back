@@ -166,6 +166,36 @@ exports.designDetail = (req, res, next) => {
               data.is_team = 1;
               resolve(data);
             } else {
+              console.log(err);
+              reject(err);
+            }
+          }
+        );
+      }
+    });
+    return p;
+  }
+
+  // 내가 가입 신청중인 디자인인지 검증하기
+  function waiting (data) {
+    const p = new Promise((resolve, reject) => {
+      if (loginId === null) {
+        data.waitingStatus = 0;
+        resolve(data);
+      } else {
+        connection.query(
+          `SELECT * FROM design_member WHERE design_id = ${
+            data.uid
+          } AND user_id = ${loginId} AND is_join = 0`,
+          (err, result) => {
+            if (!err && result.length === 0) {
+              data.waitingStatus = 0;
+              resolve(data);
+            } else if (!err && result.length > 0) {
+              data.waitingStatus = 1;
+              resolve(data);
+            } else {
+              console.log(err);
               reject(err);
             }
           }
@@ -280,6 +310,7 @@ exports.designDetail = (req, res, next) => {
     .then(getMemberList)
     .then(getChildrenCount)
     .then(isTeam)
+    .then(waiting)
     .then(getIssueTitle)
     .then(data => getMembers(data, designId))
     .then(data => res.status(200).json(data))
