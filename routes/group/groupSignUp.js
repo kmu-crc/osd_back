@@ -1,6 +1,33 @@
 const connection = require("../../configs/connection");
 const { isGroup } = require("../../middlewares/verifications");
 
+const getSocketId = (uid) => {
+  return new Promise((resolve, reject) => {
+    console.log("uid", uid);
+    connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+      if (!err && row.length === 0) {
+        resolve(null);
+      } else if (!err && row.length > 0) {
+        resolve({socketId: row[0].socket_id});
+      } else {
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+};
+const getGroupUserId = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * FROM opendesign.group WHERE uid=${id}`, (err, rows) => {
+      if (!err) {
+        resolve(rows[0].user_id);
+      } else {
+        const errorMessage = "그룹가입신청이 실패하였습니다.";
+        reject(errorMessage);
+      }
+    });
+  });
+};
 exports.groupSignUp = (req, res, next) => {
   const parent_group_id = req.params.id;
   const user_id = req.decoded.uid;
@@ -31,7 +58,12 @@ exports.groupSignUp = (req, res, next) => {
     });
   };
 
-  const respond = (data) => {
+  const respond = async (data) => {
+    const { sendAlarm } = require("../../socket");
+    console.log(sendAlarm);
+    let socket = getSocketId(req.decoded.uid);
+    let toUserId = await getGroupUserId(parent_group_id).catch(next);
+    sendAlarm(socket.socketId, toUserId, parent_group_id, "JoinGroup", req.decoded.uid);
     res.status(200).json({
       message: "그룹가입신청 성공",
       success: true
@@ -74,7 +106,12 @@ exports.groupSignUpGroup = (req, res, next) => {
     });
   };
 
-  const respond = (data) => {
+  const respond = async (data) => {
+    const { sendAlarm } = require("../../socket");
+    console.log(sendAlarm);
+    let socket = getSocketId(req.decoded.uid);
+    let toUserId = await getGroupUserId(parent_group_id).catch(next);
+    sendAlarm(socket.socketId, toUserId, parent_group_id, "JoinGroup", req.decoded.uid);
     res.status(200).json({
       message: "그룹가입신청 성공",
       success: true

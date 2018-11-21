@@ -33,7 +33,7 @@ router.post("/insertDetail", auth, insertThumbnail, stringToNumber, stringToBool
 
 router.post("/modifyDetail", auth, insertThumbnail, stringToNumber, stringToBoolean, modifyDetail);
 
-router.delete("/deleteUser", auth, secession);
+router.post("/deleteUser", auth, secession);
 
 router.post("/checkEmail", checkEmail);
 

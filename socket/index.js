@@ -9,7 +9,6 @@ const { WServer } = require("../bin/www");
 const io = socketIO(WServer);
 
 function SocketConnection () {
-  console.log("WServer", WServer);
   // This is what the socket.io syntax is like, we will work this later
   io.on("connection", socket => {
     console.log("New client connected");
