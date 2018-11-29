@@ -468,3 +468,141 @@ exports.changeToProject = (req, res, next) => {
     .then(respond)
     .catch(error);
 };
+
+// design의 댓글
+exports.getDesignComment = (req, res, next) => {
+  const id = req.params.id;
+
+  const getComment = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("SELECT C.uid, C.user_id, C.design_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM design_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.design_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log("get", row);
+          resolve(row);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const success = (data) => {
+    res.status(200).json({
+      success: true,
+      data: data
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false,
+      data: null
+    });
+  };
+
+  getComment(id)
+    .then(success)
+    .catch(fail);
+};
+
+exports.createDetailComment = (req, res, next) => {
+  req.body["user_id"] = req.decoded.uid;
+  req.body["design_id"] = req.params.id;
+  console.log("req.body", req.body);
+
+  const createComment = (data) => {
+    return new Promise((resolve, reject) => {
+      connection.query("INSERT INTO design_comment SET ?", data, (err, row) => {
+        if (!err) {
+          console.log("create", row);
+          resolve(row);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateCardCount = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("UPDATE design_counter SET comment_count = comment_count + 1 WHERE design_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log("update", row);
+          resolve(row);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const success = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  createComment(req.body)
+    .then(() => updateCardCount(req.params.id))
+    .then(success)
+    .catch(fail);
+};
+
+exports.deleteDetailComment = (req, res, next) => {
+  const designId = req.params.id;
+  const cmtId = req.params.comment_id;
+
+  const deleteComment = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM design_comment WHERE design_id = ${designId} AND uid = ${cmtId}`, (err, row) => {
+        if (!err) {
+          console.log("delete", row);
+          resolve(row);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const updateCardCount = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query("UPDATE design_counter SET comment_count = comment_count - 1 WHERE design_id = ?", id, (err, row) => {
+        if (!err) {
+          console.log("update", row);
+          resolve(row);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+
+  const success = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  deleteComment(req.body)
+    .then(() => updateCardCount(designId))
+    .then(success)
+    .catch(fail);
+};

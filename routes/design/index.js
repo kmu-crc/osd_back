@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { designList, getTotalCount } = require("./designList");
-const { designDetail, getCount, updateViewCount, changeToProject } = require("./designDetail");
+const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
@@ -83,6 +83,10 @@ router.post("/designDetail/:id/createCardComment/:card_id", auth, createCardComm
 router.delete("/designDetail/:id/deleteCardComment/:card_id/:comment_id", auth, deleteCardComment);
 router.post("/designDetail/:id/issue/:issue_id/createComment", auth, createIssueComment);
 router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", auth, deleteIssueComment);
+// design detail comment
+router.get("/designDetail/:id/getDetailComment", getDesignComment);
+router.post("/designDetail/:id/createDetailComment", auth, createDetailComment);
+router.delete("/designDetail/:id/deleteDetailComment/:comment_id", auth, deleteDetailComment);
 
 // 블로그형 디자인 프로젝트형으로 변경
 router.post("/changeToProject/:id", auth, changeToProject);
