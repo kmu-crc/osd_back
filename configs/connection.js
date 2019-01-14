@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 require("dotenv").config();
-
 var db;
 var options;
 
@@ -8,34 +7,33 @@ console.log(process.env.OPERATION_DB_HOST, "process.env.OPERATION", process.env.
 
 if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
   options = {
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER_NAME,
-    password: process.env.MYSQL_PASSWARD,
-    port: process.env.MYSQL_PORT,
-    database: process.env.DATABASE_NAME
+    host:     process.env.AWS_DB_HOST,
+    port:     process.env.AWS_DB_PORT,
+    database: process.env.AWS_DB_NAME,
+    user:     process.env.AWS_DB_USER,
+    password: process.env.AWS_DB_PASS
   };
 } else if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
   options = {
-    host: process.env.OPERATION_DB_HOST,
-    user: process.env.MYSQL_USER_NAME,
-    password: process.env.MYSQL_PASSWARD,
-    port: process.env.MYSQL_PORT,
-    database: process.env.DATABASE_NAME
+    host:     process.env.DEV_DB_HOST,
+    port:     process.env.DEV_DB_PORT,
+    database: process.env.DEV_DB_NAME,
+    user:     process.env.DEV_DB_USER,
+    password: process.env.DEV_DB_PASS
   };
 } else if (process.env.LOCAL === "true" || process.env.LOCAL === true) {
   options = {
-    host: process.env.DEV_MYSQL_HOST,
-    user: process.env.DEV_MYSQL_USER_NAME,
-    password: process.env.DEV_MYSQL_PASSWARD,
-    port: process.env.DEV_MYSQL_PORT,
-    database: process.env.DEV_DATABASE_NAME
+    host:     process.env.LOCAL_DB_HOST,
+    port:     process.env.LOCAL_DB_PORT,
+    database: process.env.LOCAL_DB_NAME,
+    user:     process.env.LOCAL_DB_USER,
+    password: process.env.LOCAL_DB_PASS
   };
 }
 
 function connectionDataBase () {
   if (!db) {
     db = mysql.createConnection(options);
-
     db.connect(function (err) {
       if (!err) {
         console.log("DataBase Connected!");
