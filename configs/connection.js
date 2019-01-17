@@ -5,7 +5,7 @@ var options;
 
 console.log(process.env.OPERATION_DB_HOST, "process.env.OPERATION", process.env.OPERATION, "process.env.DEVELOP", process.env.DEVELOP, "process.env.LOCAL", process.env.LOCAL);
 
-if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
+if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
   options = {
     host:     process.env.AWS_DB_HOST,
     port:     process.env.AWS_DB_PORT,
@@ -13,7 +13,7 @@ if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
     user:     process.env.AWS_DB_USER,
     password: process.env.AWS_DB_PASS
   };
-} else if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
+} else if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
   options = {
     host:     process.env.DEV_DB_HOST,
     port:     process.env.DEV_DB_PORT,
