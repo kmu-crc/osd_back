@@ -8,24 +8,37 @@ exports.findPw = (req, res, next) => {
   console.log("email", email);
   let pw = "";
   let hashPw = "";
+  let old = "";
 
-  const isOnlyEmail = (email) => {
+  const isOnlyEmail = email => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT count(email) FROM user WHERE email = "${email}"`, (err, rows) => {
-        console.log("err", err);
-        if (!err) {
-          console.log("??", rows);
-          if (rows[0]["count(email)"] === 0) {
-            const errorMessage = new Error("가입된 email이 아닙니다.");
-            reject(errorMessage);
+      connection.query(
+        `SELECT count(email) FROM user WHERE email = "${email}"`,
+        (err, rows) => {
+          console.log("err", err);
+          if (!err) {
+            console.log("??", rows);
+            if (rows[0]["count(email)"] === 0) {
+              const errorMessage = new Error("가입된 email이 아닙니다.");
+              reject(errorMessage);
+            } else {
+              resolve(true);
+            }
           } else {
-            resolve(true);
+            const errorMessage = "isOnlyEmail err : " + err;
+            reject(errorMessage);
           }
-        } else {
-          const errorMessage = "isOnlyEmail err : " + err;
-          reject(errorMessage);
         }
-      });
+      );
+      //backup original password
+      connection.query(
+        `SELECT password FROM user WHERE email="${email}"`,
+        (err, rows) => {
+          if (!err) {
+            old = rows[0]["password"];
+          }
+        }
+      );
     });
   };
 
@@ -47,7 +60,7 @@ exports.findPw = (req, res, next) => {
 
   const createHashPw = password => {
     return new Promise((resolve, reject) => {
-      bcrypt.hash(password, 10, function (err, hash) {
+      bcrypt.hash(password, 10, function(err, hash) {
         if (!err) {
           hashPw = hash;
           resolve(hashPw);
@@ -60,13 +73,17 @@ exports.findPw = (req, res, next) => {
 
   const updatePW = (email, pw) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE user SET ? WHERE email = "${email}"`, { password: pw }, (err, row) => {
-        if (!err) {
-          resolve(email);
-        } else {
-          reject(err);
+      connection.query(
+        `UPDATE user SET ? WHERE email = "${email}"`,
+        { password: pw },
+        (err, row) => {
+          if (!err) {
+            resolve(email);
+          } else {
+            reject(err);
+          }
         }
-      });
+      );
     });
   };
 
@@ -86,9 +103,16 @@ exports.findPw = (req, res, next) => {
         subject: "opendesign password 변경",
         text: `${pw}`
       };
-      smtpTransport.sendMail(mailOptions, function (error, response) {
+      smtpTransport.verify((error, success) => {
         if (error) {
-          console.log("mailError", error)
+          updatePW(email, old);
+        } else {
+          console.log("server is ready");
+        }
+      });
+      smtpTransport.sendMail(mailOptions, function(error, response) {
+        if (error) {
+          console.log("mailError", error);
           reject(error);
         } else {
           resolve("등록된 e-mail로 새로운 비밀번호가 전송되었습니다.");
