@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const connection = require("../../configs/connection");
 
 const { designList, getTotalCount } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
@@ -23,7 +24,7 @@ const { createCard, getCardList, updateTitle, updateContent, getCardDetail, upda
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
-const { updateDesignInfo } = require("./updateDesign");
+const { updateDesignInfo, updateDesignTime } = require("./updateDesign");
 const { joinDesign, acceptMember, getoutMember, getWaitingMember } = require("../design/joinMember");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
@@ -55,8 +56,13 @@ router.post("/unlike/:id", auth, unlikeDesign);
 router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);
 
+
 router.post("/createDesign", auth, stringToNumber, stringToBoolean, createDesign);
 router.post("/updateDesignInfo/:id", auth, insertThumbnail, stringToNumber, updateDesignInfo);
+//router.post("/updateDesignTime/:id",auth, updateDesignTime);
+/*router.post("/updateDesignTime/:id", (req, res) => {
+    connection.query("UPDATE design SET update_time = now() WHERE uid = ?",req.params.id);
+});*/
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
