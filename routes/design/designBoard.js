@@ -128,7 +128,7 @@ exports.getBoardList = (req, res, next) => {
     console.log("getBoards", data);
     res.status(200).json({
       success: true,
-      message: "성공적으로 등록되었습니다.",
+      message: "get board list 성공.",
       list: data
     });
   };
@@ -162,7 +162,7 @@ exports.updateBoard = (req, res, next) => {
     console.log(data);
     res.status(200).json({
       success: true,
-      message: "성공적으로 등록되었습니다.",
+      message: "update board가 성공적으로 등록되었습니다.",
       list: data
     });
   };
