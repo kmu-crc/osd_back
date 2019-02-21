@@ -60,9 +60,9 @@ router.post("/updateViewCount/:id", updateViewCount);
 router.post("/createDesign", auth, stringToNumber, stringToBoolean, createDesign);
 router.post("/updateDesignInfo/:id", auth, insertThumbnail, stringToNumber, updateDesignInfo);
 //router.post("/updateDesignTime/:id",auth, updateDesignTime);
-/*router.post("/updateDesignTime/:id", (req, res) => {
+router.post("/updateDesignTime/:id", (req, res) => {
     connection.query("UPDATE design SET update_time = now() WHERE uid = ?",req.params.id);
-});*/
+});
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
