@@ -148,3 +148,41 @@ exports.updateDesignInfo = (req, res, next) => {
     .then(success)
     .catch(fail);
 };
+
+exports.updateDesignTime = (req, res, next) => {
+  const designId = req.params.id;
+  
+  const success = () => {
+    res.status(200).json({
+      success: true,
+      design_id: designId
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  const updateTIME = (data) => {
+    return new Promise((res, rej) => {
+      connection.query(
+        `UPDATE design SET update_time = now() WHERE uid = ${data.designId}`,
+         (err, result) => {
+        if (!err) {
+          res.status(200).json({success: true, design_id: designId});
+        } else {
+          res.status(500).json({success: false, design_id: designId});
+        }
+      });
+    });
+  };
+
+  console.log("update time -----------------------");
+  updateTIME(req.body)
+    .then(success)
+    .cath(next);
+
+};
+
