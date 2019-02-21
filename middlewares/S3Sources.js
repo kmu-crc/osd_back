@@ -62,7 +62,8 @@ exports.S3Upload = (res, filename) => {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: `${res}`,
         ACL: "public-read",
-        Body: file_buffer
+        Body: file_buffer,
+        ContentDisposition: 'attachment; filename="'+filename+'"',
       };
       s3.upload(upload, function (err, result) {
         if (err) {

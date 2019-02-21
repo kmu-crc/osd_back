@@ -682,7 +682,7 @@ exports.updateCardSource = async (req, res, next) => {
         if (item.type === "FILE") {
           let fileStr = item.fileUrl.split("base64,")[1];
           let data = await WriteFile(fileStr, item.file_name);
-          item.content = await S3Upload(data);
+          item.content = await S3Upload(data, item.file_name);
           item.data_type = item.file_type;
           delete item.fileUrl;
           pArr.push(Promise.resolve(item));
