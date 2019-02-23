@@ -56,7 +56,7 @@ const updateCardFn = req => {
   console.log("fn", req);
   return new Promise((resolve, reject) => {
     connection.query(
-      `UPDATE design_card SET ? WHERE uid=${req.cardId} AND user_id=${
+      `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${
         req.userId
       }`,
       req.data,
