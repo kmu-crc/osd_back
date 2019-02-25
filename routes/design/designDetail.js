@@ -475,7 +475,7 @@ exports.getDesignComment = (req, res, next) => {
 
   const getComment = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query("SELECT C.uid, C.user_id, C.design_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM design_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.design_id = ?", id, (err, row) => {
+      connection.query("SELECT C.uid, C.user_id, C.design_id, C.comment, C.create_time, C.update_time, C.d_flag, U.nick_name, T.s_img FROM design_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.design_id = ?", id, (err, row) => {
         if (!err) {
           console.log("get", row);
           resolve(row);
