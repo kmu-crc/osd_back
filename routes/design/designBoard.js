@@ -128,7 +128,7 @@ exports.getBoardList = (req, res, next) => {
     console.log("getBoards", data);
     res.status(200).json({
       success: true,
-      message: "성공적으로 등록되었습니다.",
+      message: "get board list 성공.",
       list: data
     });
   };
@@ -145,6 +145,7 @@ exports.updateBoard = (req, res, next) => {
   const board_id = req.params.board_id;
 
   const update = (obj) => {
+    console.log("obj: ---------", obj);
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
         if (!err) {
@@ -161,7 +162,7 @@ exports.updateBoard = (req, res, next) => {
     console.log(data);
     res.status(200).json({
       success: true,
-      message: "성공적으로 등록되었습니다.",
+      message: "update board가 성공적으로 등록되었습니다.",
       list: data
     });
   };
@@ -191,7 +192,7 @@ exports.deleteBoard = (req, res, next) => {
 
   const getList = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT d.uid, d.order FROM design_board d WHERE d.design_id=${id}`, (err, rows) => {
+      connection.query(`SELECT d.uid, d.order FROM design_board d WHERE d.design_id=${id} order by d.order asc`, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
