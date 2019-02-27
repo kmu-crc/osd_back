@@ -192,7 +192,7 @@ exports.deleteBoard = (req, res, next) => {
 
   const getList = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT d.uid, d.order FROM design_board d WHERE d.design_id=${id}`, (err, rows) => {
+      connection.query(`SELECT d.uid, d.order FROM design_board d WHERE d.design_id=${id} order by d.order asc`, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
