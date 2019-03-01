@@ -58,12 +58,13 @@ exports.S3Upload = (res, filename) => {
   return new Promise((resolve, reject) => {
     fs.readFile(res, function (err, file_buffer) {
       if (err) reject(err);
+      let filename_encoded = encodeURIComponent(filename);
       const upload = {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: `${res}`,
         ACL: "public-read",
         Body: file_buffer,
-        ContentDisposition: 'attachment; filename="'+filename+'"',
+        ContentDisposition: 'attachment; filename="'+filename_encoded+'"'
       };
       s3.upload(upload, function (err, result) {
         if (err) {
