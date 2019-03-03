@@ -64,6 +64,7 @@ exports.S3Upload = (res, filename) => {
         Key: `${res}`,
         ACL: "public-read",
         Body: file_buffer,
+	ContentType: 'text/plain; charset=utf-8',
         ContentDisposition: 'attachment; filename="'+filename_encoded+'"'
       };
       s3.upload(upload, function (err, result) {
