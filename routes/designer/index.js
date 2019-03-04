@@ -24,6 +24,6 @@ router.post("/unlike/:id", auth, unlikeDesigner);
 router.get("/getCount/:id", getCount);
 
 // top 5개 리스트 가져오기 (메인용)
-router.get("/TopList", getTopList, getDesignerList);
+router.get("/TopList/:page", getTopList, getDesignerList);
 
 module.exports = router;
