@@ -35,7 +35,7 @@ router.get("/designDetail/:id/step", designStep);
 router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
 
 router.get("/designDetail/:id/getBoardList", getBoardList);
-router.get("/designDetail/:id/getCardList", getCardList);
+router.get("/designDetail/:id/:board_id/getCardList", getCardList, );
 router.get("/designDetail/getCardDetail/:cardId", getCardDetail);
 
 // 디자인에 가입 신청

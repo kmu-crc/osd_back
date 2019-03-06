@@ -143,12 +143,14 @@ exports.createCard = (req, res, next) => {
 
 exports.getCardList = (req, res, next) => {
   const design_id = req.params.id;
-  const board_id = req.params.boardId;
+  const board_id = req.params.board_id;
 
-  const getList = id => {
+  console.log("!!!!!:", design_id, board_id);
+
+  const getList = (design_id, board_id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM design_card WHERE design_id = ${id} AND board_id = ${board_id} ORDER BY design_card.order ASC`,
+        `SELECT * FROM design_card WHERE design_id = ${design_id} AND board_id = ${board_id} ORDER BY design_card.order ASC`,
         (err, rows) => {
           if (!err) {
             resolve(rows);
@@ -169,9 +171,12 @@ exports.getCardList = (req, res, next) => {
     });
   };
 
-  getList(design_id)
-    .then(respond)
-    .catch(next);
+  getList(design_id, board_id)
+    //.then(respond)
+    .then(data=>{
+      res.status(200).json(data);
+    })
+    .catch(err=>res.status(500).json(err));
 };
 
 exports.getCardDetail = (req, res, next) => {
