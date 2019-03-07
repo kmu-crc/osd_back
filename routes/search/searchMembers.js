@@ -1,9 +1,9 @@
 const connection = require("../../configs/connection");
 
 const searchMembers = (req, res) => {
-  console.log(req.decoded.uid);
+  //console.log(req.decoded.uid);
   const designId = req.params.id;
-  console.log(designId);
+  //console.log(designId);
   const searcDB = (data) => {
     let sql;
     if (designId && designId !== "null") {
@@ -15,14 +15,14 @@ const searchMembers = (req, res) => {
       sql = `SELECT email, uid, nick_name FROM user WHERE (email regexp '${data.key}' OR nick_name regexp '${data.key}') AND uid NOT IN (${req.decoded.uid})`;
     }
     return new Promise((resolve, reject) => {
-      console.log(sql);
+      //console.log(sql);
       connection.query(sql, (err, rows) => {
         if (!err) {
-          console.log(rows);
+          //console.log(rows);
           resolve(rows);
         } else {
           const errorMessage = "검색에 실패하였습니다.";
-          console.log(err);
+          //console.log(err);
           reject(errorMessage);
         }
       });

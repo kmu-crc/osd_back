@@ -26,10 +26,10 @@ exports.updateDesignInfo = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design SET ? WHERE uid = ${designId}`, data, (err, result) => {
         if (!err) {
-          console.log(result);
+          //console.log(result);
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(result);
         }
       });
@@ -44,10 +44,10 @@ exports.updateDesignInfo = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design SET ? WHERE uid = ${designId}`, info, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(id);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -58,10 +58,10 @@ exports.updateDesignInfo = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM design_member WHERE design_id = ${designId}`, (err, result) => {
         if (!err) {
-          console.log(result);
+          //console.log(result);
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(result);
         }
       });
@@ -72,10 +72,10 @@ exports.updateDesignInfo = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design_counter SET member_count = (SELECT count(*) FROM design_member WHERE design_id = ${designId}) WHERE design_id = ${designId}`, (err, result) => {
         if (!err) {
-          console.log(result);
+          //console.log(result);
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(result);
         }
       });
@@ -96,7 +96,7 @@ exports.updateDesignInfo = (req, res, next) => {
             resolve(result);
           });
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -108,10 +108,10 @@ exports.updateDesignInfo = (req, res, next) => {
       const now = { "child_update_time": new Date() };
       connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${row.parent_group_id}`, now, (err, result) => {
         if (!err) {
-          console.log("result", result);
+          //console.log("result", result);
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -179,7 +179,7 @@ exports.updateDesignTime = (req, res, next) => {
     });
   };
 
-  console.log("update time -----------------------");
+  //console.log("update time -----------------------");
   updateTIME(req.body)
     .then(success)
     .cath(next);

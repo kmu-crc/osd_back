@@ -51,7 +51,7 @@ const signIn = (req, res, next) => {
   };
 
   const createJWT = (detail) => {
-    console.log(detail);
+    //console.log(detail);
     const p = new Promise((resolve, reject) => {
       jwt.sign(
         {

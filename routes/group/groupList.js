@@ -37,7 +37,7 @@ exports.getTotalCount = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("SELECT count(*) FROM opendesign.group G", (err, result) => {
         if (!err && result.length) {
-          console.log(result);
+          //console.log(result);
           resolve(result[0]);
         } else {
           reject(err);

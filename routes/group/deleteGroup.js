@@ -13,7 +13,7 @@ exports.deleteAllGroup = (req, res, next) => {
         } else if (row.length === 0) {
           resolve(null);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -30,7 +30,7 @@ exports.deleteAllGroup = (req, res, next) => {
           if (!err) {
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -40,13 +40,13 @@ exports.deleteAllGroup = (req, res, next) => {
 
   // 그룹 테이블에서 삭제
   const deleteGroup = (id) => {
-    console.log("deleteGroup");
+    //console.log("deleteGroup");
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM opendesign.group WHERE uid = ${id}`, (err, row) => {
         if (!err) {
           resolve(id);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -60,7 +60,7 @@ exports.deleteAllGroup = (req, res, next) => {
         if (!err) {
           resolve(id);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

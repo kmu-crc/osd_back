@@ -136,7 +136,7 @@ exports.designDetail = (req, res, next) => {
         (err, result) => {
           if (!err) {
             data.children_count = result[0];
-            console.log(data);
+            //console.log(data);
             resolve(data);
           } else {
             reject(err);
@@ -166,7 +166,7 @@ exports.designDetail = (req, res, next) => {
               data.is_team = 1;
               resolve(data);
             } else {
-              console.log(err);
+              //console.log(err);
               reject(err);
             }
           }
@@ -195,7 +195,7 @@ exports.designDetail = (req, res, next) => {
               data.waitingStatus = 1;
               resolve(data);
             } else {
-              console.log(err);
+              //console.log(err);
               reject(err);
             }
           }
@@ -212,7 +212,7 @@ exports.designDetail = (req, res, next) => {
         `SELECT thumbnail FROM user WHERE uid = ${id}`,
         (err, result) => {
           if (!err) {
-            console.log("member: ", result[0]);
+            //console.log("member: ", result[0]);
             resolve(result[0].thumbnail);
           } else {
             reject(err);
@@ -228,7 +228,7 @@ exports.designDetail = (req, res, next) => {
         `SELECT * FROM thumbnail WHERE uid = ${id}`,
         (err, result) => {
           if (!err) {
-            console.log("member: ", result[0]);
+            //console.log("member: ", result[0]);
             resolve(result[0]);
           } else {
             reject(err);
@@ -259,7 +259,7 @@ exports.designDetail = (req, res, next) => {
         }
         Promise.all(newList)
           .then(data => {
-            console.log("members", data);
+            //console.log("members", data);
             return resolve(data);
           })
           .catch(err => reject(err));
@@ -272,7 +272,7 @@ exports.designDetail = (req, res, next) => {
     return new Promise(async (resolve, reject) => {
       try {
         data.member = await memberLoop(data.member);
-        console.log("dddddata", data);
+        //console.log("dddddata", data);
         resolve(data);
       } catch (err) {
         reject(err);
@@ -328,10 +328,10 @@ exports.getCount = (req, res, next) => {
         id,
         (err, row) => {
           if (!err) {
-            console.log(row[0]);
+            //console.log(row[0]);
             res.status(200).json(row[0]);
           } else {
-            console.log(err);
+            //console.log(err);
             res.status(500).json(err);
           }
         }
@@ -354,10 +354,10 @@ exports.updateViewCount = (req, res, next) => {
         id,
         (err, row) => {
           if (!err) {
-            console.log(row[0]);
+            //console.log(row[0]);
             resolve(id);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -374,10 +374,10 @@ exports.updateViewCount = (req, res, next) => {
       SET C.total_view = C.total_view + 1 WHERE D.uid = ${id}`,
         (err, row) => {
           if (!err) {
-            console.log(row);
+            //console.log(row);
             res.status(200).json({ success: true });
           } else {
-            console.log(err);
+            //console.log(err);
             res.status(200).json({ success: false });
           }
         }
@@ -402,7 +402,7 @@ exports.changeToProject = (req, res, next) => {
           if (!err) {
             resolve(true);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -416,13 +416,13 @@ exports.changeToProject = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM design_content C JOIN design_card D ON D.design_id = ${id} WHERE C.card_id = D.uid`, (err, row) => {
         if (!err && row.length === 0) {
-          console.log("디자인 없음", row);
+          //console.log("디자인 없음", row);
           resolve(false);
         } else if (!err && row.length > 0) {
-          console.log("디자인 있음", row);
+          //console.log("디자인 있음", row);
           resolve(true);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -437,10 +437,10 @@ exports.changeToProject = (req, res, next) => {
       } else {
         connection.query(`DELETE FROM design_board WHERE design_id = ${id}`, (err, row) => {
           if (!err) {
-            console.log("디자인 지움");
+            //console.log("디자인 지움");
             resolve(true);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -477,10 +477,10 @@ exports.getDesignComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("SELECT C.uid, C.user_id, C.design_id, C.comment, C.create_time, C.update_time, C.d_flag, U.nick_name, T.s_img FROM design_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.design_id = ?", id, (err, row) => {
         if (!err) {
-          console.log("get", row);
+          //console.log("get", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -509,16 +509,16 @@ exports.getDesignComment = (req, res, next) => {
 exports.createDetailComment = (req, res, next) => {
   req.body["user_id"] = req.decoded.uid;
   req.body["design_id"] = req.params.id;
-  console.log("req.body", req.body);
+  //console.log("req.body", req.body);
 
   const createComment = (data) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design_comment SET ?", data, (err, row) => {
         if (!err) {
-          console.log("create", row);
+          //console.log("create", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -529,10 +529,10 @@ exports.createDetailComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("UPDATE design_counter SET comment_count = comment_count + 1 WHERE design_id = ?", id, (err, row) => {
         if (!err) {
-          console.log("update", row);
+          //console.log("update", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -565,10 +565,10 @@ exports.deleteDetailComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM design_comment WHERE design_id = ${designId} AND uid = ${cmtId}`, (err, row) => {
         if (!err) {
-          console.log("delete", row);
+          //console.log("delete", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -579,10 +579,10 @@ exports.deleteDetailComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("UPDATE design_counter SET comment_count = comment_count - 1 WHERE design_id = ?", id, (err, row) => {
         if (!err) {
-          console.log("update", row);
+          //console.log("update", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

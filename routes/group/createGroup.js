@@ -2,17 +2,17 @@ var connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 
 exports.createGroup = (req, res, next) => {
-  console.log("createGroup");
-  console.log("insert", req.file);
+  //console.log("createGroup");
+  //console.log("insert", req.file);
   req.body["user_id"] = req.decoded.uid;
   let groupId = null;
 
   const insertDetailDB = (data) => {
-    console.log("22", data);
+    //console.log("22", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO opendesign.group SET ?", data, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           groupId = rows.insertId;
           resolve(rows);
         } else {
@@ -26,7 +26,7 @@ exports.createGroup = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId} `, {thumbnail: id}, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -42,7 +42,7 @@ exports.createGroup = (req, res, next) => {
         if (!err) {
           resolve(groupId);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -55,7 +55,7 @@ exports.createGroup = (req, res, next) => {
         if (!err) {
           resolve(groupId);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -63,7 +63,7 @@ exports.createGroup = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log("data", data);
+    //console.log("data", data);
     res.status(200).json({
       message: "성공적으로 등록되었습니다.",
       success: true,

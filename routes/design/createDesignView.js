@@ -17,7 +17,7 @@ exports.createDesignView = (req, res, next) => {
   };
 
   const error = (err) => {
-    console.log("err", err);
+    //console.log("err", err);
     next(err);
   };
 

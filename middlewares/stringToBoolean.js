@@ -2,7 +2,7 @@ const stringToBoolean = (req, res, next) => {
   const StoB = () => {
     return new Promise((resolve, reject) => {
       let arr = [];
-      console.log(req.body);
+      //console.log(req.body);
       for (let key in req.body) {
         arr.push(new Promise((resolve, reject) => {
           if (req.body[key] === "true") {
@@ -23,7 +23,7 @@ const stringToBoolean = (req, res, next) => {
   };
 
   const respon = () => {
-    console.log("success");
+    //console.log("success");
     next();
   };
 

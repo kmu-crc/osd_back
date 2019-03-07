@@ -7,7 +7,7 @@ exports.createThumbnails = (data) => {
   return new Promise((resolve, reject) => {
     let filename = null;
     if (data === null || !data.image) {
-      console.log("이미지 없음");
+      //console.log("이미지 없음");
       resolve(null);
     }
     if (data.image.filename) {
@@ -56,7 +56,7 @@ exports.createThumbnails = (data) => {
       return new Promise((resolve, reject) => {
         connection.query("INSERT INTO thumbnail SET ?", thumbnailObj, (err, rows) => {
           if (!err) {
-            console.log(rows.insertId);
+            //console.log(rows.insertId);
             resolve(rows.insertId);
           } else {
             reject(err);

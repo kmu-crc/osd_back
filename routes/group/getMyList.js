@@ -2,13 +2,13 @@ var connection = require("../../configs/connection");
 
 exports.myDesignList = (req, res, next) => {
   const groupId = req.params.id;
-  console.log(groupId, req.decoded.uid)
+  //console.log(groupId, req.decoded.uid)
 
   const getList = (obj) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT d.uid, d.user_id, d.title FROM design d WHERE user_id = ${obj.user_id} AND NOT EXISTS ( SELECT g.design_id, g.parent_group_id FROM group_join_design g WHERE g.design_id = d.uid AND g.parent_group_id = ${obj.groupId})`, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -18,7 +18,7 @@ exports.myDesignList = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log("data", data);
+    //console.log("data", data);
     res.status(200).json({
       message: "요청이 정상적으로 처리되었습니다.",
       success: true,
@@ -33,7 +33,7 @@ exports.myDesignList = (req, res, next) => {
 
 exports.myGroupList = (req, res, next) => {
   const groupId = req.params.id;
-  console.log(groupId, req.decoded.uid);
+  //console.log(groupId, req.decoded.uid);
 
   const getList = (obj) => {
     return new Promise((resolve, reject) => {
@@ -43,7 +43,7 @@ exports.myGroupList = (req, res, next) => {
       AND NOT EXISTS ( SELECT m.parent_group_id FROM group_join_group m WHERE m.group_id = ${groupId} AND m.parent_group_id = g.uid )
       AND NOT EXISTS ( SELECT p.group_id FROM group_join_group p WHERE p.group_id = g.uid )`, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -53,7 +53,7 @@ exports.myGroupList = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log("data", data);
+    //console.log("data", data);
     res.status(200).json({
       message: "요청이 정상적으로 처리되었습니다.",
       success: true,
@@ -77,7 +77,7 @@ exports.myExistDesignList = (req, res, next) => {
       AND EXISTS ( SELECT g.design_id, g.parent_group_id FROM group_join_design g WHERE g.design_id = d.uid AND g.parent_group_id = ${obj.groupId})`,
       (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -87,7 +87,7 @@ exports.myExistDesignList = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log("data", data);
+    //console.log("data", data);
     res.status(200).json({
       message: "요청이 정상적으로 처리되었습니다.",
       success: true,
@@ -110,7 +110,7 @@ exports.myExistGroupList = (req, res, next) => {
       AND EXISTS ( SELECT p.group_id FROM group_join_group p WHERE p.parent_group_id = ${obj.groupId})`,
       (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -120,7 +120,7 @@ exports.myExistGroupList = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log("data", data);
+    //console.log("data", data);
     res.status(200).json({
       message: "요청이 정상적으로 처리되었습니다.",
       success: true,

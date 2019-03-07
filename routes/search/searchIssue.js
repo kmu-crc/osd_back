@@ -4,7 +4,7 @@ const connection = require("../../configs/connection");
 exports.searchIssue = (req, res, next) => {
   const keyword = req.params.keyword;
   const designId = req.params.id;
-  console.log(keyword);
+  //console.log(keyword);
 
   function getIssueList (id, keyword) {
     const p = new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ exports.searchIssue = (req, res, next) => {
       }
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
-          console.log("work");
+          //console.log("work");
           resolve(null);
         } else if (!err && row.length > 0) {
           for (var i = 0, l = row.length; i < l; i++) {
@@ -52,7 +52,7 @@ exports.searchIssue = (req, res, next) => {
             resolve(result);
           }).catch(console.log(err));
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

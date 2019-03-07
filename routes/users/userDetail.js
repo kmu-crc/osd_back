@@ -6,7 +6,7 @@ const {isOnlyNicName} = require("../../middlewares/verifications");
 
 // 유저 detail 등록
 exports.insertDetail = (req, res) => {
-  console.log("insert", req.file);
+  //console.log("insert", req.file);
   req.body["user_id"] = req.decoded.uid;
   if (req.body.category_level1 === 0) {
     req.body.category_level1 = null;
@@ -20,14 +20,14 @@ exports.insertDetail = (req, res) => {
     req.body.is_designer = 0;
   }
   const userUpdata = id => {
-    console.log("id", id);
+    //console.log("id", id);
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE uid = ${req.decoded.uid} `,
         {thumbnail: id},
         (err, rows) => {
           if (!err) {
-            console.log("detail: ", rows);
+            //console.log("detail: ", rows);
             resolve(rows);
           } else {
             reject(err);
@@ -38,11 +38,11 @@ exports.insertDetail = (req, res) => {
   };
 
   const insertDetailDB = data => {
-    console.log("22", data);
+    //console.log("22", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -81,7 +81,7 @@ exports.insertDetail = (req, res) => {
           if (!err) {
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -131,7 +131,7 @@ exports.modifyDetail = (req, res) => {
     category_level2: req.body.category_level2,
     is_designer: req.body.is_designer
   };
-  console.log(req.body);
+  //console.log(req.body);
 
   if (req.body.category_level1 === 0) {
     detailInfo.category_level1 = null;
@@ -155,11 +155,11 @@ exports.modifyDetail = (req, res) => {
             if (rows.affectedRows) {
               resolve(rows);
             } else {
-              console.log(err);
+              //console.log(err);
               reject(err);
             }
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -174,7 +174,7 @@ exports.modifyDetail = (req, res) => {
           userInfo.password = hash;
           resolve(userInfo);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -193,10 +193,10 @@ exports.modifyDetail = (req, res) => {
         info,
         (err, rows) => {
           if (!err) {
-            console.log("detail: ", rows);
+            //console.log("detail: ", rows);
             resolve(rows);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -213,7 +213,7 @@ exports.modifyDetail = (req, res) => {
   };
 
   const error = err => {
-    console.log(err);
+    //console.log(err);
     res.status(500).json({
       success: false,
       error: err,

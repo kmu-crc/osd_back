@@ -112,10 +112,10 @@ exports.isOnlySidoName = (name) => {
 };
 // 전달받은 user_id가 존재하는지 확인하는 로직
 exports.isMember = (uid) => {
-  console.log("isMember");
+  //console.log("isMember");
   return new Promise((resolve, reject) => {
     connection.query(`SELECT count(uid) FROM user WHERE uid='${uid}'`, (err, rows) => {
-      console.log("rows", rows);
+      //console.log("rows", rows);
       if (!err) {
         if (rows[0]["count(uid)"] > 0) {
           resolve(uid);
@@ -134,7 +134,7 @@ exports.isMember = (uid) => {
 exports.isGroup = (uid) => {
   return new Promise((resolve, reject) => {
     connection.query(`SELECT count(uid) FROM opendesign.group WHERE uid=${uid}`, (err, rows) => {
-      console.log("rows", rows);
+      //console.log("rows", rows);
       if (!err) {
         if (rows[0]["count(uid)"] > 0) {
           resolve(uid);
@@ -153,7 +153,7 @@ exports.isGroup = (uid) => {
 exports.isDesign = (uid) => {
   return new Promise((resolve, reject) => {
     connection.query(`SELECT count(uid) FROM design WHERE uid=${uid}`, (err, rows) => {
-      console.log("rows", rows);
+      //console.log("rows", rows);
       if (!err) {
         if (rows[0]["count(uid)"] > 0) {
           resolve(uid);

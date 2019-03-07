@@ -131,7 +131,7 @@ exports.getCount = (req, res, next) => {
           design = row[0]["count(*)"];
           resolve(id);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -147,7 +147,7 @@ exports.getCount = (req, res, next) => {
           group = row[0]["count(*)"];
           resolve(id);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -162,7 +162,7 @@ exports.getCount = (req, res, next) => {
         if (!err) {
           resolve(id);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -177,7 +177,7 @@ exports.getCount = (req, res, next) => {
         if (!err) {
           res.status(200).json(row[0]);
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json(err);
         }
       });

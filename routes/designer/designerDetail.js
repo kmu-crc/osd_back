@@ -85,10 +85,10 @@ exports.getCount = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id = ?", designerId, (err, row) => {
         if (!err) {
-          console.log(row[0]);
+          //console.log(row[0]);
           res.status(200).json(row[0]);
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json(err);
         }
       });

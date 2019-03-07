@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
   const token = req.headers["x-access-token"] || req.query.token;
   // token does not exist
   if (!token) {
-    console.log("no token");
+    //console.log("no token");
     return res.status(403).json({
       success: false,
       message: "not logged in"

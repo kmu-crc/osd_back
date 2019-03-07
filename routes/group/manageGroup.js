@@ -2,7 +2,7 @@ var connection = require("../../configs/connection");
 
 const getSocketId = uid => {
   return new Promise((resolve, reject) => {
-    console.log("uid", uid);
+    //console.log("uid", uid);
     connection.query(
       `SELECT socket_id FROM user WHERE uid = ${uid}`,
       (err, row) => {
@@ -11,7 +11,7 @@ const getSocketId = uid => {
         } else if (!err && row.length > 0) {
           resolve({ socketId: row[0].socket_id });
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       }
@@ -101,7 +101,7 @@ exports.acceptDesign = (req, res, next) => {
           if (!err) {
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -116,7 +116,7 @@ exports.acceptDesign = (req, res, next) => {
         `UPDATE group_counter SET design = design + 1 WHERE group_id = ${group}`,
         async (err, row) => {
           if (!err) {
-            console.log("확인", designId, group)
+            //console.log("확인", designId, group)
             SendSuccessAlarm(designId, group, false);
             res.status(200).json({ success: true });
           } else {
@@ -143,7 +143,7 @@ exports.deleteDesign = (req, res, next) => {
           if (!err) {
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -160,7 +160,7 @@ exports.deleteDesign = (req, res, next) => {
           if (!err) {
             resolve(row[0]["count(*)"]);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -175,11 +175,11 @@ exports.deleteDesign = (req, res, next) => {
         num,
         async (err, row) => {
           if (!err) {
-            console.log("확인", designId, group)
+            //console.log("확인", designId, group)
             SendRefuseAlarm(designId, group, false);
             res.status(200).json({ success: true });
           } else {
-            console.log(err);
+            //console.log(err);
             res.status(500).json({ success: false });
           }
         }
@@ -205,7 +205,7 @@ exports.acceptGroup = (req, res, next) => {
           if (!err) {
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -223,7 +223,7 @@ exports.acceptGroup = (req, res, next) => {
             SendSuccessAlarm(groupId, group, true);
             res.status(200).json({ success: true });
           } else {
-            console.log(err);
+            //console.log(err);
             res.status(500).json({ success: false });
           }
         }
@@ -247,7 +247,7 @@ exports.deleteGroup = (req, res, next) => {
           if (!err) {
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -264,7 +264,7 @@ exports.deleteGroup = (req, res, next) => {
           if (!err) {
             resolve(row[0]["count(*)"]);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         }
@@ -282,7 +282,7 @@ exports.deleteGroup = (req, res, next) => {
             SendRefuseAlarm(groupId, group, true);
             res.status(200).json({ success: true });
           } else {
-            console.log(err);
+            //console.log(err);
             res.status(500).json({ success: false });
           }
         }

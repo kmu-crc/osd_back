@@ -37,7 +37,7 @@ exports.S3Sources = (res) => {
 };
 
 exports.S3SourcesDetele = (res) => {
-  console.log("s3", res);
+  //console.log("s3", res);
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: process.env.AWS_S3_BUCKET,
@@ -47,7 +47,7 @@ exports.S3SourcesDetele = (res) => {
       if (err) {
         reject(err);
       } else {
-        console.log(result);
+        //console.log(result);
         resolve(true);
       }
     });

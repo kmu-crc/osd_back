@@ -9,10 +9,10 @@ exports.createIssueComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO issue_comment SET ?", data, (err, row) => {
         if (!err) {
-          console.log(row);
+          //console.log(row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -44,10 +44,10 @@ exports.deleteIssueComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM issue_comment WHERE issue_id = ${issueId} AND uid = ${cmtId}`, (err, row) => {
         if (!err) {
-          console.log(row);
+          //console.log(row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

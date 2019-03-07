@@ -9,12 +9,12 @@ exports.getLikeDesigner = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM user_like WHERE user_id = ${userId} AND designer_id = ${designerId}`, (err, result) => {
         if (!err && result.length === 0) {
-          console.log(result);
+          //console.log(result);
           res.status(200).json({like: false});
         } else if (!err && result.length > 0) {
           res.status(200).json({like: true});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({like: false});
         }
       });
@@ -35,7 +35,7 @@ exports.likeDesigner = (req, res, next) => {
         if (!err) {
           resolve(designerId);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -49,7 +49,7 @@ exports.likeDesigner = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, designer_id: designerId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, designer_id: designerId});
         }
       });
@@ -71,7 +71,7 @@ exports.unlikeDesigner = (req, res, next) => {
         if (!err) {
           resolve(designerId);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -85,7 +85,7 @@ exports.unlikeDesigner = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, designer_id: designerId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, designer_id: designerId});
         }
       });

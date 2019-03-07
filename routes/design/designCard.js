@@ -6,7 +6,7 @@ var fs = require("fs");
 
 const createCardFn = req => {
   return new Promise((resolve, reject) => {
-    console.log("createCard", req);
+    //console.log("createCard", req);
     connection.query("INSERT INTO design_card SET ?", req, (err, rows) => {
       if (!err) {
         resolve(rows.insertId);
@@ -53,7 +53,7 @@ const updateDesignCount = id => {
 };
 
 const updateCardFn = req => {
-  console.log("fn", req);
+  //console.log("fn", req);
   return new Promise((resolve, reject) => {
     connection.query(
       `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${
@@ -87,7 +87,7 @@ exports.updateCardDB = req => {
 };
 
 exports.createCard = (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   let data = req.body;
   data.design_id = req.params.id;
   data.user_id = req.decoded.uid;
@@ -145,7 +145,7 @@ exports.getCardList = (req, res, next) => {
   const design_id = req.params.id;
   const board_id = req.params.board_id;
 
-  console.log("!!!!!:", design_id, board_id);
+  //console.log("!!!!!:", design_id, board_id);
 
   const getList = (design_id, board_id) => {
     return new Promise((resolve, reject) => {
@@ -256,7 +256,7 @@ exports.getCardDetail = (req, res, next) => {
 };
 
 exports.updateTitle = (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   const cardId = req.params.cardId;
 
   const titleUpdate = data => {
@@ -289,7 +289,7 @@ exports.updateTitle = (req, res, next) => {
 };
 
 exports.updateContent = (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   const cardId = req.params.cardId;
 
   const ContentUpdate = data => {
@@ -324,7 +324,7 @@ exports.updateContent = (req, res, next) => {
 exports.updateImages = (req, res, next) => {
   const cardId = req.params.cardId;
   const userId = req.decoded.uid;
-  console.log(cardId, userId);
+  //console.log(cardId, userId);
 
   const DeleteSourceDB = data => {
     return new Promise((resolve, reject) => {
@@ -343,7 +343,7 @@ exports.updateImages = (req, res, next) => {
   };
 
   const CountImages = id => {
-    console.log("counter", id);
+    //console.log("counter", id);
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT count(*) FROM design_images WHERE card_id = ${id}`,
@@ -369,7 +369,7 @@ exports.updateImages = (req, res, next) => {
       return Promise.resolve(true);
     }
     let deletes = JSON.parse(data);
-    console.log("deletes", deletes);
+    //console.log("deletes", deletes);
     if (deletes.length === 0) return Promise.resolve();
     return new Promise((resolve, reject) => {
       let arr = deletes.map(item => {
@@ -403,7 +403,7 @@ exports.updateImages = (req, res, next) => {
 
   DeleteS3(req.body.deleteImages)
     .then(() => {
-      console.log(req.files);
+      //console.log(req.files);
       return insertSource({
         uid: userId,
         card_id: cardId,
@@ -425,7 +425,7 @@ exports.updateImages = (req, res, next) => {
 };
 
 exports.updateSources = (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   const cardId = req.params.cardId;
   const userId = req.decoded.uid;
 
@@ -446,7 +446,7 @@ exports.updateSources = (req, res, next) => {
   };
 
   const CountImages = id => {
-    console.log("counter", id);
+    //console.log("counter", id);
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT count(*) FROM design_source_file WHERE card_id = ${id}`,
@@ -469,7 +469,7 @@ exports.updateSources = (req, res, next) => {
 
   const DeleteS3 = data => {
     let deletes = JSON.parse(data);
-    console.log("deletes", deletes);
+    //console.log("deletes", deletes);
     if (deletes.length === 0) return Promise.resolve();
     return new Promise((resolve, reject) => {
       let arr = deletes.map(item => {
@@ -603,7 +603,7 @@ exports.deleteCard = (req, res, next) => {
   };
 
   const respond = data => {
-    console.log(data);
+    //console.log(data);
     res.status(200).json({
       success: true,
       message: "성공적으로 등록되었습니다.",
@@ -631,7 +631,7 @@ exports.getCardSource = (req, res, next) => {
         `SELECT * FROM design_content WHERE card_id = ${id} ORDER BY design_content.order ASC`,
         (err, rows) => {
           if (!err) {
-            // console.log("rows", rows);
+            // //console.log("rows", rows);
             if (rows.length > 0) {
               resolve(rows);
             } else {
@@ -647,7 +647,7 @@ exports.getCardSource = (req, res, next) => {
   };
 
   const respond = data => {
-    // console.log(data);
+    // //console.log(data);
     res.status(200).json({
       success: true,
       list: data
@@ -678,12 +678,12 @@ exports.updateCardSource = async (req, res, next) => {
   };
 
   const upLoadFile = async content => {
-    console.log("upLoadFile", content);
+    //console.log("upLoadFile", content);
     return new Promise(async (resolve, reject) => {
       let pArr = [];
       if (content.length === 0) resolve([]);
       for (let item of content) {
-        console.log(item.type);
+        //console.log(item.type);
         if (item.type === "FILE") {
           let fileStr = item.fileUrl.split("base64,")[1];
           let data = await WriteFile(fileStr, item.file_name);
@@ -698,7 +698,7 @@ exports.updateCardSource = async (req, res, next) => {
           pArr.push(Promise.resolve(item));
         }
       }
-      console.log(pArr);
+      //console.log(pArr);
       Promise.all(pArr)
         .then(data => resolve(data))
         .catch(err => reject(err));
@@ -706,7 +706,7 @@ exports.updateCardSource = async (req, res, next) => {
   };
 
   const deleteDB = async content => {
-    console.log("deleteDB");
+    //console.log("deleteDB");
     return new Promise(async (resolve, reject) => {
       let pArr = [];
       if (content.length === 0) resolve(true);
@@ -723,7 +723,7 @@ exports.updateCardSource = async (req, res, next) => {
           }
         );
       }
-      console.log(pArr);
+      //console.log(pArr);
       Promise.all(pArr)
         .then(data => resolve(data))
         .catch(err => reject(err));
@@ -733,7 +733,7 @@ exports.updateCardSource = async (req, res, next) => {
   const insertDB = async arr => {
     return new Promise(async (resolve, reject) => {
       let pArr = [];
-      console.log("insertDBarr", arr);
+      //console.log("insertDBarr", arr);
       if (arr.length === 0) resolve(true);
       for (let item of arr) {
         let obj = {
@@ -767,11 +767,11 @@ exports.updateCardSource = async (req, res, next) => {
   };
 
   const updateDB = async arr => {
-    console.log("updatearr", arr);
+    //console.log("updatearr", arr);
     let pArr = [];
     if (arr.length === 0) return Promise.resolve(true);
     for (let item of arr) {
-      console.log("update", item);
+      //console.log("update", item);
       let obj = {
         file_name: item.file_name,
         content: item.content,
@@ -800,7 +800,7 @@ exports.updateCardSource = async (req, res, next) => {
   };
 
   const respond = data => {
-    // console.log(data);
+    // //console.log(data);
     res.status(200).json({
       success: true,
       message: "저장되었습니다."
@@ -844,7 +844,7 @@ exports.updateCardAllData = async (req, res, next) => {
           filename: data.split("/")[1],
           uid: userId
         });
-        console.log("22222", thumbnail);
+        //console.log("22222", thumbnail);
         resolve(thumbnail);
       } catch (err) {
         reject(err);
@@ -878,5 +878,5 @@ exports.updateCardAllData = async (req, res, next) => {
       return next();
     }).catch(next);
 
-  console.log("updateCardAllData", req.body.thumbnail);
+  //console.log("updateCardAllData", req.body.thumbnail);
 };

@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const imageUpload = async (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   if (req.body.files) {
     const WriteFile = (file, filename) => {
       let originname = filename.split(".");

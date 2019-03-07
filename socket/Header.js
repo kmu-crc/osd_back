@@ -5,7 +5,7 @@ exports.GetNotification = (token, uid, io) => {
     if (!err) {
       io.sockets.emit("getNoti", rows);
     } else {
-      console.log("2번", err);
+      //console.log("2번", err);
       throw err;
     }
   });

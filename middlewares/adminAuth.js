@@ -1,7 +1,7 @@
 const adminAuth = (req, res, next) => {
   const isAdmin = () => {
     const p = new Promise((resolve, reject) => {
-      console.log(req.decoded.isAdmin);
+      //console.log(req.decoded.isAdmin);
       if (req.decoded.isAdmin) {
         resolve(true);
       } else {

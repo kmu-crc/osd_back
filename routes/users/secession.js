@@ -2,12 +2,12 @@ const connection = require("../../configs/connection");
 const { isMember } = require("../../middlewares/verifications");
 
 const secession = (req, res) => {
-  console.log("code");
+  //console.log("code");
   const deleteUser = () => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE user SET ? WHERE uid="${req.decoded.uid}"`, {d_flag: 1}, (err, rows) => {
         if (!err) {
-          console.log("rows", rows);
+          //console.log("rows", rows);
           resolve();
         } else {
           reject(err);

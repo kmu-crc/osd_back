@@ -8,14 +8,14 @@ exports.getMyMsgList = (req, res, next) => {
     let rows = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM message_group WHERE to_user_id = ${id} OR from_user_id = ${id}`, (err, row) => {
         if (!err && row.length === 0) {
-          console.log("w");
+          //console.log("w");
           resolve(null);
         } else if (!err && row.length > 0) {
           let data = row;
-          console.log("받은 메시지", row);
+          //console.log("받은 메시지", row);
           resolve(data);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -49,10 +49,10 @@ exports.getMyMsgList = (req, res, next) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            console.log(row[0]);
+            //console.log(row[0]);
             resolve(row[0]);
           } else {
-            console.log(err);
+            //console.log(err);
             next(err);
           }
         });
@@ -70,10 +70,10 @@ exports.getMyMsgList = (req, res, next) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            console.log(row[0]);
+            //console.log(row[0]);
             resolve(row[0]);
           } else {
-            console.log(err);
+            //console.log(err);
             next(err);
           }
         });
@@ -112,7 +112,7 @@ exports.sendMsg = (req, res, next) => {
           } else if (!err && row.length > 0) {
             resolve(row[0].uid);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -131,7 +131,7 @@ exports.sendMsg = (req, res, next) => {
           if (!err) {
             resolve(row.insertId);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -150,7 +150,7 @@ exports.sendMsg = (req, res, next) => {
           if (!err) {
             resolve(id);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -170,7 +170,7 @@ exports.sendMsg = (req, res, next) => {
           if (!err) {
             resolve(id);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -181,14 +181,14 @@ exports.sendMsg = (req, res, next) => {
 
   const getSocketId = (data, uid) => {
     return new Promise((resolve, reject) => {
-      console.log("uid", uid);
+      //console.log("uid", uid);
       connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
           resolve({data, socketId: row[0].socket_id});
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -197,8 +197,8 @@ exports.sendMsg = (req, res, next) => {
 
   const respond = (data) => {
     const { sendAlarm } = require("../../socket");
-    console.log(sendAlarm);
-    console.log("socketId", data.socketId);
+    //console.log(sendAlarm);
+    //console.log("socketId", data.socketId);
     try {
       sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
       res.status(200).json({success: true, groupId: data.data});
@@ -208,7 +208,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   const error = err => {
-    console.log("err", err);
+    //console.log("err", err);
     res.status(500).json({success: false, groupId: null, error: err});
   };
 
@@ -244,10 +244,10 @@ exports.getMyMsgDetail = (req, res, next) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            console.log(row);
+            //console.log(row);
             resolve(row);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -258,14 +258,14 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const getSocketId = (data, uid) => {
     return new Promise((resolve, reject) => {
-      console.log("uid", uid);
+      //console.log("uid", uid);
       connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
           resolve({data, socketId: row[0].socket_id});
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -274,12 +274,12 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const AlarmConfirm = (uid, groupId) => {
     return new Promise((resolve, reject) => {
-      console.log("uid", uid);
+      //console.log("uid", uid);
       connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, {confirm: 1}, (err, row) => {
         if (!err) {
           resolve(true);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

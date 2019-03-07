@@ -12,7 +12,7 @@ exports.updateGroup = (req, res, next) => {
         if (!err) {
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(result);
         }
       });
@@ -27,7 +27,7 @@ exports.updateGroup = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId}`, info, (err, rows) => {
         if (!err) {
-          console.log("detail: ", rows);
+          //console.log("detail: ", rows);
           resolve(groupId);
         } else {
           reject(err);
@@ -50,7 +50,7 @@ exports.updateGroup = (req, res, next) => {
   //           resolve(result);
   //         });
   //       } else {
-  //         console.log(err);
+  //         //console.log(err);
   //         reject(err);
   //       }
   //     });
@@ -61,10 +61,10 @@ exports.updateGroup = (req, res, next) => {
   //   return new Promise((resolve, reject) => {
   //     connection.query(`UPDATE opendesign.group SET child_update_time = now() WHERE uid = ${row.parent_group_id}`, (err, result) => {
   //       if (!err) {
-  //         console.log("result", result);
+  //         //console.log("result", result);
   //         resolve(result);
   //       } else {
-  //         console.log(err);
+  //         //console.log(err);
   //         reject(err);
   //       }
   //     });
@@ -105,10 +105,10 @@ exports.createGroupIssue = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO group_issue SET ?", data, (err, result) => {
         if (!err) {
-          console.log("result", result);
+          //console.log("result", result);
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -140,10 +140,10 @@ exports.deleteGroupIssue = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM group_issue WHERE group_id = ${groupId} AND uid = ${issueId}`, (err, result) => {
         if (!err) {
-          console.log("result", result);
+          //console.log("result", result);
           resolve(result);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

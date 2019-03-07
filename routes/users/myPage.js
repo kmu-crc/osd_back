@@ -14,7 +14,7 @@ exports.myPage = (req, res, next) => {
           let data = row[0];
           resolve(data);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -37,7 +37,7 @@ exports.myPage = (req, res, next) => {
             data.profileImg = row[0];
             resolve(data);
           } else {
-            console.log(err);
+            //console.log(err);
             reject(err);
           }
         });
@@ -71,7 +71,7 @@ exports.myPage = (req, res, next) => {
       let sql;
       if (!data.category_level1 && !data.category_level2) {
         data.categoryName = null;
-        console.log("no cate");
+        //console.log("no cate");
         resolve(data);
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
@@ -83,7 +83,7 @@ exports.myPage = (req, res, next) => {
       connection.query(sql, cate, (err, result) => {
         if (!err) {
           data.categoryName = result[0].name;
-          console.log(data);
+          //console.log(data);
           resolve(data);
         } else {
           reject(err);

@@ -4,14 +4,14 @@ const connection = require("../../configs/connection");
 
 const getSocketId = (data, uid) => {
   return new Promise((resolve, reject) => {
-    console.log("uid", uid);
+    //console.log("uid", uid);
     connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
       if (!err && row.length === 0) {
         resolve(null);
       } else if (!err && row.length > 0) {
         resolve({data, socketId: row[0].socket_id});
       } else {
-        console.log(err);
+        //console.log(err);
         reject(err);
       }
     });
@@ -24,7 +24,7 @@ const getCreateDesignUser = (designId) => {
       if (!err) {
         resolve(row[0].user_id);
       } else {
-        console.log(err);
+        //console.log(err);
         reject(err);
       }
     });
@@ -33,7 +33,7 @@ const getCreateDesignUser = (designId) => {
 
 const joinMemberFn = (req, flag) => {
   return new Promise((resolve, reject) => {
-    console.log(req, flag, "+++");
+    //console.log(req, flag, "+++");
     let arr = req.members.map(item => {
       return new Promise(async (resolve, reject) => {
         connection.query("INSERT INTO design_member SET ?", {design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag}, async (err, rows) => {
@@ -116,7 +116,7 @@ const acceptMember = (designId, memberId, isLeader) => {
         let designerId = await getCreateDesignUser(designId);
         if (!isLeader) {
           let invited = await whatIsAccept(designId, memberId);
-          console.log("invited", typeof invited);
+          //console.log("invited", typeof invited);
           const { sendAlarm } = require("../../socket");
           await getSocketId(rows.insertId, invited ? designerId : userId).then(data => sendAlarm(data.socketId, invited ? designerId : userId, designId, invited === 0 ? "DesignRequestTrue" : "DesignInvitedTrue", invited ? userId : designerId));
         }
@@ -136,7 +136,7 @@ const getCount = (designId) => {
       if (!err) {
         resolve(result[0]["count(*)"]);
       } else {
-        console.log(err);
+        //console.log(err);
         reject(err);
       }
     });
@@ -150,7 +150,7 @@ const updateCount = (count, designId) => {
       if (!err) {
         resolve(row.insertId);
       } else {
-        console.log(err);
+        //console.log(err);
         reject(err);
       }
     });
@@ -186,7 +186,7 @@ exports.acceptLeader = (designId, userId) => {
 
 // 디자인 멤버 탈퇴
 exports.getoutMember = (req, res, next) => {
-  console.log(req.params, typeof req.params.refuse);
+  //console.log(req.params, typeof req.params.refuse);
   let refuse = req.params.refuse === "true";
   const getout = (designId, memberId) => {
     return new Promise((resolve, reject) => {
@@ -195,7 +195,7 @@ exports.getoutMember = (req, res, next) => {
           if (refuse) {
             let userId = await getCreateDesignUser(designId);
             const { sendAlarm } = require("../../socket");
-            console.log("?????", userId, memberId);
+            //console.log("?????", userId, memberId);
             if (userId === req.decoded.uid) {
               userId = memberId;
             }

@@ -13,7 +13,7 @@ exports.createIssue = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design_issue SET ?", data, (err, rows) => {
         if (!err) {
-          console.log("issueDetail---- ", rows);
+          //console.log("issueDetail---- ", rows);
           issueId = rows.insertId;
           resolve(rows);
         } else {
@@ -29,7 +29,7 @@ exports.createIssue = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, id: issueId, design_id: designId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, id: issueId, design_id: designId});
         }
       });
@@ -47,13 +47,13 @@ exports.updateIssue = (req, res, next) => {
   // req.body["user_id"] = req.decoded.uid;
   // req.body["design_id"] = designId;
   // req.body["is_complete"] = 0;
-  console.log(req.body);
+  //console.log(req.body);
 
   const updateIssueTable = (data) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design_issue SET ? WHERE uid = ${issueId}`, data, (err, rows) => {
         if (!err) {
-          console.log("issueDetail---- ", rows);
+          //console.log("issueDetail---- ", rows);
           resolve(rows);
         } else {
           reject(err);
@@ -68,7 +68,7 @@ exports.updateIssue = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, id: issueId, design_id: designId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, id: issueId, design_id: designId});
         }
       });
@@ -90,7 +90,7 @@ exports.updateIssueStatus = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, id: issueId, design_id: designId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, id: issueId, design_id: designId});
         }
       });
@@ -123,7 +123,7 @@ exports.deleteIssue = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, design_id: designId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, design_id: designId});
         }
       });

@@ -77,7 +77,7 @@ exports.FBSignIn = (req, res, next) => {
 };
 
 exports.FBSignUp = (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   let {email, nickName, FBUserId} = req.body;
   req.body.is_admin = 0;
   req.body.is_facebook = true;

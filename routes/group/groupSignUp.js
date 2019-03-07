@@ -3,14 +3,14 @@ const { isGroup } = require("../../middlewares/verifications");
 
 const getSocketId = (uid) => {
   return new Promise((resolve, reject) => {
-    console.log("uid", uid);
+    //console.log("uid", uid);
     connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
       if (!err && row.length === 0) {
         resolve(null);
       } else if (!err && row.length > 0) {
         resolve({socketId: row[0].socket_id});
       } else {
-        console.log(err);
+        //console.log(err);
         reject(err);
       }
     });
@@ -31,7 +31,7 @@ const getGroupUserId = (id) => {
 exports.groupSignUp = (req, res, next) => {
   const parent_group_id = req.params.id;
   const user_id = req.decoded.uid;
-  console.log(req.body);
+  //console.log(req.body);
 
   const groupSignUpDB = (data) => {
     return new Promise((resolve, reject) => {
@@ -47,7 +47,7 @@ exports.groupSignUp = (req, res, next) => {
   };
 
   const JoinLoop = (data) => {
-    console.log(data);
+    //console.log(data);
     return new Promise((resolve, reject) => {
       let arr = data.join_design.map(item => {
         groupSignUpDB({parent_group_id, design_id: item})
@@ -60,7 +60,7 @@ exports.groupSignUp = (req, res, next) => {
 
   const respond = async (data) => {
     const { sendAlarm } = require("../../socket");
-    console.log(sendAlarm);
+    //console.log(sendAlarm);
     let socket = getSocketId(req.decoded.uid);
     let toUserId = await getGroupUserId(parent_group_id).catch(next);
     sendAlarm(socket.socketId, toUserId, parent_group_id, "JoinGroup", req.decoded.uid);
@@ -79,7 +79,7 @@ exports.groupSignUp = (req, res, next) => {
 exports.groupSignUpGroup = (req, res, next) => {
   const parent_group_id = req.params.id;
   const user_id = req.decoded.uid;
-  console.log(req.body);
+  //console.log(req.body);
 
   const groupSignUpDB = (data) => {
     return new Promise((resolve, reject) => {
@@ -95,7 +95,7 @@ exports.groupSignUpGroup = (req, res, next) => {
   };
 
   const JoinLoop = (data) => {
-    console.log(data);
+    //console.log(data);
     return new Promise((resolve, reject) => {
       let arr = data.join_group.map(item => {
         groupSignUpDB({parent_group_id, group_id: item})
@@ -108,7 +108,7 @@ exports.groupSignUpGroup = (req, res, next) => {
 
   const respond = async (data) => {
     const { sendAlarm } = require("../../socket");
-    console.log(sendAlarm);
+    //console.log(sendAlarm);
     let socket = getSocketId(req.decoded.uid);
     let toUserId = await getGroupUserId(parent_group_id).catch(next);
     sendAlarm(socket.socketId, toUserId, parent_group_id, "JoinGroup", req.decoded.uid);

@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 
 const getDesignerList = (req, res, next) => {
   const sql = req.sql;
-  console.log(sql);
+  //console.log(sql);
   // 디자이너 리스트 불러오기 (GET)
   function getDesignerList (sql) {
     const p = new Promise((resolve, reject) => {
@@ -11,7 +11,7 @@ const getDesignerList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          console.log(row);
+          //console.log(row);
           row.map(data => {
             arr.push(newData(data));
           });
@@ -55,7 +55,7 @@ const getDesignerList = (req, res, next) => {
   //       }
   //       data.designTop3 = arr;
   //     } else {
-  //       console.log(err);
+  //       //console.log(err);
   //     }
   //   });
   // };

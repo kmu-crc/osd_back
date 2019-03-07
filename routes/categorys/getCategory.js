@@ -5,7 +5,7 @@ exports.getCategoryLevel1 = (req, res, err) => {
     return new Promise((resolve, reject) => {
       connection.query("SELECT * FROM category_level1", (err, rows) => {
         if (!err) {
-          console.log(rows);
+          //console.log(rows);
           resolve(rows);
         } else {
           reject(err);
@@ -38,7 +38,7 @@ exports.getCategoryLevel2 = (req, res, err) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM category_level2 WHERE parents_id = ${parentsId}`, (err, rows) => {
         if (!err) {
-          console.log(rows);
+          //console.log(rows);
           resolve(rows);
         } else {
           reject(err);
@@ -73,7 +73,7 @@ exports.getCategoryAll = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("SELECT * FROM category_level1", async (err, rows) => {
         if (!err && rows.length === 0) {
-          console.log("no category");
+          //console.log("no category");
           resolve(null);
         } else if (!err && rows.length > 0) {
           category1 = rows;
@@ -97,7 +97,7 @@ exports.getCategoryAll = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("SELECT * FROM category_level2 WHERE parents_id = ?", cate1, (err, rows) => {
         if (!err && rows.length === 0) {
-          console.log("no category2");
+          //console.log("no category2");
           resolve(null);
         } else if (!err && rows.length > 0) {
           resolve(rows);

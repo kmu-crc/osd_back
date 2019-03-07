@@ -9,12 +9,12 @@ exports.getLikeDesign = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM design_like WHERE user_id = ${userId} AND design_id = ${designId}`, (err, result) => {
         if (!err && result.length === 0) {
-          // console.log(result);
+          // //console.log(result);
           res.status(200).json({like: false});
         } else if (!err && result.length > 0) {
           res.status(200).json({like: true});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({like: false});
         }
       });
@@ -35,7 +35,7 @@ exports.likeDesign = (req, res, next) => {
         if (!err) {
           resolve(designId);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -49,7 +49,7 @@ exports.likeDesign = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, design_id: designId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, design_id: designId});
         }
       });
@@ -71,7 +71,7 @@ exports.unlikeDesign = (req, res, next) => {
         if (!err) {
           resolve(designId);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -85,7 +85,7 @@ exports.unlikeDesign = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, design_id: designId});
         } else {
-          console.log(err);
+          //console.log(err);
           res.status(500).json({success: false, design_id: designId});
         }
       });

@@ -24,7 +24,7 @@ exports.insertSource = async data => {
 
   let PromiseArray = [];
 
-  console.log("data", data);
+  //console.log("data", data);
   for (let item of data.files) {
     let obj = {
       user_id: data.uid,
@@ -38,7 +38,7 @@ exports.insertSource = async data => {
       return insertDB(obj).then(PromiseArray.push(true)).catch(err => PromiseArray.push(err));
     });
   }
-  console.log(PromiseArray);
+  //console.log(PromiseArray);
   return Promise.all(PromiseArray)
     .then(Promise.resolve(true))
     .catch(err => {

@@ -7,10 +7,10 @@ exports.getCardComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("SELECT C.uid, C.user_id, C.card_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM card_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.card_id = ?", id, (err, row) => {
         if (!err) {
-          console.log("get", row);
+          //console.log("get", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -39,16 +39,16 @@ exports.getCardComment = (req, res, next) => {
 exports.createCardComment = (req, res, next) => {
   req.body["user_id"] = req.decoded.uid;
   req.body["card_id"] = req.params.card_id;
-  console.log("req.body", req.body);
+  //console.log("req.body", req.body);
 
   const createComment = (data) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO card_comment SET ?", data, (err, row) => {
         if (!err) {
-          console.log("create", row);
+          //console.log("create", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -59,10 +59,10 @@ exports.createCardComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("UPDATE card_counter SET comment_count = comment_count + 1 WHERE card_id = ?", id, (err, row) => {
         if (!err) {
-          console.log("update", row);
+          //console.log("update", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -95,10 +95,10 @@ exports.deleteCardComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM card_comment WHERE card_id = ${cardId} AND uid = ${cmtId}`, (err, row) => {
         if (!err) {
-          console.log("delete", row);
+          //console.log("delete", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -109,10 +109,10 @@ exports.deleteCardComment = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("UPDATE card_counter SET comment_count = comment_count - 1 WHERE card_id = ?", id, (err, row) => {
         if (!err) {
-          console.log("update", row);
+          //console.log("update", row);
           resolve(row);
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });

@@ -8,14 +8,14 @@ const fs = require("fs");
 
 // 2. 생성된 디자인에 썸네일 업데이트
 const updateDesignFn = (req) => {
-  console.log("2번", req.designId);
+  //console.log("2번", req.designId);
   return new Promise((resolve, reject) => {
     connection.query(`UPDATE design SET ? WHERE uid=${req.designId} AND user_id=${req.userId}`, req.data, (err, rows) => {
       if (!err) {
         if (rows.affectedRows) {
           resolve(rows);
         } else {
-          console.log("2번", err);
+          //console.log("2번", err);
           throw err;
         }
       } else {
@@ -26,12 +26,12 @@ const updateDesignFn = (req) => {
 };
 
 exports.updateDesign = (req, res, next) => {
-  console.log("updateDesign");
+  //console.log("updateDesign");
 };
 
 // 디자인 디테일 정보 등록
 exports.createDesign = async (req, res, next) => {
-  console.log("createDesign", req.files);
+  //console.log("createDesign", req.files);
 
   const WriteFile = (file, filename) => {
     let originname = filename.split(".");
@@ -82,14 +82,14 @@ exports.createDesign = async (req, res, next) => {
 
   // 1. 디자인 생성
   const insertDesign = (data) => {
-    console.log("1번", data);
+    //console.log("1번", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design SET ?", data, (err, rows) => {
         if (!err) {
           designId = rows.insertId;
           resolve();
         } else {
-          console.log("1번", err);
+          //console.log("1번", err);
           reject(err);
         }
       });
@@ -98,14 +98,14 @@ exports.createDesign = async (req, res, next) => {
 
   // 3. 디자인 count 정보 생성
   const insertDesignCount = (data) => {
-    console.log("3번", data, designId);
+    //console.log("3번", data, designId);
     return new Promise((resolve, reject) => {
       const newCount = { design_id: designId, like_count: 0, view_count: 0, card_count: 0, member_count: 1 };
       connection.query("INSERT INTO design_counter SET ? ", newCount, (err, row) => {
         if (!err) {
           resolve(designId);
         } else {
-          console.log("3", err);
+          //console.log("3", err);
           reject(err);
         }
       });
@@ -114,14 +114,14 @@ exports.createDesign = async (req, res, next) => {
 
   // 4. 디자인 생성한 유저 count 정보 업데이트
   const updateUserCount = () => {
-    console.log("4번", userId);
+    //console.log("4번", userId);
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE user_counter SET total_design = total_design + 1 WHERE user_id = ${userId}`, (err, row) => {
         if (!err) {
-          console.log(row);
+          //console.log(row);
           resolve(designId);
         } else {
-          console.log("4", err);
+          //console.log("4", err);
           reject(err);
         }
       });
@@ -168,7 +168,7 @@ exports.createDesign = async (req, res, next) => {
     .then(insertDesignCount)
     .then(updateUserCount)
     .then(() => {
-      console.log("createBoard");
+      //console.log("createBoard");
       return createBoardDB({
         user_id: userId,
         design_id: designId,
@@ -177,7 +177,7 @@ exports.createDesign = async (req, res, next) => {
       });
     })
     .then((boardId) => {
-      console.log("createCard");
+      //console.log("createCard");
       return createCardDB({
         design_id: designId,
         board_id: boardId,

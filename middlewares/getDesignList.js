@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 
 const getDesignList = (req, res, next) => {
   const sql = req.sql;
-  // console.log(sql);
+  // //console.log(sql);
   // 디자인 리스트 가져오기 (GET)
   function getList (sql) {
     return new Promise((resolve, reject) => {
@@ -11,7 +11,7 @@ const getDesignList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          console.log("+++", row);
+          //console.log("+++", row);
           row.map(data => {
             arr.push(newData(data));
           });
@@ -19,7 +19,7 @@ const getDesignList = (req, res, next) => {
             resolve(result);
           });
         } else {
-          console.log(err);
+          //console.log(err);
           reject(err);
         }
       });
@@ -109,7 +109,7 @@ const getDesignList = (req, res, next) => {
 
   getList(sql)
     .then(data => {
-      // console.log("list", data);
+      // //console.log("list", data);
       res.status(200).json(data);
     })
     .catch(err => res.status(500).json(err));

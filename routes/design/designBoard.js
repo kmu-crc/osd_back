@@ -18,7 +18,7 @@ exports.createBoardDB = (req) => {
 };
 
 exports.createBoard = (req, res, next) => {
-  console.log(req.body);
+  //console.log(req.body);
   let data = req.body;
   data.design_id = req.params.id;
   data.user_id = req.decoded.uid;
@@ -67,7 +67,7 @@ exports.getBoardList = (req, res, next) => {
           });
         }));
       });
-      console.log(arr);
+      //console.log(arr);
       Promise.all(arr)
         .then(() => resolve(list))
         .catch((err) => reject(err));
@@ -78,7 +78,7 @@ exports.getBoardList = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM thumbnail WHERE uid = ${id}`, (err, rows) => {
         if (!err) {
-          console.log(rows);
+          //console.log(rows);
           resolve(rows[0]);
         } else {
           console.error("MySQL Error:", err);
@@ -125,7 +125,7 @@ exports.getBoardList = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log("getBoards", data);
+    //console.log("getBoards", data);
     res.status(200).json({
       success: true,
       message: "get board list 성공.",
@@ -145,7 +145,7 @@ exports.updateBoard = (req, res, next) => {
   const board_id = req.params.board_id;
 
   const update = (obj) => {
-    console.log("obj: ---------", obj);
+    //console.log("obj: ---------", obj);
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
         if (!err) {
@@ -159,7 +159,7 @@ exports.updateBoard = (req, res, next) => {
   };
 
   const respond = (data) => {
-    console.log(data);
+    //console.log(data);
     res.status(200).json({
       success: true,
       message: "update board가 성공적으로 등록되었습니다.",
@@ -225,7 +225,7 @@ exports.deleteBoard = (req, res, next) => {
   }
 
   const respond = (data) => {
-    console.log(data);
+    //console.log(data);
     res.status(200).json({
       success: true,
       message: "성공적으로 등록되었습니다.",

@@ -3,7 +3,7 @@ require("dotenv").config();
 var db;
 var options;
 
-console.log(process.env.OPERATION_DB_HOST, "process.env.OPERATION", process.env.OPERATION, "process.env.DEVELOP", process.env.DEVELOP, "process.env.LOCAL", process.env.LOCAL);
+//console.log(process.env.OPERATION_DB_HOST, "process.env.OPERATION", process.env.OPERATION, "process.env.DEVELOP", process.env.DEVELOP, "process.env.LOCAL", process.env.LOCAL);
 
 if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
   options = {
@@ -36,9 +36,9 @@ function connectionDataBase () {
     db = mysql.createConnection(options);
     db.connect(function (err) {
       if (!err) {
-        console.log("DataBase Connected!");
+        //console.log("DataBase Connected!");
       } else {
-        console.log("Error DataBase Connection :" + err);
+        //console.log("Error DataBase Connection :" + err);
       }
     });
   }
