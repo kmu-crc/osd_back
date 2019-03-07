@@ -1,10 +1,11 @@
 const express = require("express");
 const path = require("path");
-const favicon = require("serve-favicon");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const fs = require('fs');
+
 require("dotenv").config();
 
 const routers = require("./routes");
@@ -27,7 +28,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use("/userFile", express.static("uploads"));
 app.use("/thumbnails", express.static("thumbnails"));
-
+if(!fs.existsSync('./uploads')){
+  fs.mkdirSync('./uploads');
+}
+if(!fs.existsSync('./thumbnails')){
+  fs.mkdirSync('./thumbnails');
+}
 app.use("/", routers);
 
 app.use("/check", function (req, res, next) {

@@ -13,7 +13,7 @@ exports.S3Thumbnail = (res) => {
         if (err) reject(err);
         const upload = {
           Bucket: process.env.AWS_S3_BUCKET,
-          Key: `thumbnails/${res[key]}`,
+          Key: process.env.OPERATION ? `thumbnails/${res[key]}`: `dev/thumbnails/${res[key]}`,
           ACL: "public-read",
           Body: file_buffer
         };

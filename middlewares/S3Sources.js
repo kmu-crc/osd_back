@@ -61,10 +61,10 @@ exports.S3Upload = (res, filename) => {
       let filename_encoded = encodeURIComponent(filename);
       const upload = {
         Bucket: process.env.AWS_S3_BUCKET,
-        Key: `${res}`,
+        Key: process.env.OPERATION ? `${res}`:`dev/${res}`,
         ACL: "public-read",
         Body: file_buffer,
-	ContentType: 'text/plain; charset=utf-8',
+	      ContentType: 'text/plain; charset=utf-8',
         ContentDisposition: 'attachment; filename="'+filename_encoded+'"'
       };
       s3.upload(upload, function (err, result) {
