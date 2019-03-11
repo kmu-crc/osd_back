@@ -1,5 +1,59 @@
 var connection = require("../../configs/connection");
 
+const getSocketId = uid => {
+  return new Promise((resolve, reject) => {
+    console.log("uid", uid);
+    connection.query(
+      `SELECT socket_id FROM user WHERE uid = ${uid}`,
+      (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve({ socketId: row[0].socket_id });
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      }
+    );
+  });
+};
+
+const getDesignUserId = id => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT * FROM design WHERE uid=${id}`,
+      (err, rows) => {
+        if (!err) {
+          resolve(rows[0].user_id);
+        } else {
+          const errorMessage = "좋아요를 실패하였습니다.";
+          reject(errorMessage);
+        }
+      }
+    );
+  });
+};
+
+const SendSuccessAlarm = async (fromId, contentId) => {
+  const { sendAlarm } = require("../../socket");
+  let designerId = null;
+  designerId = await getDesignUserId(fromId);
+  let socket = getSocketId(designerId);
+  let toUserId = await getDesignUserId(contentId);
+  sendAlarm(
+    socket.socketId,
+    designerId,
+    contentId,
+    "Likedesign",
+    toUserId
+  );
+};
+
+
+
+
+
 exports.getLikeDesign = (req, res, next) => {
   const userId = req.decoded.uid;
   const designId = req.params.id;
@@ -9,12 +63,12 @@ exports.getLikeDesign = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM design_like WHERE user_id = ${userId} AND design_id = ${designId}`, (err, result) => {
         if (!err && result.length === 0) {
-          // //console.log(result);
+          // console.log(result);
           res.status(200).json({like: false});
         } else if (!err && result.length > 0) {
           res.status(200).json({like: true});
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({like: false});
         }
       });
@@ -35,7 +89,7 @@ exports.likeDesign = (req, res, next) => {
         if (!err) {
           resolve(designId);
         } else {
-          //console.log(err);
+          console.log(err);
           reject(err);
         }
       });
@@ -47,9 +101,11 @@ exports.likeDesign = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design_counter SET like_count = like_count + 1 WHERE design_id = ${designId}`, (err, row) => {
         if (!err) {
+          SendSuccessAlarm(designId,designId);
           res.status(200).json({success: true, design_id: designId});
+          
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({success: false, design_id: designId});
         }
       });
@@ -71,7 +127,7 @@ exports.unlikeDesign = (req, res, next) => {
         if (!err) {
           resolve(designId);
         } else {
-          //console.log(err);
+          console.log(err);
           reject(err);
         }
       });
@@ -85,7 +141,7 @@ exports.unlikeDesign = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, design_id: designId});
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({success: false, design_id: designId});
         }
       });
