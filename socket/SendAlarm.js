@@ -8,7 +8,7 @@ function countAlarm (uid) {
         if (!err) {
           resolve(rows[0]["count(confirm)"]);
         } else {
-          console.log("2번", err);
+          //console.log("2번", err);
           reject(err);
         }
       }
@@ -24,7 +24,7 @@ function sendAlarm (socketId, uid, count, io) {
         if (!err) {
           addTitle(socketId, { count, list: rows }, io, uid);
         } else {
-          console.log("2번", err);
+          //console.log("2번", err);
           reject(err);
         }
       }
@@ -60,11 +60,11 @@ function addTitle (socketId, alarm, io, uid) {
       }
       item.fromUser = await getNickName(item.from_user_id);
       newList.push(item);
-      console.log("newList", newList);
+      //console.log("newList", newList);
     }
     Promise.all(newList)
       .then(item => {
-        console.log(socketId, alarm);
+        //console.log(socketId, alarm);
         alarm.list = item;
         io.to(`${socketId}`).emit("getNoti", alarm);
       })
@@ -80,7 +80,7 @@ function DoesItExistDesign (uid) {
         if (!err) {
           resolve(rows[0]["count(uid)"]);
         } else {
-          console.log("2번", err);
+          //console.log("2번", err);
           reject(err);
         }
       }
@@ -95,7 +95,7 @@ function DoesItExistGroup (uid) {
         if (!err) {
           resolve(rows[0]["count(uid)"]);
         } else {
-          console.log("2번", err);
+          //console.log("2번", err);
           reject(err);
         }
       }
@@ -111,7 +111,7 @@ function getTitle (query, target) {
       } else if (!err && rows.length) {
         resolve(null);
       } else {
-        console.log("3번", err);
+        //console.log("3번", err);
         reject(err);
       }
     });
@@ -129,7 +129,7 @@ function getNickName (uid) {
         } else if (rows.length) {
           resolve(null);
         } else {
-          console.log("1번", err);
+          //console.log("1번", err);
           reject(err);
         }
       }
@@ -188,7 +188,7 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io) => {
           if (!err) {
             resolve(true);
           } else {
-            console.log("2번", err);
+            //console.log("2번", err);
             reject(err);
           }
         }
@@ -203,7 +203,7 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io) => {
 };
 
 exports.GetAlarm = (socketId, uid, io) => {
-  console.log("?????");
+  //console.log("?????");
   countAlarm(uid)
     .then(count => sendAlarm(socketId, uid, count, io))
     .catch();

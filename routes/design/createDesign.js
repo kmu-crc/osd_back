@@ -15,7 +15,7 @@ const updateDesignFn = (req) => {
         if (rows.affectedRows) {
           resolve(rows);
         } else {
-          //console.log("2번", err);
+          console.log("2번", err);
           throw err;
         }
       } else {
@@ -89,7 +89,7 @@ exports.createDesign = async (req, res, next) => {
           designId = rows.insertId;
           resolve();
         } else {
-          //console.log("1번", err);
+          console.log("1번", err);
           reject(err);
         }
       });
@@ -105,7 +105,7 @@ exports.createDesign = async (req, res, next) => {
         if (!err) {
           resolve(designId);
         } else {
-          //console.log("3", err);
+          console.log("3", err);
           reject(err);
         }
       });
@@ -121,7 +121,7 @@ exports.createDesign = async (req, res, next) => {
           //console.log(row);
           resolve(designId);
         } else {
-          //console.log("4", err);
+          console.log("4", err);
           reject(err);
         }
       });

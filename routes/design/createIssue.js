@@ -29,7 +29,7 @@ exports.createIssue = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, id: issueId, design_id: designId});
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({success: false, id: issueId, design_id: designId});
         }
       });
@@ -68,7 +68,7 @@ exports.updateIssue = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, id: issueId, design_id: designId});
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({success: false, id: issueId, design_id: designId});
         }
       });
@@ -90,7 +90,7 @@ exports.updateIssueStatus = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, id: issueId, design_id: designId});
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({success: false, id: issueId, design_id: designId});
         }
       });
@@ -123,7 +123,7 @@ exports.deleteIssue = (req, res, next) => {
         if (!err) {
           res.status(200).json({success: true, design_id: designId});
         } else {
-          //console.log(err);
+          console.log(err);
           res.status(500).json({success: false, design_id: designId});
         }
       });

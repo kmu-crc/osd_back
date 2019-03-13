@@ -13,7 +13,7 @@ exports.deleteDesign = (req, res, next) => {
         } else if (row.length === 0) {
           resolve(null);
         } else {
-          //console.log(err);
+          console.log(err);
           reject(err);
         }
       });
@@ -30,7 +30,7 @@ exports.deleteDesign = (req, res, next) => {
           if (!err) {
             resolve(row);
           } else {
-            //console.log(err);
+            console.log(err);
             reject(err);
           }
         });
@@ -47,7 +47,7 @@ exports.deleteDesign = (req, res, next) => {
         if (!err) {
           resolve(row);
         } else {
-          //console.log(err);
+          console.log(err);
           reject(err);
         }
       });
@@ -59,7 +59,7 @@ exports.deleteDesign = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("DELETE FROM design WHERE uid = ?", id, (err, row) => {
         if (!err) {
-          //console.log(row);
+          console.log(row);
           resolve(row);
         } else {
           reject(err);
