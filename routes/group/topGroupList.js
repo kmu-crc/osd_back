@@ -28,14 +28,16 @@ exports.topGroupList = (req, res, next) => {
   sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
   // 2st sort(OPTIONAL)
   // default : update
-  sort = "update"; 
+//console.log("sorting", req.params.sorting);
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined")  
     sort = req.params.sorting; 
   sort ==="update"?sort="child_update_time":null;
+  sort ==="create"?sort="create_time":null;
+//console.log("option:",sort);
   sql = sql +`, T.`+sort+` DESC `
   // for infinite scroll
   sql = sql +`LIMIT `+(page*10)+`,10;`;
-  console.log(sql);
+  // console.log(sql);
   req.sql = sql; 
   next(); 
 };
