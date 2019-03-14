@@ -8,6 +8,7 @@ const getGroupList = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, (err, row) => {
+  //          console.log( row);
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -18,10 +19,12 @@ const getGroupList = (req, res, next) => {
             resolve(result);
           });
         } else {
+          console.log("!");
           reject(err);
         }
       });
     });
+    console.log(p);
     return p;
   };
 
@@ -78,7 +81,9 @@ const getGroupList = (req, res, next) => {
   };
 
   getGroupList(sql)
-    .then(result => res.status(200).json(result))
+    .then(result => {
+      console.log(result, "!!!");
+      res.status(200).json(result)})
     .catch(err => {
       console.log(err);
       res.status(500).json(err)
