@@ -2,14 +2,8 @@ const connection = require("../../configs/connection");
 
 exports.topGroupList = (req, res, next) => {
   const page = req.params.page; 
-  let sort; 
+  let sort = "update"; 
   const keyword = req.params.keyword; 
- 
-  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") { 
-    sort = req.params.sorting; 
-  } else { 
-    sort = "update"; 
-  } 
  
   let sql = `
   SELECT T.uid, T.title, T.thumbnail, T.create_time, T.child_update_time, T.user_id, T.explanation, T.like, T.design, T.group, T.nick_name, T.order FROM (
@@ -26,9 +20,22 @@ exports.topGroupList = (req, res, next) => {
         LEFT JOIN opendesign.user U ON U.uid = G.user_id
         LEFT JOIN opendesign.collection_group CG ON CG.group_id = G.uid
       WHERE G.uid NOT IN (SELECT CG.group_id FROM opendesign.collection_group CG)        
-  ) as T 
-  order by T.order IS NULL ASC, T.order ASC, T.like DESC 
-  LIMIT `+(page*10)+`,10;`;
+  ) as T `;
+  // search
+  if(keyword && keyword !== "null" && keyword !== "undefined")
+    sql = sql +`WHERE T.title LIKE `+ keyword + `OR T.nick_name LIKE `+keyword+` `;
+  // 1st sort(NEEDED)
+  sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
+  // 2st sort(OPTIONAL)
+  // default : update
+  sort = "update"; 
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined")  
+    sort = req.params.sorting; 
+  sort ==="update"?sort="child_update_time":null;
+  sql = sql +`, T.`+sort+` DESC `
+  // for infinite scroll
+  sql = sql +`LIMIT `+(page*10)+`,10;`;
+  console.log(sql);
   req.sql = sql; 
   next(); 
 };

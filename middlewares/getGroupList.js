@@ -24,7 +24,7 @@ const getGroupList = (req, res, next) => {
         }
       });
     });
-    console.log(p);
+    //console.log(p);
     return p;
   };
 
@@ -82,7 +82,7 @@ const getGroupList = (req, res, next) => {
 
   getGroupList(sql)
     .then(result => {
-      console.log(result, "!!!");
+      //console.log(result, "!!!");
       res.status(200).json(result)})
     .catch(err => {
       console.log(err);
