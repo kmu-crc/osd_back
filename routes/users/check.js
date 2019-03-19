@@ -11,6 +11,7 @@ const check = (req, res, next) => {
         (err, rows) => {
           if (err) {
             reject(err);
+            console.log(err);
           } else {
             decoded.thumbnail = rows[0];
             resolve(decoded);
@@ -49,7 +50,7 @@ const check = (req, res, next) => {
   };
 
   isUserDetail(req.decoded.uid)
-    .then(isDetail => {
+  .then(isDetail => {
       req.decoded.isDetail = isDetail;
       return getThumbnail(req.decoded);
     })

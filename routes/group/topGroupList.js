@@ -28,14 +28,16 @@ exports.topGroupList = (req, res, next) => {
   sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
   // 2st sort(OPTIONAL)
   // default : update
-  sort = "update"; 
+//console.log("sorting", req.params.sorting);
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined")  
     sort = req.params.sorting; 
   sort ==="update"?sort="child_update_time":null;
+  sort ==="create"?sort="create_time":null;
+//console.log("option:",sort);
   sql = sql +`, T.`+sort+` DESC `
   // for infinite scroll
   sql = sql +`LIMIT `+(page*10)+`,10;`;
-  console.log(sql);
+  // console.log(sql);
   req.sql = sql; 
   next(); 
 };
@@ -58,3 +60,103 @@ exports.getTopTotalCount = (req, res, next) => {
     .then(num => res.status(200).json(num))
     .catch(err => res.status(500).json(err));
 };
+
+exports.insertTopGroup = (req, res, next) => {
+  const groupId = req.params.id;
+  const groupOrder = req.body.order;
+  const insertTopGroup = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`INSERT INTO opendesign.collection_group VALUES(null,${groupId},${groupOrder},null)`, (err, result) => {
+        if (!err) {
+          resolve(result);
+        } else {
+          console.log(err);
+          reject(result);
+        }
+      });
+    });
+  };
+
+  const success = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  insertTopGroup()
+    .then(success)
+    .catch(fail);
+};
+
+exports.updateTopGroup = (req, res, next) => {
+  const groupId = req.params.id;
+  const groupOrder = req.body.order;
+  const updateTopGroup = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE opendesign.collection_group as T SET T.order=${groupOrder} WHERE group_id = ${groupId}`, (err, result) => {
+        if (!err) {
+          resolve(result);
+        } else {
+          console.log(err);
+          reject(result);
+        }
+      });
+    });
+  };
+
+  const success = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  updateTopGroup()
+    .then(success)
+    .catch(fail);
+};
+
+exports.deleteTopGroup = (req, res, next) => {
+  const groupId = req.params.id;
+  const deleteTopGroup = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM opendesign.collection_group WHERE group_id = ${groupId}`, (err, result) => {
+        if (!err) {
+          resolve(result);
+        } else {
+          console.log(err);
+          reject(result);
+        }
+      });
+    });
+  };
+
+  const success = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  deleteTopGroup()
+    .then(success)
+    .catch(fail);
+};
+
+

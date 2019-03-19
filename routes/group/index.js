@@ -7,7 +7,8 @@ const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList, getTotalCount } = require("./groupList");
-const { topGroupList, getTopTotalCount } = require("./topGroupList");
+const { topGroupList, getTopTotalCount, updateTopGroup, insertTopGroup, deleteTopGroup} = require("./topGroupList");
+const { allGroupList, getAllGroupTotalCount } = require("./allGroupList");
 const { groupDetail, getCount } = require("./groupDetail");
 const { designInGroup } = require("./designInGroup");
 const { groupInGroup } = require("./groupInGroup");
@@ -27,6 +28,8 @@ router.get("/groupList/:page/:sorting?/:keyword?", groupList, getGroupList);
 router.get("/groupCount", getTotalCount);
 router.get("/topGroupList/:page/:sorting?/:keyword?", topGroupList, getGroupList);
 router.get("/topGroupCount", getTopTotalCount);
+router.get("/allGroupList/", allGroupList, getGroupList);
+router.get("/allGroupCount", getAllGroupTotalCount);
 router.get("/groupDetail/:id", groupDetail);
 router.get("/groupDetail/:id/design/:page/:sorting?", designInGroup, getDesignList);
 router.get("/groupDetail/:id/group/:page/:sorting?", groupInGroup, getGroupList);
@@ -50,6 +53,9 @@ router.get("/:id/join/myExistGroupList", auth, myExistGroupList);
 // 그룹 생성, 수정, 삭제
 router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
 router.post("/:id/updateGroup", auth, insertThumbnail, stringToNumber, updateGroup);
+router.post("/:id/updateTopGroup", auth, updateTopGroup);
+router.post("/:id/insertTopGroup",auth, insertTopGroup);
+router.post("/:id/deleteTopGroup",auth, deleteTopGroup);
 router.post("/groupDetail/:id/createIssue", auth, createGroupIssue);
 router.delete("/groupDetail/:id/deleteIssue/:issue_id", auth, deleteGroupIssue);
 router.delete("/:id/deleteGroup", auth, deleteAllGroup);

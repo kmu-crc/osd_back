@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
   const token = req.headers["x-access-token"] || req.query.token;
   // token does not exist
   if (!token) {
-    //console.log("no token");
+    console.log("no token");
     return res.status(403).json({
       success: false,
       message: "not logged in"
@@ -17,22 +17,23 @@ const authMiddleware = (req, res, next) => {
   const p = new Promise(
     (resolve, reject) => {
       jwt.verify(token, req.app.get("jwt-secret"), (err, decoded) => {
-        if (err) reject(err);
+        if (err){ console.log(err);reject(err); }
         resolve(decoded);
       });
     }
-  );
-
-  // if it has failed to verify, it will return an error message
-  const onError = (error) => {
-    res.status(403).json({
-      success: false,
-      message: error.message
-    });
-  };
-
-  // process the promise
-  p
+    );
+    
+    // if it has failed to verify, it will return an error message
+    const onError = (error) => {
+      res.status(403).json({
+        success: false,
+        message: error.message
+      });
+    };
+    
+    console.log("checking...");
+    // process the promise
+    p
     // .then(getThumbnail)
     .then((decoded) => {
       req.decoded = decoded;
