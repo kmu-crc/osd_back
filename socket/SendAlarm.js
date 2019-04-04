@@ -155,9 +155,15 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io) => {
   } else if (message === "DesignRequestTrue") {
     type = "DESIGN";
     kinds = "REQUEST_TRUE";
-  } else if (message === "DesignRefuse") {
+  } else if (message === "DesignRefuse"){
     type = "DESIGN";
     kinds = "REFUSE";
+  } else if (message === "DesignGetout") {
+    type = "DESIGN";
+    kinds = "GETOUT";
+  } else if (message === "DesignInviteReject"){
+    type = "DESIGN";
+    kinds = "INVITE_REJECT";
   } else if (message === "JoinGroup") {
     type = "GROUP";
     kinds = "JOIN";
