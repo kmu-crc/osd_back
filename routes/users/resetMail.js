@@ -34,7 +34,7 @@ exports.findPw = (req, res, next) => {
       connection.query(
         `SELECT password FROM user WHERE email="${email}"`,
         (err, rows) => {
-          if (!err) {
+          if (!err && rows.length>0) {
             old = rows[0]["password"];
           }
         }
