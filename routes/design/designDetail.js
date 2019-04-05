@@ -506,12 +506,85 @@ exports.getDesignComment = (req, res, next) => {
     .catch(fail);
 };
 
-exports.createDetailComment = (req, res, next) => {
+const getSocketId = uid => {
+  return new Promise((resolve, reject) => {
+    // console.log("uid", uid);
+    connection.query(
+      `SELECT socket_id FROM user WHERE uid = ${uid}`,
+      (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve({ socketId: row[0].socket_id });
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      }
+    );
+  });
+};
+
+const getDesignUserId = id => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT * FROM design WHERE uid=${id}`,
+      (err, rows) => {
+        if (!err) {
+          resolve(rows[0].user_id);
+        } else {
+          const errorMessage = "댓글달기를 실패하였습니다.";
+          reject(errorMessage);
+        }
+      }
+    );
+  });
+};
+const SendAlarm= async (fromId, contentId) => {
+  const { sendAlarm } = require("../../socket");
+  const receiver = await getDesignUserId(contentId)
+  if(fromId === receiver) return;
+  await getSocketId(receiver)
+    .then(socket =>
+      sendAlarm(socket.socketId, receiver, contentId, "CommentDesign", fromId)) 
+};
+const SendCommentCommentAlarm= async (toId, fromId, contentId) => {
+  const { sendAlarm } = require("../../socket");
+  if(toId===fromId) return;
+  await getSocketId(toId)
+    .then(socket =>
+      sendAlarm(socket.socketId, toId, contentId, "CommentComment", fromId)) 
+};
+const getUserIdByName = name=>{
+    return new Promise((resolve, reject) => {
+    // console.log("uid", uid);
+    connection.query(
+      `SELECT * FROM user WHERE nick_name LIKE '${name}'`,
+      (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve(row[0].uid);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      }
+    );
+  });
+}
+exports.createDetailComment = async (req, res, next) => {
   req.body["user_id"] = req.decoded.uid;
   req.body["design_id"] = req.params.id;
-  //console.log("req.body", req.body);
-
+  // console.log("req.body.comment", req.body.comment);
+  const _ = req.body.comment.match(/^@.*\s\s/)//[0].trim()
+  let reply = null
+  if(_ !== null)
+  {
+    reply = await getUserIdByName(_[0].trim().substring(1)) 
+  }
   const createComment = (data) => {
+    // console.log("DATA:", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design_comment SET ?", data, (err, row) => {
         if (!err) {
@@ -524,11 +597,14 @@ exports.createDetailComment = (req, res, next) => {
       });
     });
   };
-
+  
   const updateCardCount = (id) => {
     return new Promise((resolve, reject) => {
       connection.query("UPDATE design_counter SET comment_count = comment_count + 1 WHERE design_id = ?", id, (err, row) => {
         if (!err) {
+          reply!==null?
+            SendCommentCommentAlarm(reply, req.decoded.uid, req.params.id)
+            :SendAlarm(req.decoded.uid, req.params.id)
           //console.log("update", row);
           resolve(row);
         } else {

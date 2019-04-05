@@ -35,7 +35,50 @@ exports.getCardComment = (req, res, next) => {
     .then(success)
     .catch(fail);
 };
+const getSocketId = uid => {
+  return new Promise((resolve, reject) => {
+    console.log("uid", uid);
+    connection.query(
+      `SELECT socket_id FROM user WHERE uid = ${uid}`,
+      (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          resolve({ socketId: row[0].socket_id });
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      }
+    );
+  });
+};
 
+const getDesignCardUserId = id => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT * FROM design_card WHERE uid=${id}`,
+      (err, rows) => {
+        if (!err) {
+          resolve({receiver:rows[0].user_id, designId:rows[0].design_id});
+        } else {
+          const errorMessage = "댓글달기를 실패하였습니다.";
+          reject(errorMessage);
+        }
+      }
+    );
+  });
+};
+
+const SendAlarm= async (fromId, contentId) => {
+  const { sendAlarm } = require("../../socket");
+  const {receiver, designId} = await getDesignCardUserId(contentId)
+  if(fromId === receiver) return;
+  // console.log(receiver, designId)
+  await getSocketId(receiver)
+    .then(socket =>
+      sendAlarm(socket.socketId, receiver, designId, "CommentDesignCard", fromId)) 
+};
 exports.createCardComment = (req, res, next) => {
   req.body["user_id"] = req.decoded.uid;
   req.body["card_id"] = req.params.card_id;
@@ -60,6 +103,7 @@ exports.createCardComment = (req, res, next) => {
       connection.query("UPDATE card_counter SET comment_count = comment_count + 1 WHERE card_id = ?", id, (err, row) => {
         if (!err) {
           //console.log("update", row);
+          SendAlarm(req.decoded.uid, req.params.card_id)
           resolve(row);
         } else {
           //console.log(err);
