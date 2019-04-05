@@ -58,15 +58,10 @@ const SendSuccessAlarm = async (fromId, contentId, isGroup) => {
   } else {
     designerId = await getDesignUserId(fromId);
   }
-  let socket = getSocketId(designerId);
-  let toUserId = await getGroupUserId(contentId);
-  sendAlarm(
-    socket.socketId,
-    designerId,
-    contentId,
-    "JoinGroupSuccess",
-    toUserId
-  );
+  await getGroupUserId(contentId)
+    .then( recevier => getSocketId(designerId))
+      .then( (socket, receiver) =>
+        sendAlarm(socket.socketId, designerId, contentId, "JoinGroupSuccess", receiver))
 };
 
 const SendRefuseAlarm = async (fromId, contentId, isGroup) => {
@@ -77,15 +72,10 @@ const SendRefuseAlarm = async (fromId, contentId, isGroup) => {
   } else {
     designerId = await getDesignUserId(fromId);
   }
-  let socket = getSocketId(designerId);
-  let toUserId = await getGroupUserId(contentId);
-  sendAlarm(
-    socket.socketId,
-    designerId,
-    contentId,
-    "JoinGroupRefuse",
-    toUserId
-  );
+  await getGroupUserId(contentId)
+    .then(receiver=> getSocketId(designerId))
+      .then((socket, recevier)=>
+        sendAlarm(socket.socketId, designerId, contentId, "JoinGroupRefuse", recevier));
 };
 
 // 디자인 가입 승인

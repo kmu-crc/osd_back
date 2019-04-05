@@ -10,7 +10,6 @@ const getSocketId = (uid) => {
       } else if (!err && row.length > 0) {
         resolve({socketId: row[0].socket_id});
       } else {
-        //console.log(err);
         reject(err);
       }
     });
@@ -31,7 +30,8 @@ const getGroupUserId = (id) => {
 exports.groupSignUp = (req, res, next) => {
   const parent_group_id = req.params.id;
   const user_id = req.decoded.uid;
-  //console.log(req.body);
+  // console.log(req.body);
+  // console.log(req.params);
 
   const groupSignUpDB = (data) => {
     return new Promise((resolve, reject) => {
@@ -60,10 +60,16 @@ exports.groupSignUp = (req, res, next) => {
 
   const respond = async (data) => {
     const { sendAlarm } = require("../../socket");
-    //console.log(sendAlarm);
-    let socket = getSocketId(req.decoded.uid);
-    let toUserId = await getGroupUserId(parent_group_id).catch(next);
-    sendAlarm(socket.socketId, toUserId, parent_group_id, "JoinGroup", req.decoded.uid);
+  /*  await getGroupUserId(parent_group_id)
+      .then( recevier => getSocketId(recevier))
+        .then( (socket,recevier) => {sendAlarm(
+          socket.socketId, , 
+            parent_group_id, "JoinGroup", recevier);console.log(recevier)})
+    */
+    await getGroupUserId(parent_group_id)
+      .then( recevier => getSocketId(recevier)
+        .then( socket => sendAlarm(socket.socketId, recevier, parent_group_id, "JoinGroup", req.decoded.uid)))
+        
     res.status(200).json({
       message: "그룹가입신청 성공",
       success: true
@@ -79,7 +85,7 @@ exports.groupSignUp = (req, res, next) => {
 exports.groupSignUpGroup = (req, res, next) => {
   const parent_group_id = req.params.id;
   const user_id = req.decoded.uid;
-  //console.log(req.body);
+  // console.log(req.params);
 
   const groupSignUpDB = (data) => {
     return new Promise((resolve, reject) => {
@@ -108,10 +114,9 @@ exports.groupSignUpGroup = (req, res, next) => {
 
   const respond = async (data) => {
     const { sendAlarm } = require("../../socket");
-    //console.log(sendAlarm);
-    let socket = getSocketId(req.decoded.uid);
-    let toUserId = await getGroupUserId(parent_group_id).catch(next);
-    sendAlarm(socket.socketId, toUserId, parent_group_id, "JoinGroup", req.decoded.uid);
+    await getGroupUserId(parent_group_id)
+      .then( recevier => getSocketId(recevier)
+        .then( socket => sendAlarm(socket.socketId, recevier, parent_group_id, "JoinGroup", req.decoded.uid)))
     res.status(200).json({
       message: "그룹가입신청 성공",
       success: true

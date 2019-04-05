@@ -39,19 +39,14 @@ const SendSuccessAlarm = async (fromId, contentId) => {
   const { sendAlarm } = require("../../socket");
   let designerId = null;
   designerId = await getDesignUserId(fromId);
-  let socket = getSocketId(designerId);
-  let toUserId = await getDesignUserId(contentId);
-  sendAlarm(
-    socket.socketId,
-    designerId,
-    contentId,
-    "Likedesign",
-    toUserId
-  );
+  // let socket = getSocketId(designerId);
+  // let toUserId = await getDesignUserId(contentId);
+  // sendAlarm( socket.socketId, designerId, contentId, "Likedesign", toUserId);
+  await getDesignUserId(contentId)
+    .then(receiver => getSocketId(designerId))
+      .then((socket,receiver)=>
+        sendAlarm(socket.socketId, designerId, contentId, "Likedesign", receiver))
 };
-
-
-
 
 
 exports.getLikeDesign = (req, res, next) => {
