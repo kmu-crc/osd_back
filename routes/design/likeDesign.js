@@ -37,17 +37,10 @@ const getDesignUserId = id => {
 
 const SendSuccessAlarm = async (fromId, contentId) => {
   const { sendAlarm } = require("../../socket");
-  let designerId = null;
-  designerId = await getDesignUserId(fromId);
-  // let socket = getSocketId(designerId);
-  // let toUserId = await getDesignUserId(contentId);
-  // sendAlarm( socket.socketId, designerId, contentId, "Likedesign", toUserId);
-  await getDesignUserId(contentId)
-    .then(receiver => getSocketId(designerId))
-      .then((socket,receiver)=>
-        sendAlarm(socket.socketId, designerId, contentId, "Likedesign", receiver))
+  const receiver = await getDesignUserId(contentId)
+  await getSocketId(receiver).then(socket=>{
+        sendAlarm(socket.socketId, receiver, contentId, "Likedesign", fromId)}) 
 };
-
 
 exports.getLikeDesign = (req, res, next) => {
   const userId = req.decoded.uid;
@@ -96,7 +89,7 @@ exports.likeDesign = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE design_counter SET like_count = like_count + 1 WHERE design_id = ${designId}`, (err, row) => {
         if (!err) {
-          SendSuccessAlarm(designId,designId);
+          SendSuccessAlarm(userId, designId);
           res.status(200).json({success: true, design_id: designId});
           
         } else {

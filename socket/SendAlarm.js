@@ -176,6 +176,18 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io) => {
   } else if (message === "Likedesign") {
     type = "DESIGN";
     kinds = "LIKE";
+  } else if (message === "LikeGroup") {
+    type = "GROUP";
+    kinds = "LIKE";
+  } else if (message ==="CommentDesign") {
+    type = "DESIGN";
+    kinds = "COMMENT";
+  } else if (message ==="CommentDesignCard") {
+    type = "DESIGN"
+    kinds = "CARD_COMMENT"
+  } else if (message === "CommentComment") {
+    type = "DESIGN"
+    kinds = "COMMENT_COMMENT"
   }
 
   function insertAlarm (uid, type, kinds, content_id, fromUserId) {
