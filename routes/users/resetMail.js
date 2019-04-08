@@ -4,11 +4,10 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 exports.findPw = (req, res, next) => {
-  const email = req.body.email;
-  //console.log("email", email);
-  let pw = "";
-  let hashPw = "";
-  let old = "";
+  const email = req.body.email
+  let pw = ""
+  let hashPw = ""
+  let old = ""
 
   const isOnlyEmail = email => {
     return new Promise((resolve, reject) => {
@@ -19,28 +18,28 @@ exports.findPw = (req, res, next) => {
           if (!err) {
             //console.log("??", rows);
             if (rows[0]["count(email)"] === 0) {
-              const errorMessage = new Error("가입된 email이 아닙니다.");
-              reject(errorMessage);
+              const errorMessage = new String("가입된 email이 아닙니다.")
+              reject(errorMessage)
             } else {
-              resolve(true);
+              resolve(true)
             }
           } else {
-            const errorMessage = "isOnlyEmail err : " + err;
-            reject(errorMessage);
+            const errorMessage = "isOnlyEmail err : " + err
+            reject(errorMessage)
           }
         }
-      );
+      )
       //backup original password
       connection.query(
         `SELECT password FROM user WHERE email="${email}"`,
         (err, rows) => {
           if (!err && rows.length>0) {
-            old = rows[0]["password"];
+            old = rows[0]["password"]
           }
         }
-      );
-    });
-  };
+      )
+    })
+  }
 
   const randomPw = () => {
     return new Promise(async (resolve, reject) => {
@@ -53,23 +52,23 @@ exports.findPw = (req, res, next) => {
         }
         resolve(pw);
       } catch (err) {
-        reject(err);
+        reject(err)
       }
-    });
-  };
+    })
+  }
 
   const createHashPw = password => {
     return new Promise((resolve, reject) => {
-      bcrypt.hash(password, 10, function(err, hash) {
+      bcrypt.hash(password, password.length, function(err, hash) {
         if (!err) {
-          hashPw = hash;
-          resolve(hashPw);
+          hashPw = hash
+          resolve(hashPw)
         } else {
-          reject(err);
+          reject(err)
         }
-      });
-    });
-  };
+      })
+    })
+  }
 
   const updatePW = (email, pw) => {
     return new Promise((resolve, reject) => {
@@ -78,14 +77,14 @@ exports.findPw = (req, res, next) => {
         { password: pw },
         (err, row) => {
           if (!err) {
-            resolve(email);
+            resolve(email)
           } else {
-            reject(err);
+            reject(err)
           }
         }
-      );
-    });
-  };
+      )
+    })
+  }
 
   const sendMail = (mail, pw) => {
     return new Promise((resolve, reject) => {
@@ -101,11 +100,11 @@ exports.findPw = (req, res, next) => {
         from: "opensrcdesign@gmail.com",
         to: `${mail}`,
         subject: "opendesign password 변경",
-        text: `${pw}`
-      };
+        text: `새롭게 변경된 비밀번호는 아래와 같습니다. \n아이디: ${mail}\n비밀번호: ${pw}`
+      }
       smtpTransport.verify((error, success) => {
         if (error) {
-          updatePW(email, old);
+          updatePW(email, old)
         } else {
           //console.log("server is ready");
         }
@@ -118,19 +117,21 @@ exports.findPw = (req, res, next) => {
           resolve("등록된 e-mail로 새로운 비밀번호가 전송되었습니다.");
         }
         smtpTransport.close();
-      });
-    });
-  };
+      })
+    })
+  }
+
+  const notFoundEmail = (err) => {
+    res.status(200).json({success:false, message:err})
+  }
+  const success = (msg) => {
+    res.status(200).json({ success: true, message: msg})
+  }
   isOnlyEmail(email)
-    .then(randomPw)
+    .then(() => randomPw)
     .then(() => createHashPw(pw))
     .then(() => updatePW(email, hashPw))
     .then(() => sendMail(email, pw))
-    .then(data => {
-      res.status(200).json({
-        success: true,
-        message: data
-      });
-    })
-    .catch(next);
-};
+    .then(success)
+    .catch(notFoundEmail)
+}
