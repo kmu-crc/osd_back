@@ -37,7 +37,7 @@ const searchMembers = (req, res) => {
   };
 
   const error = (err) => {
-    res.status(500).json({
+    res.status(200).json({
       success: false,
       error: err
     });
