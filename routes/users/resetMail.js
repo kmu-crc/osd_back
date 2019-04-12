@@ -71,13 +71,14 @@ exports.findPw = (req, res, next) => {
   }
 
   const updatePW = (email, pw) => {
+    console.log("pw::",pw)
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE email = "${email}"`,
         { password: pw },
         (err, row) => {
           if (!err) {
-            resolve(email)
+            resolve(email, pw)
           } else {
             reject(err)
           }
@@ -87,6 +88,7 @@ exports.findPw = (req, res, next) => {
   }
 
   const sendMail = (mail, pw) => {
+    console.log("pw", pw)
     return new Promise((resolve, reject) => {
       //console.log("process.env.MAIL_ID", process.env.MAIL_ID);
       const smtpTransport = nodemailer.createTransport({
@@ -128,7 +130,7 @@ exports.findPw = (req, res, next) => {
     res.status(200).json({ success: true, message: msg})
   }
   isOnlyEmail(email)
-    .then(() => randomPw)
+    .then(randomPw)
     .then(() => createHashPw(pw))
     .then(() => updatePW(email, hashPw))
     .then(() => sendMail(email, pw))
