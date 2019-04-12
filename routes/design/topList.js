@@ -2,7 +2,7 @@
 exports.getTopList = (req, res, next) => {
   const page = req.params.page;
   const sql = `SELECT
-  D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project
+  D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project
   ,C.like_count, C.member_count, C.card_count, C.view_count
   ,CD.order
     FROM opendesign.design D

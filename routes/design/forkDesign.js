@@ -1,14 +1,13 @@
 const connection = require("../../configs/connection")
 
 exports.forkDesign = async (req, res, next) => {
-  let parent = req.params.id;
-  let user_id = req.params.user_id;
-  // let newchild = 99999;
-  const respond = (uid) => {
-    console.log("sent new id")
+  const parent = req.params.id;
+  const user_id = req.params.user_id;
+  const respond = (data) => {
+    console.log("sent new id:", data[0].uid)
     res.status(200).json({
       success: true,
-      new_design_id: uid,
+      new_design_id: data[0].uid,
       message: "파생디자인이 성공적으로 등록되었습니다."
     });
   };
@@ -62,32 +61,20 @@ DROP TEMPORARY TABLE IF EXISTS hash_board;
 DROP TEMPORARY TABLE IF EXISTS hash_card;
 DROP TEMPORARY TABLE IF EXISTS tcc;
 SET SQL_SAFE_UPDATES = 1;
-SELECT * FROM opendesign.design WHERE uid=@NEW_DESIGN_ID`
+SELECT * FROM opendesign.design WHERE uid=@NEW_DESIGN_ID;`
 
   const forkDesign = () => {
     return new Promise((resolve, reject)=>{
       connection.query(sql, (err, result)=>{
         if(!err && result.length >= 42){
-          resolve(result[42].uid);
-          // console.log("!!!",result[42]);
+          resolve(result[42])
         } else {
-          // console.log("ERROR:",err)
           reject(err)
         }
       })
     })
   }
-  
-  // . select parent design
-  // . store design
-  // . copy new child design from parent design 
-  // . update parent design
-  // . modify new child deisgn
-  // . is_project check and then create createboard, card, 
-    
-
-
   forkDesign()
-    .then(uid=>respond(uid))
+    .then(data=>respond(data))
     .catch(err=>reject(err))
 };
