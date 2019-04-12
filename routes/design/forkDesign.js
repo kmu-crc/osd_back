@@ -4,7 +4,6 @@ exports.forkDesign = async (req, res, next) => {
   const parent = req.params.id;
   const user_id = req.params.user_id;
   const respond = (data) => {
-    console.log("sent new id:", data[0].uid)
     res.status(200).json({
       success: true,
       new_design_id: data[0].uid,
@@ -74,7 +73,11 @@ SELECT * FROM opendesign.design WHERE uid=@NEW_DESIGN_ID;`
       })
     })
   }
-  forkDesign()
+  const fn = () =>{
+    forkDesign()
     .then(data=>respond(data))
     .catch(err=>reject(err))
+  }
+
+  setTimeout(fn, 0)
 };
