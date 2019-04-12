@@ -15,7 +15,7 @@ exports.designInGroup = (req, res, next) => {
   }
 
   let sql = `SELECT
-            D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count
+            D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, C.like_count, C.member_count, C.card_count, C.view_count
             FROM group_join_design G
               JOIN design D ON D.uid = G.design_id
               LEFT JOIN design_counter C ON C.design_id = D.uid
