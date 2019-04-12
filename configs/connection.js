@@ -9,7 +9,8 @@ if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
     port:     process.env.AWS_DB_PORT,
     database: process.env.AWS_DB_NAME,
     user:     process.env.AWS_DB_USER,
-    password: process.env.AWS_DB_PASS
+    password: process.env.AWS_DB_PASS,
+    multipleStatements:true
   };
 } else if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
   options = {
@@ -17,7 +18,8 @@ if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
     port:     process.env.DEV_DB_PORT,
     database: process.env.DEV_DB_NAME,
     user:     process.env.DEV_DB_USER,
-    password: process.env.DEV_DB_PASS
+    password: process.env.DEV_DB_PASS,
+    multipleStatements:true
   };
 } else if (process.env.LOCAL === "true" || process.env.LOCAL === true) {
   options = {
