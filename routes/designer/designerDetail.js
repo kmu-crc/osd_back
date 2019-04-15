@@ -98,3 +98,55 @@ exports.getCount = (req, res, next) => {
 
   getDesignerCount(designerId);
 };
+
+
+exports.getDesignerCounts = (req, res, next) => {
+  const designer_id = req.params.id
+  let Row = {}
+
+  function getDesignerDetail(id){
+    return new Promise((resolve, reject) => {
+      conection.query("SELECT COUNT(*) AS total_like FROM opendesign.design_like WHERE user_id=?", id, (err, row)=>{
+        if(!err){
+          Row.push({total_like: row[0]})
+        } else {
+          Row.push({total_like: 0})
+        }
+      })
+      connection.query("SELECT COUNT(*) AS total_group FROM opendesign.group WHERE user_id=?", id, (err, row)=>{
+        if(!err){
+          Row.push({total_group: row[0]})
+        } else {
+          Row.push({total_group: 0})
+        }
+      })
+      connection.query("SELECT COUNT(*) AS total_design FROM opendesign.group WHERE user_id=?", id, (err, row)=>{
+        if(!err){
+          Row.push({total_design: row[0]})
+        } else {
+          Row.push({total_design: 0})
+        }
+      })
+      connection.query("SELECT total_view FROM opendesign.user_counter WHERE user_id=?", id, (err, row)=>{
+        if(!err){
+          Row.push({total_view: row[0]})
+        } else {
+          Row.push({total_view: 0})
+        }
+      })
+      resolve(Row)
+    })
+  }
+
+  const respond = (row) => {
+    res.status(200).json({success:true, row:row})
+  }
+  const error = () => {
+    console.log("INTERAL_ERR: Failed Get designer info")
+    res.status(500).json("internal error")
+  }
+
+  getDesignerDetail(designer_id)
+    .then(data=>respond(data))
+    .catch(error)
+}
