@@ -7,6 +7,7 @@ exports.myPage = (req, res, next) => {
   // 마이페이지 내 기본 정보 가져오기 (GET)
   function getMyInfo (id) {
     const p = new Promise((resolve, reject) => {
+      update_totals(id)
       connection.query("SELECT U.uid, U.nick_name, U.thumbnail, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -46,10 +47,17 @@ exports.myPage = (req, res, next) => {
     return p;
   };
 
+  function update_totals (uid) {
+    connection.query(`UPDATE opendesign.user_counter SET total_design =(SELECT COUNT(*) FROM opendesign.design WHERE user_id=${uid}) WHERE user_id=${uid};`)
+    connection.query(`UPDATE opendesign.user_counter SET total_like   =(SELECT COUNT(*) FROM opendesign.design_like WHERE user_id=${uid}) WHERE user_id=${uid};`)
+    connection.query(`UPDATE opendesign.user_counter SET total_group  =(SELECT COUNT(*) FROM opendesign.group WHERE user_id=${uid}) WHERE user_id=${uid};`)
+    connection.query(`UPDATE opendesign.user_counter SET total_view   =(SELECT SUM(view_count) FROM opendesign.design_counter WHERE user_id=${uid}) WHERE user_id=${uid};`)
+  }
+
   // 나의 count 정보 가져오기 (GET)
   function getMyCount (data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id = ?", data.uid, (err, row) => {
+      connection.query(`SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id =${data.uid}`, data.uid, (err, row) => {
         if (!err && row.length === 0) {
           data.count = null;
           resolve(data);
