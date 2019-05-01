@@ -303,6 +303,23 @@ exports.designDetail = (req, res, next) => {
     return p;
   }
 
+  function getIsParent(data){
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT count(*) FROM opendesign.design WHERE parent_design=${data.uid};`, (err, result) => {
+        
+        if(!err && result[0]["count(*)"] === 0) {
+          data.is_parent = false
+          resolve(data)
+        } else if (!err && result[0]["count(*)"] > 0) {
+          data.is_parent = true
+          resolve(data)
+        } else {
+          reject(err)
+        }
+      })
+    })
+  }
+
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
@@ -311,10 +328,11 @@ exports.designDetail = (req, res, next) => {
     .then(getChildrenCount)
     .then(isTeam)
     .then(waiting)
-    .then(getIssueTitle)
+    // .then(getIssueTitle)
+    .then(getIsParent)
     .then(data => getMembers(data, designId))
     .then(data => res.status(200).json(data))
-    .catch(err => res.status(500).json(err));
+    .catch(err => res.status(200).json(err));
 };
 
 // 좋아요 수, 조회수, 멤버수, 카드수 정보 가져오기

@@ -15,7 +15,7 @@ const insertThumbnail = require("../../middlewares/insertThumbnail");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
-const { forkDesign } = require("./forkDesign")
+const { forkDesign, getForkDesignList } = require("./forkDesign")
 
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
@@ -109,6 +109,6 @@ router.post("/designDetail/updateCardSource/:card_id", auth, updateCardSource);
 router.post("/designDetail/updateCardAllData/:card_id", auth, updateCardAllData, updateCardSource);
 
 // fork Design
-router.get("/forkDesign/:id/:user_id", auth, forkDesign);
-
+router.get("/forkDesign/:id/:user_id", auth, forkDesign)
+router.post("/forkDesignList/:id", getForkDesignList)
 module.exports = router;
