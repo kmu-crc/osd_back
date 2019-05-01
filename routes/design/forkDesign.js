@@ -81,3 +81,43 @@ SELECT * FROM opendesign.design WHERE uid=@NEW_DESIGN_ID;`
 
   setTimeout(fn, 0)
 };
+
+exports.getForkDesignList = (req, res, next) => {
+  const designId = req.params.id;
+
+  function getChildDesign(id) {
+    console.log("ID", id)
+    return new Promise((resolve, reject)=>{
+      connection.query(
+        // `SELECT * FROM opendesign.design WHERE design.parent_design=${id}`, (err, row) => {
+        `SELECT 
+        D.uid, D.user_id, D.title, D.explanation, 
+        U.nick_name,
+        T.m_img , T.s_img,
+        TT.m_img AS 'p_m_img', TT.s_img AS 'p_s_img'
+        
+        FROM opendesign.design D
+        
+        LEFT JOIN opendesign.user U ON D.user_id = U.uid
+        LEFT JOIN opendesign.thumbnail T ON U.thumbnail = T.uid 
+        LEFT JOIN opendesign.thumbnail TT ON D.thumbnail = TT.uid
+        
+        WHERE D.parent_design = ${id};`, (err, row) => {
+          if(!err){
+            if(row[0].length===0){
+              res.status(200).json({success:false, message:`파생디자인목록 조회실패: 이 디자인을 파생한 디자인이 없습니다.`});
+            }
+            else {
+              console.log(row[0])
+              res.status(200).json({success:true, message:`파생디자인목록 조회성공`,list:row})
+            }
+          } else {
+            const msg = `파생디자인목록 조회실패:`+err
+            res.status(200).json(msg);
+          }
+        }
+      )
+    })
+  }
+  getChildDesign(designId)
+}
