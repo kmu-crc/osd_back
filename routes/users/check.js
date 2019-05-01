@@ -41,6 +41,24 @@ const check = (req, res, next) => {
     });
   };
 
+  const getIsDesigner = decoded => {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT is_designer FROM opendesign.user_detail WHERE user_id=${decoded.uid}`, (err,rows)=>{
+        if(err){
+          reject(err)
+        } else {
+          if (rows.length > 0) {
+            decoded.is_designer = rows[0].is_designer
+            resolve(decoded)
+          } else {
+            let err = Error("디자이너 확인 실패")
+            reject(erR)
+          }
+        }
+      })
+    })
+  }
+
   const respond = data => {
     res.status(200).json({
       success: true,
@@ -54,6 +72,7 @@ const check = (req, res, next) => {
       return getThumbnail(req.decoded);
     })
     .then(getNickName)
+    .then(getIsDesigner)
     .then(respond)
     .catch(next);
 };
