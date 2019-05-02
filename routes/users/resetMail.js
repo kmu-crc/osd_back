@@ -3,6 +3,8 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
+const generator = require('generate-password')
+
 exports.findPw = (req, res, next) => {
   const email = req.body.email
   let pw = ""
@@ -57,9 +59,14 @@ exports.findPw = (req, res, next) => {
     })
   }
 
+  const randomPass = () => {
+    pw = generator.generate({length:10, numbers: true})
+    return pw;
+  }
+
   const createHashPw = password => {
     return new Promise((resolve, reject) => {
-      bcrypt.hash(password, password.length, function(err, hash) {
+      bcrypt.hash(password, 10, function(err, hash) {
         if (!err) {
           hashPw = hash
           resolve(hashPw)
@@ -102,7 +109,7 @@ exports.findPw = (req, res, next) => {
         from: "opensrcdesign@gmail.com",
         to: `${mail}`,
         subject: "opendesign password 변경",
-        text: `새롭게 변경된 비밀번호는 아래와 같습니다. \n아이디: ${mail}\n비밀번호: ${pw}`
+        text: `새롭게 변경된 비밀번호는 아래와 같습니다. \n아이디: ${mail}\n비밀번호: ${pw}\n`
       }
       smtpTransport.verify((error, success) => {
         if (error) {
@@ -130,7 +137,8 @@ exports.findPw = (req, res, next) => {
     res.status(200).json({ success: true, message: msg})
   }
   isOnlyEmail(email)
-    .then(randomPw)
+//    .then(randomPw)
+    .then(randomPass)
     .then(() => createHashPw(pw))
     .then(() => updatePW(email, hashPw))
     .then(() => sendMail(email, pw))
