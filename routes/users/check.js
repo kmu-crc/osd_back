@@ -52,7 +52,7 @@ const check = (req, res, next) => {
             resolve(decoded)
           } else {
             let err = Error("디자이너 확인 실패")
-            reject(erR)
+            reject(err)
           }
         }
       })
