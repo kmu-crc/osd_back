@@ -49,7 +49,7 @@ const check = (req, res, next) => {
         } else {
           if (rows.length > 0) {
             decoded.is_designer = rows[0].is_designer
-            console.log(decoded.is_designer, "IS DESIGNER?")
+            // console.log(decoded.is_designer, "IS DESIGNER?")
             resolve(decoded)
           } else {
             decoded.is_designer = 0
