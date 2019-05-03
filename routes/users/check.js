@@ -49,10 +49,13 @@ const check = (req, res, next) => {
         } else {
           if (rows.length > 0) {
             decoded.is_designer = rows[0].is_designer
+            console.log(decoded.is_designer, "IS DESIGNER?")
             resolve(decoded)
           } else {
-            let err = Error("디자이너 확인 실패")
-            reject(erR)
+            decoded.is_designer = 0
+            resolve(decoded)
+            // let err = Error("디자이너 확인 실패")
+            // reject(err)
           }
         }
       })
