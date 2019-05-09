@@ -19,7 +19,7 @@ function countAlarm (uid) {
 function sendAlarm (socketId, uid, count, io) {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT * FROM alarm WHERE user_id = ${uid} ORDER BY create_time DESC`,
+      `SELECT * FROM alarm WHERE user_id = ${uid} ORDER BY confirm, create_time DESC`,
       (err, rows) => {
         if (!err) {
           addTitle(socketId, { count, list: rows }, io, uid);
@@ -221,7 +221,7 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io) => {
 };
 
 exports.GetAlarm = (socketId, uid, io) => {
-  //console.log("?????");
+  // console.log("?????");
   countAlarm(uid)
     .then(count => sendAlarm(socketId, uid, count, io))
     .catch();
