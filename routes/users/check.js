@@ -54,8 +54,6 @@ const check = (req, res, next) => {
           } else {
             decoded.is_designer = 0
             resolve(decoded)
-            // let err = Error("디자이너 확인 실패")
-            // reject(err)
           }
         }
       })
