@@ -661,31 +661,16 @@ exports.updateCardSource = async (req, res, next) => {
   const userId = req.decoded.uid;
   const spawn = require('child_process').spawn
 
-  const convert = async (input, output) => {
-    return new Promise((resolve, reject) => {
-      const args = ['-i', `${input}`, '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${output}`]
-      var proc = spawn('ffmpeg', args)
-      console.log('Spawning ffmpeg ' + args.join(' '))
-      proc.on('exit', code => {
-        if (code === 0) {
-          console.log('successful!')
-          resolve(true)
-        }
-        else reject(false)
-      })
-    })
-  }
-
   const convertToMP4 = (encoded_filename, ext) => {
     const p = new Promise((resolve, reject) => {
       const new_file_name = encoded_filename.replace(ext, ".mp4")
-      const args = ['-i', `${encoded_filename}`, '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
+      const args = ['-y','-i', `${encoded_filename}`, '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
       var proc = spawn('ffmpeg', args)
       console.log('Spawning ffmpeg ' + args.join(' '))
       proc.on('exit', code => {
         if (code === 0) {
           console.log('successful!')
-          fs.unlink(encoded_filename)
+          // fs.unlink(encoded_filename)
           resolve(new_file_name)
         }
         else reject(false)
