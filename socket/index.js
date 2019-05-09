@@ -41,9 +41,18 @@ function SocketConnection () {
         } else {
           //console.log("2번", err);
         }
-      });
-    });
+      })
+    })
 
+    socket.on("allConfirm", (obj)=>{
+      // console.log("YAHHH~!!!")
+      connection.query(`UPDATE opendesign.alarm T SET T.confirm = 1 
+        WHERE (user_id=${obj.user_id}) AND NOT((T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND T.kinds = "JOIN"))`, (err, row) => {
+        if(!err) {
+          GetAlarm(socket.id, obj.user_id, io)
+        }
+      })
+    })
     // disconnect is fired when a client leaves the server
     socket.on("disconnect", () => {
       connection.query(`UPDATE user SET ? WHERE socket_id='${socket.id}'`, {socket_id: null}, (err, rows) => {
