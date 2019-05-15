@@ -71,13 +71,14 @@ const getDesignCardUserId = id => {
 };
 
 const SendAlarm= async (fromId, contentId) => {
-  const { sendAlarm } = require("../../socket");
+  const { sendAlarm, netGetAlarm} = require("../../socket");
   const {receiver, designId} = await getDesignCardUserId(contentId)
   if(fromId === receiver) return;
   // console.log(receiver, designId)
   await getSocketId(receiver)
     .then(socket =>
-      sendAlarm(socket.socketId, receiver, designId, "CommentDesignCard", fromId)) 
+      sendAlarm(socket.socketId, receiver, designId, "CommentDesignCard", fromId))
+    
 };
 exports.createCardComment = (req, res, next) => {
   req.body["user_id"] = req.decoded.uid;
