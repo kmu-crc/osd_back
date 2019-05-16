@@ -131,8 +131,6 @@ function getNickName(uid) {
   });
 }
 
-
-
 exports.GetAlarm = (socketId, uid, io) => {
   // console.log("?????");
   countAlarm(uid)
@@ -185,6 +183,17 @@ function getAlarmList(uid) {
     })
   })
 }
+function getMsgCount(uid) {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT count(*) FROM opendesign.alarm T WHERE T.user_id=${uid} AND T.type ="MESSAGE" AND T.confirm=0`, (error, rows) => {
+      if (!error) {
+        resolve(rows[0]["count(*)"])
+      } else {
+        reject(`getAlarms:` + error)
+      }
+    })
+  })
+}
 function getThumbnail(type, content_id) {
   return new Promise((resolve, reject) => {
     const table = type === "DESIGN" ? "opendesign.design" : "opendesign.group"
@@ -218,24 +227,44 @@ function extendAlarm(list) {
     resolve(newlist)
   })
 }
-function countUnconfirmAlarm(list) {
+function countUnconfirmAlarm(uid, list) {
   return new Promise((resolve, reject) => {
-    let cnt = 0
+    let cntAlarm = 0
     for (item of list) {
       if (item.confirm === 0)
-        cnt++
+        cntAlarm++
     }
-    resolve(cnt)
+    getMsgCount(uid)
+      .then(msg => resolve({ alarm: cntAlarm, msg: msg }))
   })
 }
 function sendAlarmList(socketId, uid, newlist, io) {
   return new Promise((resolve, reject) => {
-    // console.log(newlist)
-    Promise.all(newlist)
-      .then(() => countUnconfirmAlarm(newlist))
-      .then(count => { io.to(`${socketId}`).emit("getNoti", { count, list: newlist }) })
+    // Promise.all(newlist)
+    // .then(() => 
+    countUnconfirmAlarm(uid, newlist) // )
+      .then(count => { io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist }) })
       .catch(error => console.log(`ERR: send noti, ${error}`))
   })
+}
+function getMsgAlarmList(uid) {
+  return new Promise((resolve, reject) => {
+    connection.query(`
+    SELECT distinct from_user_id, count(confirm) as 'cnt' from alarm where user_id = ${uid} AND confirm = 0 AND alarm.type = "MESSAGE" group by from_user_id`
+      , (error, rows) => {
+        if (!error) {
+          resolve(rows)
+        } else {
+          reject(`getmsgalarmlist:` + error)
+        }
+      })
+  })
+}
+
+exports.newGetMsg = (socketId, uid, io) => {
+  getMsgAlarmList(uid)
+    .then(list => io.to(`${socketId}`).emit("getMsgAlarm", list))// sendMsgAlarmList(socketId, uid, list, io))
+    .catch(error => console.log(error))
 }
 exports.newGetAlarm = (socketId, uid, io) => {
   getAlarmList(uid)
@@ -320,6 +349,6 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
   insertAlarm(uid, type, kinds, contentId, fromUserId, subContentId)
     .then(() => getAlarmList(uid))
     .then(list => extendAlarm(list))
-    .then(extList => {sendAlarmList(socketId, uid, extList, io)})
+    .then(extList => { sendAlarmList(socketId, uid, extList, io) })
     .catch(error => console.log(error))
 }
