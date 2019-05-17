@@ -56,10 +56,7 @@ const updateCardFn = req => {
   //console.log("fn", req);
   return new Promise((resolve, reject) => {
     connection.query(
-      `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${
-        req.userId
-      }`,
-      req.data,
+      `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
       (err, rows) => {
         if (!err) {
           if (rows.affectedRows) {
@@ -173,10 +170,10 @@ exports.getCardList = (req, res, next) => {
 
   getList(design_id, board_id)
     //.then(respond)
-    .then(data=>{
+    .then(data => {
       res.status(200).json(data);
     })
-    .catch(err=>res.status(500).json(err));
+    .catch(err => res.status(500).json(err));
 };
 
 exports.getCardDetail = (req, res, next) => {
@@ -662,6 +659,25 @@ exports.getCardSource = (req, res, next) => {
 exports.updateCardSource = async (req, res, next) => {
   const cardId = req.params.card_id;
   const userId = req.decoded.uid;
+  const spawn = require('child_process').spawn
+
+  const convertToMP4 = (encoded_filename, ext) => {
+    const p = new Promise((resolve, reject) => {
+      const new_file_name = encoded_filename.replace(ext, ".mp4")
+      const args = ['-y','-i', `${encoded_filename}`, '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
+      var proc = spawn('ffmpeg', args)
+      console.log('Spawning ffmpeg ' + args.join(' '))
+      proc.on('exit', code => {
+        if (code === 0) {
+          console.log('successful!')
+          // fs.unlink(encoded_filename)
+          resolve(new_file_name)
+        }
+        else reject(false)
+      })
+    })
+    return p
+  }
 
   const WriteFile = (file, filename) => {
     let originname = filename.split(".");
@@ -669,28 +685,35 @@ exports.updateCardSource = async (req, res, next) => {
     return new Promise((resolve, reject) => {
       fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
         if (err) {
-          reject(err);
+          reject(err)
         } else {
-          resolve(`uploads/${name}`);
+          resolve(`uploads/${name}`)
         }
       });
     });
-  };
+  }
 
   const upLoadFile = async content => {
-    //console.log("upLoadFile", content);
     return new Promise(async (resolve, reject) => {
       let pArr = [];
       if (content.length === 0) resolve([]);
       for (let item of content) {
-        //console.log(item.type);
         if (item.type === "FILE") {
-          let fileStr = item.fileUrl.split("base64,")[1];
+          const fileStr = item.fileUrl.split("base64,")[1];
           let data = await WriteFile(fileStr, item.file_name);
-          item.content = await S3Upload(data, item.file_name);
-          item.data_type = item.file_type;
-          delete item.fileUrl;
-          pArr.push(Promise.resolve(item));
+          if (item.file_type === "video") {
+            const ext = data.substring(data.lastIndexOf("."), data.length)
+            item.file_name = item.file_name.replace(ext, ".mp4")
+            item.extension = "mp4"
+            let new_file_name = await convertToMP4(data, ext)
+            item.content = await S3Upload(new_file_name, item.file_name)
+          }
+          else {
+            item.content = await S3Upload(data, item.file_name)
+          }
+          item.data_type = item.file_type
+          delete item.fileUrl
+          pArr.push(Promise.resolve(item))
         } else {
           item.extension = item.type;
           item.data_type = item.type;
@@ -703,7 +726,7 @@ exports.updateCardSource = async (req, res, next) => {
         .then(data => resolve(data))
         .catch(err => reject(err));
     });
-  };
+  }
 
   const deleteDB = async content => {
     //console.log("deleteDB");
@@ -728,7 +751,7 @@ exports.updateCardSource = async (req, res, next) => {
         .then(data => resolve(data))
         .catch(err => reject(err));
     });
-  };
+  }
 
   const insertDB = async arr => {
     return new Promise(async (resolve, reject) => {
@@ -764,7 +787,7 @@ exports.updateCardSource = async (req, res, next) => {
         .then(resolve(true))
         .catch(err => reject(err));
     });
-  };
+  }
 
   const updateDB = async arr => {
     //console.log("updatearr", arr);
@@ -797,7 +820,7 @@ exports.updateCardSource = async (req, res, next) => {
     }
 
     return Promise.all(pArr);
-  };
+  }
 
   const respond = data => {
     // //console.log(data);
@@ -812,12 +835,12 @@ exports.updateCardSource = async (req, res, next) => {
     .then(() => upLoadFile(req.body.newContent))
     .then(insertDB)
     .then(respond)
-    .catch(next);
+    .catch(next)
 };
 
 exports.updateCardAllData = async (req, res, next) => {
-  const cardId = req.params.card_id;
-  const userId = req.decoded.uid;
+  const cardId = req.params.card_id
+  const userId = req.decoded.uid
 
   const WriteFile = (file, filename) => {
     let originname = filename.split(".");
@@ -854,29 +877,20 @@ exports.updateCardAllData = async (req, res, next) => {
 
   updateCardFn({ userId, cardId, data: { title: req.body.title } })
     .then(() =>
-      updateCardFn({
-        userId,
-        cardId,
-        data: { content: req.body.content }
-      })
-    )
-    .then(() => upLoadFile(userId, req.body.thumbnail))
+      updateCardFn({ userId, cardId, data: { content: req.body.content } }))
+    .then(() =>
+      upLoadFile(userId, req.body.thumbnail))
     .then(thumbnail => {
       if (thumbnail) {
-        updateCardFn({
-          userId,
-          cardId,
-          data: {
-            first_img: thumbnail
-          }
-        });
+        updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
       } else {
-        return Promise.resolve(true);
+        return Promise.resolve(true)
       }
-    }).then(() => {
-      req.body = req.body.data;
-      return next();
-    }).catch(next);
+    })
+    .then(() => {
+      req.body = req.body.data
+      return next()
+    }).catch(next)
 
-  //console.log("updateCardAllData", req.body.thumbnail);
+  // console.log("updateCardAllData", req.body.data.newContent);
 };
