@@ -25,13 +25,14 @@ exports.getMyMsgList = (req, res, next) => {
         return null;
       }
       for (let item of data) {
-        item.noti = await getNotiNum(item)
         if (item.from_user_id === userId) {
           const result = await getNameTo(item);
           item.friend_name = result.nick_name;
           item.friend_id = result.uid;
         } else {
           const result = await getNameFrom(item);
+          const noti = await getNotiNum(item)
+          item.noti = noti
           item.friend_name = result.nick_name;
           item.friend_id = result.uid;
         }
