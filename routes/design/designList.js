@@ -39,7 +39,7 @@ exports.designList = (req, res, next) => {
     sql = sql + " ORDER BY C.like_count DESC LIMIT " + (page * 10) + ", 10";
   }
   req.sql = sql;
-  console.log("sql", sql)
+  // console.log("sql", sql)
   next();
 };
 
