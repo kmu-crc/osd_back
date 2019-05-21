@@ -120,7 +120,14 @@ exports.myDesign = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design D LEFT JOIN design_counter C ON C.design_id = D.uid WHERE D.user_id = " + id;
+  let sql = `
+  SELECT 
+  D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, 
+  C.like_count, C.member_count, C.card_count, C.view_count, F.children_count
+   FROM design D 
+   LEFT JOIN design_counter C ON C.design_id = D.uid 
+   LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM design DD group by DD.parent_design) F ON F.parent_design = D.uid
+   WHERE D.user_id = ${id}`
   if (sort === "date") {
     sql = sql + " ORDER BY D.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
@@ -162,7 +169,14 @@ exports.myLikeDesign = (req, res, next) => {
     sort = "date";
   }
 
-  let sql = "SELECT D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, C.like_count, C.member_count, C.card_count, C.view_count FROM design_like L JOIN design D ON D.uid = L.design_id LEFT JOIN design_counter C ON C.design_id = D.uid WHERE L.user_id = " + id;
+  let sql = `
+  SELECT 
+  D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, 
+  C.like_count, C.member_count, C.card_count, C.view_count, F.children_count
+  FROM design_like L 
+  JOIN design D ON D.uid = L.design_id 
+  LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM design DD group by DD.parent_design) F ON F.parent_design = D.uid
+  LEFT JOIN design_counter C ON C.design_id = D.uid WHERE L.user_id = ${id}`;
   if (sort === "date") {
     sql = sql + " ORDER BY D.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
