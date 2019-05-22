@@ -659,28 +659,24 @@ exports.getCardSource = (req, res, next) => {
 exports.updateCardSource = async (req, res, next) => {
   const cardId = req.params.card_id;
   const userId = req.decoded.uid;
-  //const spawn = require('child_process').spawn
-  var ffmpeg = require('fluent-ffmpeg')
+  const spawn = require('child_process').spawn
 
   const convertToMP4 = (encoded_filename, ext) => {
     return new Promise((resolve, reject) => {
-      const new_file_name = encoded_filename.replace(ext, ".mp4")
-      //const args = ['-y','-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
-      //var proc = spawn('ffmpeg', args)
-      //console.log('Spawning ffmpeg ' + args.join(' '))
-      //proc.on('exit', code => {
-      //  if (code === 0) {
-      //    console.log('successful!')
-      //    // fs.unlink(encoded_filename)
-      //    resolve(new_file_name)
-      //  }
-      //  else {
-	//		console.log("why come here?ahm")
-	//		reject(false)}
-      //})
-	var command = ffmpeg(encoded_filename).audioCodec('aac').videoCodec('libx264').format('mp4')
-	command.save(`${new_file_name}`)
-		.then(resolve(new_file_name)).catch(e=>console.log(e))
+      const new_file_name = encoded_filename.replace(ext, "_.mp4")
+      const args = ['-y','-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
+      var proc = spawn('ffmpeg', args)
+      console.log('Spawning ffmpeg ' + args.join(' '))
+      proc.on('exit', code => {
+        if (code === 0) {
+          console.log('successful!')
+          fs.unlink(encoded_filename, err=>{if(err)console.log(err)})
+          resolve(new_file_name)
+        }
+        else {
+			console.log("why come here?ahm")
+			reject(false)}
+      })
     })
   }
 
