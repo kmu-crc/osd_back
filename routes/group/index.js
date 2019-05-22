@@ -7,7 +7,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList, getTotalCount } = require("./groupList");
-const { topGroupList, getTopTotalCount } = require("./topGroupList");
+const { topGroup, topGroupList, getTopTotalCount } = require("./topGroupList");
 const { groupDetail, getCount } = require("./groupDetail");
 const { designInGroup } = require("./designInGroup");
 const { groupInGroup } = require("./groupInGroup");
@@ -25,6 +25,7 @@ const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 // 그룹에 대한 정보들 가져오기
 router.get("/groupList/:page/:sorting?/:keyword?", groupList, getGroupList);
 router.get("/groupCount", getTotalCount);
+router.get("/topGroup/:page", topGroup, getGroupList)
 router.get("/topGroupList/:page/:sorting?/:keyword?", topGroupList, getGroupList);
 router.get("/topGroupCount", getTopTotalCount);
 router.get("/groupDetail/:id", groupDetail);
