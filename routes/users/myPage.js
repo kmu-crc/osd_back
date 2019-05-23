@@ -8,7 +8,7 @@ exports.myPage = (req, res, next) => {
   function getMyInfo (id) {
     const p = new Promise((resolve, reject) => {
       update_totals(id)
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, U.password, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
