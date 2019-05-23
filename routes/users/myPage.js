@@ -51,7 +51,7 @@ exports.myPage = (req, res, next) => {
     connection.query(`UPDATE opendesign.user_counter SET total_design =(SELECT COUNT(*) FROM opendesign.design WHERE user_id=${uid}) WHERE user_id=${uid};`)
     connection.query(`UPDATE opendesign.user_counter SET total_like   =(SELECT COUNT(*) FROM opendesign.design_like WHERE user_id=${uid}) WHERE user_id=${uid};`)
     connection.query(`UPDATE opendesign.user_counter SET total_group  =(SELECT COUNT(*) FROM opendesign.group WHERE user_id=${uid}) WHERE user_id=${uid};`)
-    connection.query(`UPDATE opendesign.user_counter SET total_view   =(SELECT SUM(view_count) FROM opendesign.design_counter WHERE user_id=${uid}) WHERE user_id=${uid};`)
+    connection.query(`UPDATE opendesign.user_counter SET total_view   =(SELECT SUM(view_count) FROM opendesign.design_counter WHERE design_id IN (SELECT uid FROM opendesign.design WHERE user_id=${uid})) WHERE user_id=${uid};`)
   }
 
   // 나의 count 정보 가져오기 (GET)
