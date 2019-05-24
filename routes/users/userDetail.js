@@ -1,8 +1,8 @@
 const connection = require("../../configs/connection");
-const {createThumbnails} = require("../../middlewares/createThumbnails");
+const { createThumbnails } = require("../../middlewares/createThumbnails");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {isOnlyNicName} = require("../../middlewares/verifications");
+const { isOnlyNicName } = require("../../middlewares/verifications");
 
 // 유저 detail 등록
 exports.insertDetail = (req, res) => {
@@ -24,7 +24,7 @@ exports.insertDetail = (req, res) => {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE uid = ${req.decoded.uid} `,
-        {thumbnail: id},
+        { thumbnail: id },
         (err, rows) => {
           if (!err) {
             //console.log("detail: ", rows);
@@ -118,8 +118,8 @@ exports.modifyDetail = (req, res) => {
   const userId = req.decoded.uid;
 
   // user 테이블에 들어가야 할 정보
-  const userInfo = {
-    password: req.body.password,
+  let userInfo = {
+    password: req.body.password || null,
     nick_name: req.body.nick_name,
     update_time: new Date()
   };
@@ -167,9 +167,11 @@ exports.modifyDetail = (req, res) => {
     });
   };
 
-  function createHashPw (userInfo) {
+  function createHashPw(userInfo) {
     const p = new Promise((resolve, reject) => {
-      bcrypt.hash(userInfo.password, 10, function(err, hash) {
+      if (userInfo.password === null)
+        resolve(userInfo)
+      bcrypt.hash(userInfo.password, 10, function (err, hash) {
         if (!err) {
           userInfo.password = hash;
           resolve(userInfo);
