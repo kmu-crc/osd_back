@@ -8,7 +8,7 @@ const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList, getTotalCount } = require("./groupList");
 const { topGroup, topGroupList, getTopTotalCount } = require("./topGroupList");
-const { groupDetail, getCount } = require("./groupDetail");
+const { groupDetail, getCount, getCountDesignGroupInGroup } = require("./groupDetail");
 const { designInGroup } = require("./designInGroup");
 const { groupInGroup } = require("./groupInGroup");
 
@@ -61,6 +61,7 @@ router.post("/like/:id", auth, likeGroup);
 router.post("/unlike/:id", auth, unlikeGroup);
 
 // 그룹 count 조회
+router.get("/getCountDesignGroupInGroup/:id/:uid", getCountDesignGroupInGroup)
 router.get("/getCount/:id", getCount);
 
 module.exports = router;
