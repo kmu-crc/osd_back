@@ -46,7 +46,7 @@ function SocketConnection() {
 
     socket.on("allConfirm", (obj) => {
       connection.query(`UPDATE opendesign.alarm T SET T.confirm = 1 
-        WHERE (user_id=${obj.user_id}) AND NOT((T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND (T.kinds = "JOIN_withDESIGN" || T.kinds = "JOIN_widthGROUP") AND T.type = "MESSAGE"))`, (err, row) => {
+        WHERE (user_id=${obj.user_id}) AND NOT((T.type = "MESSAGE") OR (T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND (T.kinds = "JOIN_withDESIGN" || T.kinds = "JOIN_widthGROUP") AND T.type = "MESSAGE"))`, (err, row) => {
           if (!err) {
             newGetAlarm(socket.id, obj.user_id, io)
           }
