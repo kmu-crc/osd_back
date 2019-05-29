@@ -3,15 +3,14 @@ require("dotenv").config();
 var db;
 var options;
 
-//console.log(process.env.OPERATION_DB_HOST, "process.env.OPERATION", process.env.OPERATION, "process.env.DEVELOP", process.env.DEVELOP, "process.env.LOCAL", process.env.LOCAL);
-
 if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
   options = {
     host:     process.env.AWS_DB_HOST,
     port:     process.env.AWS_DB_PORT,
     database: process.env.AWS_DB_NAME,
     user:     process.env.AWS_DB_USER,
-    password: process.env.AWS_DB_PASS
+    password: process.env.AWS_DB_PASS,
+    multipleStatements:true
   };
 } else if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
   options = {
@@ -19,7 +18,8 @@ if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
     port:     process.env.DEV_DB_PORT,
     database: process.env.DEV_DB_NAME,
     user:     process.env.DEV_DB_USER,
-    password: process.env.DEV_DB_PASS
+    password: process.env.DEV_DB_PASS,
+    multipleStatements:true
   };
 } else if (process.env.LOCAL === "true" || process.env.LOCAL === true) {
   options = {
@@ -27,7 +27,8 @@ if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
     port:     process.env.LOCAL_DB_PORT,
     database: process.env.LOCAL_DB_NAME,
     user:     process.env.LOCAL_DB_USER,
-    password: process.env.LOCAL_DB_PASS
+    password: process.env.LOCAL_DB_PASS,
+    multipleStatements:true
   };
 }
 
@@ -36,9 +37,9 @@ function connectionDataBase () {
     db = mysql.createConnection(options);
     db.connect(function (err) {
       if (!err) {
-        //console.log("DataBase Connected!");
+        console.log("DataBase Connected!");
       } else {
-        //console.log("Error DataBase Connection :" + err);
+        console.log("Error DataBase Connection :" + err);
       }
     });
   }

@@ -86,7 +86,7 @@ const signIn = (req, res, next) => {
     });
   };
   const error = (err, status) => {
-    if (status == null) status = 500;
+    if (status == null) status = 200;
     res.status(status).json({
       success: false,
       error: err
@@ -94,10 +94,8 @@ const signIn = (req, res, next) => {
   };
 
   verificationEmail(email)
-  .then(() => {
-    return verificationPw(password);
-  })
-  .then(isUserDetail)
+  .then(() => verificationPw(password))
+  .then((uid)=>isUserDetail(uid))
   .then(createJWT)
   .then(respond)
   .catch(error);

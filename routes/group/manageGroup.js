@@ -58,15 +58,10 @@ const SendSuccessAlarm = async (fromId, contentId, isGroup) => {
   } else {
     designerId = await getDesignUserId(fromId);
   }
-  let socket = getSocketId(designerId);
-  let toUserId = await getGroupUserId(contentId);
-  sendAlarm(
-    socket.socketId,
-    designerId,
-    contentId,
-    "JoinGroupSuccess",
-    toUserId
-  );
+  await getGroupUserId(contentId)
+    .then(recevier => getSocketId(designerId))
+    .then((socket, receiver) =>
+      sendAlarm(socket.socketId, designerId, contentId, "JoinGroupSuccess", receiver))
 };
 
 const SendRefuseAlarm = async (fromId, contentId, isGroup) => {
@@ -77,23 +72,35 @@ const SendRefuseAlarm = async (fromId, contentId, isGroup) => {
   } else {
     designerId = await getDesignUserId(fromId);
   }
-  let socket = getSocketId(designerId);
-  let toUserId = await getGroupUserId(contentId);
-  sendAlarm(
-    socket.socketId,
-    designerId,
-    contentId,
-    "JoinGroupRefuse",
-    toUserId
-  );
+  await getGroupUserId(contentId)
+    .then(receiver => getSocketId(designerId))
+    .then((socket, recevier) =>
+      sendAlarm(socket.socketId, designerId, contentId, "JoinGroupRefuse", recevier));
 };
 
 // 디자인 가입 승인
+const getSocketGroup = (groupId) => {
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT uid, socket_id FROM opendesign.user 
+      WHERE uid IN (SELECT user_id FROM opendesign.group WHERE uid=${groupId})`,
+      (err, row) => {
+        if (!err) {
+          if (row.length < 1) {
+            resolve(null)
+          } else {
+            resolve({ user_id: row[0].uid, socketId: row[0].socket_id })
+          }
+        } else {
+          reject(err)
+        }
+      })
+  })
+}
 exports.acceptDesign = (req, res, next) => {
   const group = req.params.id;
   const designId = req.params.designId;
 
-  function acceptDesign (id, designId) {
+  function acceptDesign(id, designId) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `UPDATE group_join_design SET is_join = 1 WHERE parent_group_id = ${id} AND design_id = ${designId}`,
@@ -110,7 +117,7 @@ exports.acceptDesign = (req, res, next) => {
     return p;
   }
 
-  function countUpdate (data) {
+  function countUpdate(data) {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE group_counter SET design = design + 1 WHERE group_id = ${group}`,
@@ -127,7 +134,25 @@ exports.acceptDesign = (req, res, next) => {
     });
   }
 
-  acceptDesign(group, designId).then(countUpdate);
+  function confirmAlarm(group, designId) {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withDESIGN" AND A.sub_content_id=${designId} AND A.content_id=${group}`, (err, row) => {
+          if (!err) {
+            const { getAlarm } = require("../../socket")
+            getSocketGroup(group)
+              .then(data => getAlarm(data.socketId, data.user_id))
+              .then(resolve(true))
+          } else {
+            reject(err)
+          }
+        })
+    })
+  }
+  acceptDesign(group, designId)
+    .then(confirmAlarm(group, designId))
+    .then(countUpdate)
+    .catch(err => console.log(err))
 };
 
 // 가입한 & 신청한 디자인 삭제
@@ -135,7 +160,7 @@ exports.deleteDesign = (req, res, next) => {
   const group = req.params.id;
   const designId = req.params.designId;
 
-  function deleteDesign (id, designId) {
+  function deleteDesign(id, designId) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `DELETE FROM group_join_design WHERE parent_group_id = ${id} AND design_id = ${designId}`,
@@ -152,7 +177,7 @@ exports.deleteDesign = (req, res, next) => {
     return p;
   }
 
-  function getCount (data) {
+  function getCount(data) {
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT count(*) FROM group_join_design WHERE parent_group_id = ${group} AND is_join = 1`,
@@ -168,7 +193,7 @@ exports.deleteDesign = (req, res, next) => {
     });
   }
 
-  function countUpdate (num) {
+  function countUpdate(num) {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE group_counter SET design = ? WHERE group_id = ${group}`,
@@ -187,7 +212,24 @@ exports.deleteDesign = (req, res, next) => {
     });
   }
 
+  function confirmAlarm(group, designId) {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withDESIGN" AND A.sub_content_id=${designId} AND A.content_id=${group}`, (err, row) => {
+          if (!err) {
+            const { getAlarm } = require("../../socket")
+            getSocketGroup(group)
+              .then(data => getAlarm(data.socketId, data.user_id))
+              .then(resolve(true))
+          } else {
+            reject(err)
+          }
+        })
+    })
+  }
+
   deleteDesign(group, designId)
+    .then(confirmAlarm(group, designId))
     .then(getCount)
     .then(countUpdate);
 };
@@ -197,7 +239,7 @@ exports.acceptGroup = (req, res, next) => {
   const group = req.params.id; // 부모그룹
   const groupId = req.params.groupId; // 가입된 자식그룹
 
-  function acceptGroup (id, groupId) {
+  function acceptGroup(id, groupId) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `UPDATE group_join_group SET is_join = 1 WHERE parent_group_id = ${id} AND group_id = ${groupId}`,
@@ -213,8 +255,7 @@ exports.acceptGroup = (req, res, next) => {
     });
     return p;
   }
-
-  function countUpdate (data) {
+  function countUpdate(data) {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE group_counter SET group_counter.group = group_counter.group + 1 WHERE group_id = ${group}`,
@@ -230,8 +271,25 @@ exports.acceptGroup = (req, res, next) => {
       );
     });
   }
-
-  acceptGroup(group, groupId).then(countUpdate);
+  function confirmAlarm(group, groupId) {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withGROUP" AND A.sub_content_id=${groupId} AND A.content_id=${group}`, (err, row) => {
+          if (!err) {
+            const { getAlarm } = require("../../socket")
+            getSocketGroup(group)
+              .then(data => getAlarm(data.socketId, data.user_id))
+              .then(resolve(true))
+          } else {
+            reject(err)
+          }
+        })
+    })
+  }
+  acceptGroup(group, groupId)
+    .then(confirmAlarm(group, groupId))
+    .then(countUpdate)
+    .catch(err => console.log(err))
 };
 
 // 가입한 & 신청한 그룹 삭제
@@ -239,7 +297,7 @@ exports.deleteGroup = (req, res, next) => {
   const group = req.params.id; // 부모그룹
   const groupId = req.params.groupId; // 가입된 자식그룹
 
-  function deleteDesign (id, groupId) {
+  function deleteDesign(id, groupId) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `DELETE FROM group_join_group WHERE parent_group_id = ${id} AND group_id = ${groupId}`,
@@ -256,7 +314,7 @@ exports.deleteGroup = (req, res, next) => {
     return p;
   }
 
-  function getCount (data) {
+  function getCount(data) {
     return new Promise((resolve, reject) => {
       connection.query(
         `SELECT count(*) FROM group_join_group WHERE parent_group_id = ${group} AND is_join = 1`,
@@ -272,7 +330,7 @@ exports.deleteGroup = (req, res, next) => {
     });
   }
 
-  function countUpdate (num) {
+  function countUpdate(num) {
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE group_counter SET group_counter.group = ? WHERE group_id = ${group}`,
@@ -289,8 +347,23 @@ exports.deleteGroup = (req, res, next) => {
       );
     });
   }
-
+  function confirmAlarm(group, groupId) {
+    return new Promise((resolve, reject) => {
+      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withGROUP" AND A.sub_content_id=${groupId} AND A.content_id=${group}`, (err, row) => {
+          if (!err) {
+            const { getAlarm } = require("../../socket")
+            getSocketGroup(group)
+              .then(data => getAlarm(data.socketId, data.user_id))
+              .then(resolve(true))
+          } else {
+            reject(err)
+          }
+        })
+    })
+  }
   deleteDesign(group, groupId)
+    .then(confirmAlarm(group, groupId))
     .then(getCount)
     .then(countUpdate);
 };

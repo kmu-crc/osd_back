@@ -31,6 +31,8 @@ exports.getMyMsgList = (req, res, next) => {
           item.friend_id = result.uid;
         } else {
           const result = await getNameFrom(item);
+          const noti = await getNotiNum(item)
+          item.noti = noti
           item.friend_name = result.nick_name;
           item.friend_id = result.uid;
         }
@@ -38,7 +40,25 @@ exports.getMyMsgList = (req, res, next) => {
       return data;
     });
   };
-
+  async function getNotiNum(data){
+    return new Promise((resolve, reject)=>{
+      if(data === null){
+        resolve(null)
+      } else{
+        connection.query(`SELECT count(confirm) 
+        from alarm where user_id = ${data.to_user_id} AND alarm.type="MESSAGE" AND alarm.confirm=0
+        AND alarm.from_user_id=${data.from_user_id}`, (error, row)=>{
+          if(!error && row.length === 0){
+            resolve(null)
+          } else if(!error&&row.length >0){
+            resolve(row[0]["count(confirm)"])
+          } else{
+            next(error)
+          }
+        })
+      }
+    })
+  }
   // 보낸 사람 id&닉네임 가져오기
   async function getNameFrom (data) {
     return new Promise((resolve, reject) => {

@@ -186,21 +186,20 @@ exports.acceptLeader = (designId, userId) => {
 
 // 디자인 멤버 탈퇴
 exports.getoutMember = (req, res, next) => {
-  //console.log(req.params, typeof req.params.refuse);
-  let refuse = req.params.refuse === "true";
+  const refuse = req.params.refuse
   const getout = (designId, memberId) => {
     return new Promise((resolve, reject) => {
       connection.query(`DELETE FROM design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, async (err, rows) => {
         if (!err) {
-          if (refuse) {
+          //if (refuse) {
             let userId = await getCreateDesignUser(designId);
             const { sendAlarm } = require("../../socket");
             //console.log("?????", userId, memberId);
             if (userId === req.decoded.uid) {
               userId = memberId;
             }
-            await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, designId, "DesignRefuse", req.decoded.uid));
-          }
+            await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, designId, refuse, req.decoded.uid));
+          //}
           resolve(rows.insertId);
         } else {
           console.error(err);

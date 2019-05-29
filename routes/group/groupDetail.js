@@ -4,7 +4,7 @@ exports.groupDetail = (req, res, next) => {
   const id = req.params.id;
 
   // 그룹 정보 가져오기 (GET)
-  function getGroupInfo (id) {
+  function getGroupInfo(id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM opendesign.group WHERE uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
@@ -21,7 +21,7 @@ exports.groupDetail = (req, res, next) => {
   };
 
   // 그룹장 닉네임 가져오기 (GET)
-  function getName (data) {
+  function getName(data) {
     const p = new Promise((resolve, reject) => {
       if (data.user_id === null) {
         data.userName = null;
@@ -41,7 +41,7 @@ exports.groupDetail = (req, res, next) => {
   };
 
   // 그룹 issue 가져오기 (GET)
-  function getGroupComment (data) {
+  function getGroupComment(data) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT uid, user_id, title, create_time, update_time FROM group_issue WHERE group_id = ? ORDER BY create_time DESC", data.uid, (err, row) => {
         if (!err && row.length === 0) {
@@ -59,7 +59,7 @@ exports.groupDetail = (req, res, next) => {
   };
 
   // 그룹 썸네일 가져오기 (GET)
-  function getThumnbail (data) {
+  function getThumnbail(data) {
     const p = new Promise((resolve, reject) => {
       if (data.thumbnail === null) {
         data.img = null;
@@ -82,7 +82,7 @@ exports.groupDetail = (req, res, next) => {
   };
 
   // 그룹 부모그룹 있는지 확인 후 가져오기
-  function getParentInfo (data) {
+  function getParentInfo(data) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM group_join_group WHERE group_id = ? AND is_join = 1", data.uid, async (err, row) => {
         if (!err && row.length === 0) {
@@ -117,14 +117,31 @@ exports.groupDetail = (req, res, next) => {
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
 };
-
+exports.getCountDesignGroupInGroup = (req, res, next) => {
+  const groupId = req.params.id
+  const userId = req.params.uid
+  function getCount(groupId, userId) {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT (SELECT COUNT(*) FROM group_join_design WHERE parent_group_id=${groupId} AND design_id IN (SELECT uid FROM opendesign.design WHERE user_id = ${userId})) + (SELECT COUNT(*) FROM group_join_group WHERE parent_group_id=${groupId} AND group_id IN (SELECT uid FROM opendesign.group WHERE user_id = ${userId})) AS \`count\``, (err, row) => {
+          if (!err) {
+            resolve(row[0]["count"])
+          } else {
+            resolve(null)
+          }
+        })
+    })
+  }
+  getCount(groupId, userId)
+    .then(rst => res.status(200).json(rst))
+    .catch(err => console.log("groupDetail.js :", err))
+}
 exports.getCount = (req, res, next) => {
   const groupId = req.params.id;
   let design;
   let group;
 
   // 그룹 디자인 정보 가져오기 (GET)
-  function getDesignCount (id) {
+  function getDesignCount(id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT count(*) FROM group_join_design WHERE parent_group_id = ? AND is_join = 1", id, (err, row) => {
         if (!err) {
@@ -140,7 +157,7 @@ exports.getCount = (req, res, next) => {
   };
 
   // 그룹 하위그룹 정보 가져오기 (GET)
-  function getGroupCount (id) {
+  function getGroupCount(id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT count(*) FROM group_join_group WHERE parent_group_id = ? AND is_join = 1", id, (err, row) => {
         if (!err) {
@@ -156,9 +173,9 @@ exports.getCount = (req, res, next) => {
   };
 
   // 그룹 count 정보 업데이트
-  function updateCount (id) {
+  function updateCount(id) {
     const p = new Promise((resolve, reject) => {
-      connection.query(`UPDATE group_counter SET ? WHERE group_id = ${id}`, {design: design, group: group}, (err, row) => {
+      connection.query(`UPDATE group_counter SET ? WHERE group_id = ${id}`, { design: design, group: group }, (err, row) => {
         if (!err) {
           resolve(id);
         } else {
@@ -171,7 +188,7 @@ exports.getCount = (req, res, next) => {
   };
 
   // 그룹 count 정보 가져오기
-  function getCount (id) {
+  function getCount(id) {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM group_counter WHERE group_id = ${id}`, (err, row) => {
         if (!err) {
