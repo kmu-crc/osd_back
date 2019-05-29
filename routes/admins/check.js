@@ -3,7 +3,7 @@ const connection = require("../../configs/connection");
 const check = (req, res, next) => {
   const getAdminUid = decoded => {
     return new Promise((resolve, reject) => {
-      console.log(decoded,`SELECT admin_id FROM opendesign.admin WHERE uid=\'${decoded.uid}\'`);
+      // console.log(decoded,`SELECT admin_id FROM opendesign.admin WHERE uid=\'${decoded.uid}\'`);
       connection.query(
         `SELECT uid FROM opendesign.admin WHERE admin_id='${decoded.admin_id}'`,
         (err, rows) => {

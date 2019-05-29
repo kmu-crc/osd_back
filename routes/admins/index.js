@@ -3,21 +3,28 @@ const router = express.Router();
 
 const adminSignIn = require("./adminSignIn");
 const auth = require("../../middlewares/auth");
-const getGroupList = require("../../middlewares/getGroupList");
+const getGroupList = require("../../middlewares/getGroupList")
+const getDesignList = require("../../middlewares/getDesignList")
 const check = require("./check");
-const { updateTopGroup, insertTopGroup, deleteTopGroup} = require("../group/topGroupList");
-const { allGroupList, getAllGroupTotalCount } = require("../group/allGroupList");
-
+const { updateTopGroup, insertTopGroup, deleteTopGroup } = require("../group/topGroupList")
+const { allGroupList, getAllGroupTotalCount } = require("../group/allGroupList")
+const { updateTopDesign, insertTopDesign, deleteTopDesign } = require("../design/topDesignList")
+const { allDesignList, getAllDesignTotalCount } = require("../design/allDesignList")
 
 router.post("/adminSignIn", adminSignIn);
-router.post("/check", auth, check); 
+router.post("/check", auth, check);
 
-router.get("/allGroupCount", getAllGroupTotalCount);
-router.get("/allGroupList/", allGroupList, getGroupList);
-router.post("/:id/updateTopGroup", auth, updateTopGroup);
-router.post("/:id/insertTopGroup",auth, insertTopGroup);
-router.post("/:id/deleteTopGroup",auth, deleteTopGroup);
+router.get("/allGroupCount", getAllGroupTotalCount)
+router.get("/allGroupList/", allGroupList, getGroupList)
+router.post("/:id/updateTopGroup", auth, updateTopGroup)
+router.post("/:id/insertTopGroup", auth, insertTopGroup)
+router.post("/:id/deleteTopGroup", auth, deleteTopGroup)
 
+router.get("/allDesignCount", getAllDesignTotalCount)
+router.get("/allDesignList/", allDesignList, getDesignList)
+router.post("/:id/updateTopDesign", auth, updateTopDesign)
+router.post("/:id/insertTopDesign", auth, insertTopDesign)
+router.post("/:id/deleteTopDesign", auth, deleteTopDesign)
 module.exports = router;
 
 

@@ -1,10 +1,10 @@
 const connection = require("../../configs/connection");
 
-exports.topGroupList = (req, res, next) => {
-  const page = req.params.page; 
-  let sort = "update"; 
-  const keyword = req.params.keyword; 
- 
+exports.topDesignList = (req, res, next) => {
+  const page = req.params.page;
+  let sort = "update";
+  const keyword = req.params.keyword;
+
   let sql = `
   SELECT T.uid, T.title, T.thumbnail, T.create_time, T.child_update_time, T.user_id, T.explanation, T.like, T.design, T.group, T.nick_name, T.order FROM (
     SELECT G.uid,G.title,G.thumbnail,G.create_time,G.child_update_time ,G.user_id,G.explanation,C.like,C.design,C.group,U.nick_name,CG.order
@@ -22,30 +22,30 @@ exports.topGroupList = (req, res, next) => {
       WHERE G.uid NOT IN (SELECT CG.group_id FROM opendesign.collection_group CG)        
   ) as T `;
   // search
-  if(keyword && keyword !== "null" && keyword !== "undefined")
-    sql = sql +`WHERE T.title LIKE `+ keyword + `OR T.nick_name LIKE `+keyword+` `;
+  if (keyword && keyword !== "null" && keyword !== "undefined")
+    sql = sql + `WHERE T.title LIKE ` + keyword + `OR T.nick_name LIKE ` + keyword + ` `;
   // 1st sort(NEEDED)
-  sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
+  sql = sql + `ORDER BY T.order IS NULL ASC, T.order ASC`;
   // 2st sort(OPTIONAL)
   // default : update
-//console.log("sorting", req.params.sorting);
-  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined")  
-    sort = req.params.sorting; 
-  sort ==="update"?sort="child_update_time":null;
-  sort ==="create"?sort="create_time":null;
-//console.log("option:",sort);
-  sql = sql +`, T.`+sort+` DESC `
+  //console.log("sorting", req.params.sorting);
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined")
+    sort = req.params.sorting;
+  sort === "update" ? sort = "child_update_time" : null;
+  sort === "create" ? sort = "create_time" : null;
+  //console.log("option:",sort);
+  sql = sql + `, T.` + sort + ` DESC `
   // for infinite scroll
-  sql = sql +`LIMIT `+(page*10)+`,10;`;
+  sql = sql + `LIMIT ` + (page * 10) + `,10;`;
   // console.log(sql);
-  req.sql = sql; 
-  next(); 
+  req.sql = sql;
+  next();
 };
 
-exports.getTopGroupTotalCount = (req, res, next) => {
+exports.getTopDesignTotalCount = (req, res, next) => {
   const getCount = () => {
     return new Promise((resolve, reject) => {
-      connection.query("SELECT count(*) FROM opendesign.collection_group G", (err, result) => {
+      connection.query("SELECT count(*) FROM opendesign.collection_design", (err, result) => {
         if (!err && result.length) {
           //console.log(result);
           resolve(result[0]);
@@ -61,12 +61,12 @@ exports.getTopGroupTotalCount = (req, res, next) => {
     .catch(err => res.status(500).json(err));
 };
 
-exports.insertTopGroup = (req, res, next) => {
-  const groupId = req.params.id;
-  const groupOrder = req.body.order;
-  const insertTopGroup = () => {
+exports.insertTopDesign = (req, res, next) => {
+  const id = req.params.id;
+  const order = req.body.order;
+  const insertTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`INSERT INTO opendesign.collection_group VALUES(null,${groupId},${groupOrder},null)`, (err, result) => {
+      connection.query(`INSERT INTO opendesign.collection_design VALUES(null,${id},${order},null)`, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
@@ -89,17 +89,17 @@ exports.insertTopGroup = (req, res, next) => {
     });
   };
 
-  insertTopGroup()
+  insertTopDesign()
     .then(success)
     .catch(fail);
 };
 
-exports.updateTopGroup = (req, res, next) => {
-  const groupId = req.params.id;
-  const groupOrder = req.body.order;
-  const updateTopGroup = () => {
+exports.updateTopDesign = (req, res, next) => {
+  const id = req.params.id;
+  const order  = req.body.order;
+  const updateTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.collection_group as T SET T.order=${groupOrder} WHERE group_id = ${groupId}`, (err, result) => {
+      connection.query(`UPDATE opendesign.collection_design as T SET T.order=${order} WHERE design_id = ${id}`, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
@@ -122,16 +122,16 @@ exports.updateTopGroup = (req, res, next) => {
     });
   };
 
-  updateTopGroup()
+  updateTopDesign()
     .then(success)
     .catch(fail);
 };
 
-exports.deleteTopGroup = (req, res, next) => {
-  const groupId = req.params.id;
-  const deleteTopGroup = () => {
+exports.deleteTopDesign = (req, res, next) => {
+  const id = req.params.id;
+  const deleteTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM opendesign.collection_group WHERE group_id = ${groupId}`, (err, result) => {
+      connection.query(`DELETE FROM opendesign.collection_design WHERE design_id = ${id}`, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
@@ -154,7 +154,7 @@ exports.deleteTopGroup = (req, res, next) => {
     });
   };
 
-  deleteTopGroup()
+  deleteTopDesign()
     .then(success)
     .catch(fail);
 };

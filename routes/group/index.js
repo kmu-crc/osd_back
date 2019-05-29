@@ -7,7 +7,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList, getTotalCount } = require("./groupList");
-const { topGroupList, getTopTotalCount, updateTopGroup, insertTopGroup, deleteTopGroup} = require("./topGroupList");
+const { topGroupList, getTopGroupTotalCount, updateTopGroup, insertTopGroup, deleteTopGroup} = require("./topGroupList");
 const { allGroupList, getAllGroupTotalCount } = require("./allGroupList");
 const { groupDetail, getCount } = require("./groupDetail");
 const { designInGroup } = require("./designInGroup");
@@ -27,7 +27,7 @@ const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 router.get("/groupList/:page/:sorting?/:keyword?", groupList, getGroupList);
 router.get("/groupCount", getTotalCount);
 router.get("/topGroupList/:page/:sorting?/:keyword?", topGroupList, getGroupList);
-router.get("/topGroupCount", getTopTotalCount);
+router.get("/topGroupCount", getTopGroupTotalCount);
 router.get("/allGroupList/", allGroupList, getGroupList);
 router.get("/allGroupCount", getAllGroupTotalCount);
 router.get("/groupDetail/:id", groupDetail);
