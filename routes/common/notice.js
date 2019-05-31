@@ -4,7 +4,7 @@ exports.getNotification = (req, res, next) => {
     connection.query(`SELECT uid, title, content FROM opendesign.notice WHERE start_time >= CURRENT_DATE()`, (err, row) => {
       console.log("getnotifi")
       if (!err) {
-        console.log(row)
+        // console.log(row)
         res.status(200).json(row)
       } else {
         console.log("getNotifi:", err)
