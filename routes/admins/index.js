@@ -13,7 +13,7 @@ const getDesignList = require("../../middlewares/getDesignList")
 const { updateTopDesign, insertTopDesign, deleteTopDesign } = require("../design/topDesignList")
 const { allDesignList, getAllDesignTotalCount } = require("../design/allDesignList")
 
-const { /*updateNotice, insertNotice,*/ deleteNotice, getNoticeList } = require("../admins/notice")
+const { updateNotice, insertNotice,deleteNotice, getNoticeList } = require("../admins/notice")
 
 router.post("/adminSignIn", adminSignIn)
 router.post("/check", auth, check)
@@ -31,8 +31,8 @@ router.post("/:id/updateTopDesign", auth, updateTopDesign)
 router.post("/:id/deleteTopDesign", auth, deleteTopDesign)
 
 router.get("/getNoticeList/", getNoticeList)
-// router.post("/:id/insertNotice", auth, insertNotice)
-// router.post("/:id/updateNotice", auth, updateNotice)
+router.post("/insertNotice", auth, insertNotice)
+router.post("/updateNotice", auth, updateNotice)
 router.post("/:id/deleteNotice", auth, deleteNotice)
 
 module.exports = router
