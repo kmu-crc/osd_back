@@ -30,13 +30,13 @@ exports.getNoticeList = (req, res, next) => {
 exports.updateNotice = (req, res, next) => {
     let sql = `UPDATE opendesign.notice SET ? WHERE uid=${req.body.uid}`
     delete req.body.uid
-    console.log(sql)
+    // console.log(sql)
     // return
     const insertNotice = () => {
         return new Promise((resolve, reject) => {
             connection.query(sql, req.body, (err, row) => {
                 if (!err) {
-                    console.log(row)
+                    // console.log(row)
                     resolve(row)
                 } else {
                     console.log(err)
@@ -61,13 +61,13 @@ exports.insertNotice = (req, res, next) => {
     const expiry_time = req.body.expiry_time
 
     let sql = `INSERT INTO opendesign.notice VALUES(null, '${title}', '${type}', '${content}', NOW(), '${start_time}', '${expiry_time}')`
-    console.log(sql)
+    // console.log(sql)
     // return
     const insertNotice = () => {
         return new Promise((resolve, reject) => {
             connection.query(sql, (err, row) => {
                 if (!err) {
-                    console.log(row)
+                    // console.log(row)
                     resolve(row)
                 } else {
                     console.log(err)
