@@ -7,8 +7,10 @@ const designer = require("./designer");
 const categorys = require("./categorys");
 const admins = require("./admins");
 const search = require("./search");
+const common = require("./common")
 
 /* GET home page. */
+router.use("/common", common)
 router.use("/users", users);
 router.use("/design", design);
 router.use("/admins", admins);
