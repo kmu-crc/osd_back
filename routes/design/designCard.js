@@ -707,7 +707,7 @@ exports.updateCardSource = async (req, res, next) => {
             const ext = data.substring(data.lastIndexOf("."), data.length)
             item.file_name = item.file_name.replace(ext, ".mp4")
             item.extension = "mp4"
-            let new_file_name = await convertToMP4(data, ext)
+            let new_file_name = await convertToMP4(data, ext).catch((err)=>{console.log("err",err)})
             item.content = await S3Upload(new_file_name, item.file_name)
 } catch(e){
 	console.log('convert error:'+e)

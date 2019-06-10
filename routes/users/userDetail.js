@@ -189,6 +189,7 @@ exports.modifyDetail = (req, res) => {
     if (id !== null) {
       info.thumbnail = id;
     }
+    if(info.password === null) delete info.password
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`,
