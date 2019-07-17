@@ -64,7 +64,7 @@ const SendSuccessAlarm = async (fromId, contentId, isGroup) => {
       sendAlarm(socket.socketId, designerId, contentId, "JoinGroupSuccess", receiver))
 };
 
-const SendRefuseAlarm = async (fromId, contentId, isGroup) => {
+const SendRefuseAlarm = async (fromId, contentId, joined, isGroup) => {
   const { sendAlarm } = require("../../socket");
   let designerId = null;
   if (isGroup) {
@@ -75,7 +75,7 @@ const SendRefuseAlarm = async (fromId, contentId, isGroup) => {
   await getGroupUserId(contentId)
     .then(receiver => getSocketId(designerId))
     .then((socket, recevier) =>
-      sendAlarm(socket.socketId, designerId, contentId, "JoinGroupRefuse", recevier));
+      sendAlarm(socket.socketId, designerId, contentId, joined?"DesignOutFromGroup":"JoinGroupRefuse", recevier));
 };
 
 // 디자인 가입 승인
@@ -159,6 +159,7 @@ exports.acceptDesign = (req, res, next) => {
 exports.deleteDesign = (req, res, next) => {
   const group = req.params.id;
   const designId = req.params.designId;
+  let joined = false
 
   function deleteDesign(id, designId) {
     const p = new Promise((resolve, reject) => {
@@ -201,7 +202,7 @@ exports.deleteDesign = (req, res, next) => {
         async (err, row) => {
           if (!err) {
             //console.log("확인", designId, group)
-            SendRefuseAlarm(designId, group, false);
+            SendRefuseAlarm(designId, group, joined, false);
             res.status(200).json({ success: true });
           } else {
             //console.log(err);
@@ -227,8 +228,21 @@ exports.deleteDesign = (req, res, next) => {
         })
     })
   }
-
-  deleteDesign(group, designId)
+  function isJoined(group, design) {
+    return new Promise((resolve, reject) => {
+	connection.query(`SELECT is_join FROM opendesign.group_join_design WHERE parent_group_id=${group} AND design_id=${design}`,
+	(err, rst) => {
+	  if (!err) {
+		joined = rst[0].is_join
+		resolve(true)
+	  } else {
+		reject(err)
+	  }
+	})
+    })
+  }
+  isJoined(group, designId)
+    .then(deleteDesign(group, designId))
     .then(confirmAlarm(group, designId))
     .then(getCount)
     .then(countUpdate);

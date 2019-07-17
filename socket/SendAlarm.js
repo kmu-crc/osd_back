@@ -308,6 +308,9 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
   } else if (message === "JoinGroupSuccess") {
     type = "GROUP";
     kinds = "JOINSUCCESS";
+  } else if (message === "DesignOutFromGroup"){
+    type = "GROUP"
+    kinds = "GROUP_DESIGN_OUT"
   } else if (message === "JoinGroupRefuse") {
     type = "GROUP";
     kinds = "JOINREFUSE";
