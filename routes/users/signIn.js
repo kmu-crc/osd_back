@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const signIn = (req, res, next) => {
   const {email, password} = req.body;
+  console.log(req.body,"!!!!")
   let userInfo = null;
   const verificationEmail = (email) => {
     const p = new Promise((resolve, reject) => {

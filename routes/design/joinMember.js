@@ -109,20 +109,27 @@ const whatIsAccept = (designId, memberId) => {
 // 디자인 승인하는 로직 따로 분리
 const acceptMember = (designId, memberId, isLeader) => {
   return new Promise((resolve, reject) => {
-    connection.query(`UPDATE design_member SET ? WHERE user_id = ${memberId} AND design_id = ${designId}`, {is_join: 1}, async (err, rows, fields) => {
+	const sql = `UPDATE design_member SET is_join = 1 WHERE user_id = ${memberId} AND design_id = ${designId}`;
+	console.log("accept design:", sql);
+    connection.query(sql, async (err, rows, fields) => {
+	console.log("accept design:", 1);
       if (!err) {
         // 초대인지 요청인지 구분하여 알람 전송 기능을 추가해야함
         let userId = memberId;
         let designerId = await getCreateDesignUser(designId);
+	console.log("accept design:", 2, rows);
         if (!isLeader) {
+	console.log("accept design:", 3);
           let invited = await whatIsAccept(designId, memberId);
           //console.log("invited", typeof invited);
           const { sendAlarm } = require("../../socket");
           await getSocketId(rows.insertId, invited ? designerId : userId).then(data => sendAlarm(data.socketId, invited ? designerId : userId, designId, invited === 0 ? "DesignRequestTrue" : "DesignInvitedTrue", invited ? userId : designerId));
         }
+	console.log("accept design:", rows.insertId);
         resolve(rows.insertId);
       } else {
         console.error(err);
+	console.log("accept design:", 5);
         reject(err);
       }
     });
@@ -136,7 +143,7 @@ const getCount = (designId) => {
       if (!err) {
         resolve(result[0]["count(*)"]);
       } else {
-        //console.log(err);
+        console.log(err);
         reject(err);
       }
     });
@@ -150,7 +157,7 @@ const updateCount = (count, designId) => {
       if (!err) {
         resolve(row.insertId);
       } else {
-        //console.log(err);
+        console.log(err);
         reject(err);
       }
     });
@@ -163,12 +170,14 @@ exports.acceptMember = (req, res, next) => {
     .then(() => getCount(req.params.id))
     .then(data => updateCount(data, req.params.id))
     .then(data => {
+console.log("!!!");
       res.status(200).json({
         design_id: req.params.id,
         success: true
       });
     })
     .catch(err => {
+console.log("????");
       res.status(500).json({
         design_id: req.params.id,
         success: false,

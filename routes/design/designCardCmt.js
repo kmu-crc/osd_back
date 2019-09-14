@@ -5,7 +5,7 @@ exports.getCardComment = (req, res, next) => {
 
   const getComment = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query("SELECT C.uid, C.user_id, C.card_id, C.comment, C.create_time, C.update_time, U.nick_name, T.s_img FROM card_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.card_id = ?", id, (err, row) => {
+      connection.query("SELECT C.uid, C.user_id, C.card_id, C.comment, C.create_time, C.update_time, U.nick_name, C.d_flag, T.s_img FROM card_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.card_id = ?", id, (err, row) => {
         if (!err) {
           //console.log("get", row);
           resolve(row);
@@ -87,6 +87,7 @@ exports.createCardComment = (req, res, next) => {
 
   const createComment = (data) => {
     return new Promise((resolve, reject) => {
+	console.log("data:", data);
       connection.query("INSERT INTO card_comment SET ?", data, (err, row) => {
         if (!err) {
           //console.log("create", row);

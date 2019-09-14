@@ -61,8 +61,8 @@ router.post("/updateViewCount/:id", updateViewCount);
 router.post("/createDesign", auth, stringToNumber, stringToBoolean, createDesign);
 router.post("/updateDesignInfo/:id", auth, insertThumbnail, stringToNumber, updateDesignInfo);
 //router.post("/updateDesignTime/:id",auth, updateDesignTime);
-router.post("/updateDesignTime/:id", (req, res) => {
-    connection.query("UPDATE design SET update_time = now() WHERE uid = ?",req.params.id);
+router.post("/updateDesignTime/:id", auth, (req, res) => {
+    connection.query("UPDATE design SET update_time = NOW() WHERE uid = ?", req.params.id);
 });
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
@@ -99,7 +99,7 @@ router.delete("/designDetail/:id/deleteDetailComment/:comment_id", auth, deleteD
 router.post("/changeToProject/:id", auth, changeToProject);
 
 // top 5개 리스트 가져오기 (메인용)
-router.get("/TopList/:page", getTopList, getDesignList);
+router.get("/TopDesignList/:page", getTopList, getDesignList);
 
 // 새로운 디자인 디테일 로직
 router.get("/designDetail/getCardSource/:card_id", getCardSource);

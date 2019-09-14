@@ -89,7 +89,7 @@ exports.createCard = (req, res, next) => {
   data.design_id = req.params.id;
   data.user_id = req.decoded.uid;
   data.board_id = req.params.boardId;
-
+  
   const createCount = id => {
     return new Promise((resolve, reject) => {
       connection.query(
@@ -97,6 +97,7 @@ exports.createCard = (req, res, next) => {
         { card_id: id },
         (err, rows) => {
           if (!err) {
+	    data.card_id = id;
             resolve(rows);
           } else {
             console.error("MySQL Error:", err);
@@ -126,6 +127,7 @@ exports.createCard = (req, res, next) => {
 
   const respond = () => {
     res.status(200).json({
+      card_id: data.card_id,
       success: true,
       message: "성공적으로 등록되었습니다."
     });
@@ -846,7 +848,7 @@ exports.updateCardSource = async (req, res, next) => {
 exports.updateCardAllData = async (req, res, next) => {
   const cardId = req.params.card_id
   const userId = req.decoded.uid
-
+  let thumbnail = null;
   const WriteFile = (file, filename) => {
     let originname = filename.split(".");
     let name = new Date().valueOf() + "." + originname[originname.length - 1];
@@ -867,13 +869,13 @@ exports.updateCardAllData = async (req, res, next) => {
       try {
         let fileStr = res.img.split("base64,")[1];
         let data = await WriteFile(fileStr, res.file_name);
-        let thumbnail = await createThumbnails({
+        let _thumbnail = await createThumbnails({
           image: data,
           filename: data.split("/")[1],
           uid: userId
         });
-        //console.log("22222", thumbnail);
-        resolve(thumbnail);
+	thumbnail = _thumbnail;	
+        resolve(_thumbnail);
       } catch (err) {
         reject(err);
       }
@@ -881,16 +883,16 @@ exports.updateCardAllData = async (req, res, next) => {
   };
 
   updateCardFn({ userId, cardId, data: { title: req.body.title } })
-    .then(() =>
-      updateCardFn({ userId, cardId, data: { content: req.body.content } }))
-    .then(() =>
-      upLoadFile(userId, req.body.thumbnail))
-    .then(thumbnail => {
-      if (thumbnail) {
+    .then(() =>{
+      updateCardFn({ userId, cardId, data: { content: req.body.content } })})
+    .then(async() =>{
+	if(req.body.thumbnail===undefined) return Promise.resolve(true);
+      await upLoadFile(userId, req.body.thumbnail)})
+    .then(_thumbnail => {
+        console.log("22222", _thumbnail, thumbnail, userId, cardId);
+      if (thumbnail) 
         updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
-      } else {
-        return Promise.resolve(true)
-      }
+      return Promise.resolve(true)
     })
     .then(() => {
       req.body = req.body.data

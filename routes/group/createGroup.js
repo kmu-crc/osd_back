@@ -6,13 +6,14 @@ exports.createGroup = (req, res, next) => {
   //console.log("insert", req.file);
   req.body["user_id"] = req.decoded.uid;
   let groupId = null;
-
+console.log("createGroup::==========",req.body,req.file);
   const insertDetailDB = (data) => {
-    //console.log("22", data);
+//    console.log("CREATE group::::==", data);
     return new Promise((resolve, reject) => {
-      connection.query("INSERT INTO opendesign.group SET ?", data, (err, rows) => {
-        if (!err) {
-          //console.log("detail: ", rows);
+//      connection.query("INSERT INTO opendesign.group SET ?", data, (err, rows) => {
+connection.query(`INSERT INTO opendesign.group(user_id,title,explanation) VALUES ('${data.user_id}','${data.title}','${data.explanation}')`,(err,rows)=>{ 
+      if (!err) {
+          console.log("detail: ", rows);
           groupId = rows.insertId;
           resolve(rows);
         } else {

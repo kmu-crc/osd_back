@@ -10,7 +10,7 @@ require("dotenv").config();
 
 const routers = require("./routes");
 
-const app = express();
+const app=express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -26,8 +26,10 @@ app.use(bodyParser.urlencoded({limit: "1gb", extended: true}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
+
 app.use("/userFile", express.static("uploads"));
 app.use("/thumbnails", express.static("thumbnails"));
+
 if(!fs.existsSync('./uploads')){
   fs.mkdirSync('./uploads');
 }

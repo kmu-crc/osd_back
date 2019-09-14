@@ -306,7 +306,6 @@ exports.designDetail = (req, res, next) => {
   function getIsParent(data){
     return new Promise((resolve, reject) => {
       connection.query(`SELECT count(*) FROM opendesign.design WHERE parent_design=${data.uid};`, (err, result) => {
-        
         if(!err && result[0]["count(*)"] === 0) {
           data.is_parent = false
           resolve(data)
@@ -320,12 +319,30 @@ exports.designDetail = (req, res, next) => {
     })
   }
 
+  function getParentTitle(data){
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT title FROM opendesign.design WHERE uid=${data.parent_design};`, (err, result) => {
+          if (!err && result.length === 0) {
+            data.parent_title = null;
+            resolve(data);
+          } else if (!err && result.length > 0) {
+            data.parent_title = result[0]["title"];
+            resolve(data);
+          } else {
+            reject(err);
+          }
+      })
+    })
+  }
+
+
   getDesignInfo(designId)
     .then(getName)
     .then(getCategory)
     .then(getThumnbail)
     .then(getMemberList)
     .then(getChildrenCount)
+    .then(getParentTitle)
     .then(isTeam)
     .then(waiting)
     // .then(getIssueTitle)

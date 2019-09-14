@@ -17,7 +17,7 @@ exports.forkDesign = async (req, res, next) => {
     });
   };
   let sql = `
-SET @PREFIX_STRING = '[파생] ';
+SET @PREFIX_STRING = '';
 SET @PARENT_DESIGN = ${parent};
 SET @USER_ID = ${user_id};
 SET SQL_SAFE_UPDATES = 0;

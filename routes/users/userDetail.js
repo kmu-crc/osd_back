@@ -23,7 +23,7 @@ exports.insertDetail = (req, res) => {
     //console.log("id", id);
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE user SET ? WHERE uid = ${req.decoded.uid} `,
+        `UPDATE user SET update_time=now(),? WHERE uid = ${req.decoded.uid} `,
         { thumbnail: id },
         (err, rows) => {
           if (!err) {
@@ -38,7 +38,7 @@ exports.insertDetail = (req, res) => {
   };
 
   const insertDetailDB = data => {
-    //console.log("22", data);
+    console.log("22", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
         if (!err) {
@@ -116,20 +116,23 @@ exports.insertDetail = (req, res) => {
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
   const userId = req.decoded.uid;
-
+  console.log(" modifyDetail : body:", req.body);
   // user 테이블에 들어가야 할 정보
   let userInfo = {
     password: req.body.password || null,
     nick_name: req.body.nick_name,
-    update_time: new Date()
+    update_time:new Date()
   };
-
   // user detail 테이블에 들어가야 할 정보
   const detailInfo = {
     about_me: req.body.about_me,
     category_level1: req.body.category_level1,
     category_level2: req.body.category_level2,
-    is_designer: req.body.is_designer
+    is_designer: req.body.is_designer,
+    team: req.body.team,
+    career: req.body.career,
+    location: req.body.location,
+    contact: req.body.contact
   };
   //console.log(req.body);
 
@@ -146,6 +149,7 @@ exports.modifyDetail = (req, res) => {
   }
 
   const updateDetailDB = data => {
+    console.log("updatedetail:", data);
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user_detail SET ? WHERE user_id=${userId}`,
@@ -155,11 +159,11 @@ exports.modifyDetail = (req, res) => {
             if (rows.affectedRows) {
               resolve(rows);
             } else {
-              //console.log(err);
+              console.log("err1:",err);
               reject(err);
             }
           } else {
-            //console.log(err);
+            console.log("err2:",err);
             reject(err);
           }
         }

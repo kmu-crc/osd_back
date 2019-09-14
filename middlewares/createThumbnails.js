@@ -4,6 +4,7 @@ const fs = require("fs");
 const { S3Thumbnail } = require("../middlewares/S3Thumbnail");
 
 exports.createThumbnails = (data) => {
+console.log("createthumbnail::=========",data);
   return new Promise((resolve, reject) => {
     let filename = null;
     if (data === null || !data.image) {
@@ -15,7 +16,7 @@ exports.createThumbnails = (data) => {
     } else {
       filename = data.filename; // thumbnail 이미지를 만들어야 하는 filename
     }
-    let thumbnail = new Thumbnail("uploads", "thumbnails"); // uploads 폴더에 있는 대상 파일을 작업 후에는 thumbnails폴더로 이동
+    let thumbnail = new Thumbnail("uploads", "thumbnails",['png','jpg','jpeg','gif','bmp']); // uploads 폴더에 있는 대상 파일을 작업 후에는 thumbnails폴더로 이동
     const thumbnailSizeObj = {
       "s_img": 50,
       "m_img": 200,

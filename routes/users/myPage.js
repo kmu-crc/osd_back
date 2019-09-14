@@ -8,14 +8,13 @@ exports.myPage = (req, res, next) => {
   function getMyInfo (id) {
     const p = new Promise((resolve, reject) => {
       update_totals(id)
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, U.password, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.update_time, U.thumbnail, U.password, D.category_level1, D.category_level2, D.about_me, D.is_designer , D.team, D.location, D.career, D.contact FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
           let data = row[0];
           resolve(data);
         } else {
-          //console.log(err);
           reject(err);
         }
       });
@@ -91,7 +90,6 @@ exports.myPage = (req, res, next) => {
       connection.query(sql, cate, (err, result) => {
         if (!err) {
           data.categoryName = result[0].name;
-          //console.log(data);
           resolve(data);
         } else {
           reject(err);
@@ -147,8 +145,8 @@ exports.myGroup = (req, res, next) => {
   } else {
     sort = "date";
   }
+  let sql = `SELECT R.uid, U.nick_name, R.title, R.explanation, R.thumbnail, R.create_time, R.child_update_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN opendesign.user U ON U.uid = ${id} LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id =${id}`;
 
-  let sql = "SELECT R.uid, R.title, R.thumbnail, R.create_time, R.child_update_time, R.user_id, C.like, C.design, C.group FROM opendesign.group R LEFT JOIN group_counter C ON C.group_id = R.uid WHERE R.user_id = " + id;
   if (sort === "date") {
     sql = sql + " ORDER BY R.create_time DESC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {

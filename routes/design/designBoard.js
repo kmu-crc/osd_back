@@ -18,10 +18,11 @@ exports.createBoardDB = (req) => {
 };
 
 exports.createBoard = (req, res, next) => {
-  //console.log(req.body);
+  console.log("[0] createBoard:", req.body);
   let data = req.body;
   data.design_id = req.params.id;
   data.user_id = req.decoded.uid;
+  console.log("[1] createBoard:", req.body);
 
   const respond = () => {
     res.status(200).json({
@@ -56,7 +57,7 @@ exports.getBoardList = (req, res, next) => {
       let arr = [];
       list.map((item, index) => {
         arr.push(new Promise((resolve, reject) => {
-          connection.query(`SELECT D.uid, D.user_id, U.nick_name, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ${item.uid} ORDER BY D.order ASC`, (err, rows) => {
+          connection.query(`SELECT D.uid, D.user_id, U.nick_name,D.content, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ${item.uid} ORDER BY D.order ASC`, (err, rows) => {
             if (!err) {
               list[index].cards = rows;
               resolve(true);

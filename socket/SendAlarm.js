@@ -209,6 +209,37 @@ function getThumbnail(type, content_id) {
     })
   })
 }
+function getLastComment(comment_id) {
+//const sql = `SELECT DC.comment FROM opendesign.design_comment DC WHERE design_id IN (SELECT content_id FROM alarm A WHERE user_id=${user_id} AND A.type="DESIGN" AND (A.kinds="COMMENT" OR A.kinds="COMMENT_COMMENT")) ORDER BY create_time DESC LIMIT 1;`
+//console.log(sql)
+const sql = `SELECT comment FROM opendesign.design_comment WHERE uid =${comment_id}`
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (error, rows) => {
+      if (!error) {
+        if (rows.length > 0){
+          resolve(rows[0]["comment"])}
+        else
+          resolve(null)
+      } else {
+        reject(`getLastComment:` + error)
+      }
+    })
+  })
+}
+function attachCommentToAlarm(list){
+  return new Promise(async (resolve, reject) => {
+    for (let item of list) {
+	let condition =  (item.type ==="DESIGN" &&(item.kinds === "COMMENT"||item.type ==="COMMENT_COMMENT")) 
+	//console.log(condition, "codition")
+      item.reply_preview = await getLastComment(item.sub_content_id)
+    }
+    
+    for (let item of list) {
+       //console.log("preview:", item.reply_preview)
+    }
+    resolve(list)
+  })
+}
 function extendAlarm(list) {
   return new Promise(async (resolve, reject) => {
     for (let item of list) {
@@ -243,7 +274,9 @@ function sendAlarmList(socketId, uid, newlist, io) {
     // Promise.all(newlist)
     // .then(() => 
     countUnconfirmAlarm(uid, newlist) // )
-      .then(count => { io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist }) })
+      .then(count => { 
+console.log("count.msg:", count.msg)
+io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist }) })
       .catch(error => console.log(`ERR: send noti, ${error}`))
   })
 }
@@ -269,12 +302,14 @@ exports.newGetMsg = (socketId, uid, io) => {
 exports.newGetAlarm = (socketId, uid, io) => {
   getAlarmList(uid)
     .then(list => extendAlarm(list))
+    .then(list => attachCommentToAlarm(list))
     .then(extList => sendAlarmList(socketId, uid, extList, io))
     .catch(error => console.log(error))
 }
 exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subContentId = null) => {
   let type = null;
   let kinds = null;
+  let sub_content_id = null;
   if (message === "ReceiveMsg") {
     type = "MESSAGE";
     kinds = "SEND";
@@ -323,17 +358,20 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
   } else if (message === "CommentDesign") {
     type = "DESIGN";
     kinds = "COMMENT";
+    sub_content_id = subContentId
   } else if (message === "CommentDesignCard") {
     type = "DESIGN"
     kinds = "CARD_COMMENT"
+    sub_content_id = subContentId
   } else if (message === "CommentComment") {
     type = "DESIGN"
     kinds = "COMMENT_COMMENT"
+    sub_content_id = subContentId
   }
 
   function insertAlarm(uid, type, kinds, content_id, fromUserId, subContentId) {
     return new Promise((resolve, reject) => {
-      let SET = { user_id: uid, type, kinds, content_id, from_user_id: fromUserId, confirm: 0 };
+      let SET = { user_id: uid, type, kinds, content_id, from_user_id: fromUserId, confirm: 0, sub_content_id:subContentId};
       SET.sub_content_id = subContentId === null ? null : subContentId
       connection.query(
         "INSERT INTO alarm SET ?", SET,
@@ -349,7 +387,7 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
     })
   }
 
-  insertAlarm(uid, type, kinds, contentId, fromUserId, subContentId)
+  insertAlarm(uid, type, kinds, contentId, fromUserId, sub_content_id)
     .then(() => getAlarmList(uid))
     .then(list => extendAlarm(list))
     .then(extList => { sendAlarmList(socketId, uid, extList, io) })

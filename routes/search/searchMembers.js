@@ -11,11 +11,10 @@ const searchMembers = (req, res) => {
       WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
       AND U.uid NOT IN (SELECT U.uid FROM user U WHERE U.uid = ${req.decoded.uid})
       AND NOT EXISTS (SELECT M.user_id FROM design_member M WHERE M.design_id = ${designId} AND U.uid = M.user_id)`;
-    } else {
-      sql = `SELECT email, uid, nick_name FROM user WHERE (email regexp '${data.key}' OR nick_name regexp '${data.key}') AND uid NOT IN (${req.decoded.uid})`;
+    } else {sql=`SELECT U.email,U.uid,U.nick_name,thumbnail.s_img FROM opendesign.user U JOIN thumbnail ON U.thumbnail = thumbnail.uid WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}') AND U.uid NOT IN (${req.decoded.uid})`
     }
     return new Promise((resolve, reject) => {
-      //console.log(sql);
+      console.log("sql", sql);
       connection.query(sql, (err, rows) => {
         if (!err) {
           //console.log(rows);

@@ -35,9 +35,11 @@ function SocketConnection() {
     })
 
     socket.on("confirm", (obj) => {
-      connection.query(`UPDATE alarm SET ? WHERE uid=${obj.alarmId}`, { confirm: 1 }, (err, rows) => {
+    const url = `UPDATE alarm SET ? WHERE uid=${obj.alarmId}`;
+    console.log(url);
+      connection.query(url, { confirm: 1 }, (err, rows) => {
         if (!err) {
-          newGetAlarm(socket.id, obj.uid, io);
+          newGetAlarm(socket.id, obj.user_id, io);
         } else {
           //console.log("2번", err);
         }
@@ -45,8 +47,10 @@ function SocketConnection() {
     })
 
     socket.on("allConfirm", (obj) => {
-      connection.query(`UPDATE opendesign.alarm T SET T.confirm = 1 
-        WHERE (user_id=${obj.user_id}) AND NOT((T.type = "MESSAGE") OR (T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND (T.kinds = "JOIN_withDESIGN" || T.kinds = "JOIN_widthGROUP") AND T.type = "MESSAGE"))`, (err, row) => {
+    const url = `UPDATE opendesign.alarm T SET T.confirm = 1 
+        WHERE (user_id=${obj.user_id}) AND NOT((T.type = "MESSAGE") OR (T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND (T.kinds = "JOIN_withDESIGN" || T.kinds = "JOIN_widthGROUP") AND T.type = "MESSAGE"))`
+//console.log("all confirm query - ", url)
+      connection.query(url, (err, row) => {
           if (!err) {
             newGetAlarm(socket.id, obj.user_id, io)
           }

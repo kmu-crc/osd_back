@@ -46,6 +46,7 @@ router.get("/myPage/design/:page", auth, myDesign, getDesignList);
 router.get("/myPage/group/:page", auth, myGroup, getGroupList);
 router.get("/myPage/likeDesign/:page", auth, myLikeDesign, getDesignList);
 router.get("/myPage/likeDesigner/:page", auth, myLikeDesigner, getDesignerList);
+router.get("/myPage/likeGroup/:page", auth, myLikeGroup, getGroupList);
 router.get("/myPage/invited", auth, getMyInvitedList, getDesignList);
 router.get("/myPage/inviting", auth, getMyInvitingList, getDesignList);
 

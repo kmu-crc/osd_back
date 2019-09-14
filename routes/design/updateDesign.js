@@ -7,20 +7,22 @@ const { joinMember } = require("../design/joinMember");
 // 디자인 정보 수정
 exports.updateDesignInfo = (req, res, next) => {
   const designId = req.params.id;
-  req.body["update_time"] = new Date();
+  req.body["update_time"] = new Date(new Date().getTime()+32400000);
+//delete req.body["update_time"];
+//console.log("update-date:", req.body);
 
-  if (req.body.category_level1 === 0) {
-    req.body.category_level1 = null;
-  }
-  if (req.body.category_level2 === 0) {
-    req.body.category_level2 = null;
-  }
+//  if (req.body.category_level1 === 0) {
+//    req.body.category_level1 = null;
+//  }
+//  if (req.body.category_level2 === 0) {
+//    req.body.category_level2 = null;
+//  }
 
   // let members = JSON.parse(req.body.member);
   // if (members.length === 0) {
   //   members.push({uid: req.decoded.uid});
   // }
-  // delete req.body.member;
+  delete req.body.members;
 
   const updateDesign = (data) => {
     return new Promise((resolve, reject) => {
@@ -179,7 +181,7 @@ exports.updateDesignTime = (req, res, next) => {
     });
   };
 
-  //console.log("update time -----------------------");
+ console.log("update time --",req.body);
   updateTIME(req.body)
     .then(success)
     .cath(next);

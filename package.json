@@ -33,7 +33,8 @@
     "pug": "^2.0.3",
     "serve-favicon": "~2.4.5",
     "socket.io": "^2.1.1",
-    "thumbnail": "^0.1.9"
+    "thumbnail": "^0.1.9",
+    "yarn": "^1.17.3"
   },
   "devDependencies": {
     "eslint-config-standard": "^11.0.0",

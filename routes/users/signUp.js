@@ -3,9 +3,9 @@ const bcrypt = require("bcrypt");
 const { isOnlyNicName, isOnlyEmail } = require("../../middlewares/verifications");
 
 const signUp = (req, res, next) => {
-  //console.log("===================signup==============", req.body);
+  console.log("===================signup==============\n", req.body);
   let { email, password, nickName } = req.body;
-  let userData = {
+let userData = {
     ...req.body,
     "is_admin": 0,
     "is_facebook": 0
@@ -37,7 +37,19 @@ const signUp = (req, res, next) => {
     });
     return p;
   };
-
+  function createUserDetail (data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`INSERT INTO user_detail (user_id) VALUES ('${data}')`, (err, rows, fields) => {
+        if (!err) { 
+          let userId = data;
+          resolve(userId);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
   function respond (data) {
     next();
   }
@@ -55,6 +67,7 @@ const signUp = (req, res, next) => {
   })
   .then(createHashPw)
   .then(createUser)
+  .then(createUserDetail)
   .then(respond)
   .catch(error);
 };

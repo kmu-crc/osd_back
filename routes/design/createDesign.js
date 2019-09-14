@@ -77,7 +77,7 @@ exports.createDesign = async (req, res, next) => {
   members.push({uid: userId});
   req.body.is_members = 1;
   req.body["is_public"] = 1;
-  req.body["is_project"] = 0;
+  req.body["is_project"] = req.body.is_project;
   delete req.body.member;
 
   // 1. 디자인 생성
@@ -151,13 +151,7 @@ exports.createDesign = async (req, res, next) => {
       return createThumbnails(file);
     })
     .then((thumbnailId) => {
-      return updateDesignFn({
-        designId,
-        userId,
-        data: {
-          thumbnail: thumbnailId
-        }
-      });
+      return updateDesignFn({designId, userId, data: {thumbnail: thumbnailId}});
     })
     .then(() => {
       return joinMember({decoded: req.decoded, design_id: designId, members});
@@ -167,26 +161,26 @@ exports.createDesign = async (req, res, next) => {
     })
     .then(insertDesignCount)
     .then(updateUserCount)
-    .then(() => {
-      //console.log("createBoard");
-      return createBoardDB({
-        user_id: userId,
-        design_id: designId,
-        order: 0,
-        title: req.body.title
-      });
-    })
-    .then((boardId) => {
-      //console.log("createCard");
-      return createCardDB({
-        design_id: designId,
-        board_id: boardId,
-        user_id: userId,
-        title: req.body.title,
-        content: req.body.explanation,
-        order: 0
-      });
-    })
+    //.then(() => {
+    //  //console.log("createBoard");
+    //  return createBoardDB({
+    //    user_id: userId,
+    //    design_id: designId,
+    //    order: 0,
+    //    title: req.body.title
+    //  });
+    //})
+    //.then((boardId) => {
+    //  //console.log("createCard");
+    //  return createCardDB({
+    //    design_id: designId,
+    //    board_id: boardId,
+    //    user_id: userId,
+    //    title: req.body.title,
+    //    content: req.body.explanation,
+    //    order: 0
+    //  });
+    //})
     .then(respond)
     .catch(error);
 };

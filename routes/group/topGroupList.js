@@ -7,14 +7,14 @@ exports.topGroupList = (req, res, next) => {
  
   let sql = `
   SELECT T.uid, T.title, T.thumbnail, T.create_time, T.child_update_time, T.user_id, T.explanation, T.like, T.design, T.group, T.nick_name, T.order FROM (
-    SELECT G.uid,G.title,G.thumbnail,G.create_time,G.child_update_time ,G.user_id,G.explanation,C.like,C.design,C.group,U.nick_name,CG.order
+    SELECT G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group, U.nick_name, CG.order
       FROM opendesign.group G
         LEFT JOIN opendesign.group_counter C ON C.group_id = G.uid
         LEFT JOIN opendesign.user U ON U.uid = G.user_id
         LEFT JOIN opendesign.collection_group CG ON CG.group_id = G.uid
       WHERE G.uid IN (SELECT CG.group_id FROM opendesign.collection_group CG)
   UNION 
-    SELECT G.uid,G.title,G.thumbnail,G.create_time,G.child_update_time,G.user_id,G.explanation,C.like,C.design,C.group,U.nick_name,CG.order
+    SELECT G.uid, G.title, G.thumbnail, G.create_time, G.child_update_time, G.user_id, G.explanation, C.like, C.design, C.group, U.nick_name, CG.order
          FROM opendesign.group G
         LEFT JOIN opendesign.group_counter C ON C.group_id = G.uid
         LEFT JOIN opendesign.user U ON U.uid = G.user_id
@@ -23,7 +23,7 @@ exports.topGroupList = (req, res, next) => {
   ) as T `;
   // search
   if(keyword && keyword !== "null" && keyword !== "undefined")
-    sql = sql +`WHERE T.title LIKE `+ keyword + `OR T.nick_name LIKE `+keyword+` `;
+    sql = sql +` WHERE T.title LIKE "%`+ keyword + `%" OR T.nick_name LIKE "%`+keyword+`%" `;
   // 1st sort(NEEDED)
   sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
   // 2st sort(OPTIONAL)

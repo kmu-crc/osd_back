@@ -15,7 +15,7 @@ exports.designList = (req, res, next) => {
   }
 
   sql = `
-  SELECT D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, 
+  SELECT D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.parent_design AS test, D.category_level1, D.category_level2, D.create_time, D.update_time, D.is_public, D.is_project, 
   C.like_count, C.member_count, C.card_count, C.view_count, F.children_count, U.nick_name 
   FROM design D 
   LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM design DD group by DD.parent_design) F ON F.parent_design = D.uid

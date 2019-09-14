@@ -6,7 +6,7 @@ exports.getMyMsgList = (req, res, next) => {
   // 내가 주고 받은 메시지 id 가져오기
   async function getList (id) {
     let rows = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM message_group WHERE to_user_id = ${id} OR from_user_id = ${id}`, (err, row) => {
+      connection.query(`SELECT * FROM (SELECT message_group.*,M.create_time,M.message,TH.s_img FROM message_group LEFT JOIN message M ON message_group.uid = M.group_id LEFT JOIN thumbnail TH ON TH.uid IN (SELECT uid FROM thumbnail WHERE thumbnail.uid IN (SELECT opendesign.user.thumbnail FROM opendesign.user WHERE opendesign.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))WHERE create_time IN (SELECT MAX(create_time) FROM message GROUP BY group_id)) as T WHERE T.to_user_id=${id} OR T.from_user_id=${id}`, (err, row) => {
         if (!err && row.length === 0) {
           //console.log("w");
           resolve(null);
@@ -31,8 +31,7 @@ exports.getMyMsgList = (req, res, next) => {
           item.friend_id = result.uid;
         } else {
           const result = await getNameFrom(item);
-          const noti = await getNotiNum(item)
-          item.noti = noti
+          item.noti = await getNotiNum(item);
           item.friend_name = result.nick_name;
           item.friend_id = result.uid;
         }
@@ -45,9 +44,10 @@ exports.getMyMsgList = (req, res, next) => {
       if(data === null){
         resolve(null)
       } else{
-        connection.query(`SELECT count(confirm) 
+	const sql = `SELECT count(confirm) 
         from alarm where user_id = ${data.to_user_id} AND alarm.type="MESSAGE" AND alarm.confirm=0
-        AND alarm.from_user_id=${data.from_user_id}`, (error, row)=>{
+        AND alarm.from_user_id=${data.from_user_id}`
+        connection.query(sql, (error, row)=>{
           if(!error && row.length === 0){
             resolve(null)
           } else if(!error&&row.length >0){
@@ -294,7 +294,6 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const AlarmConfirm = (uid, groupId) => {
     return new Promise((resolve, reject) => {
-      //console.log("uid", uid);
       connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, {confirm: 1}, (err, row) => {
         if (!err) {
           resolve(true);
