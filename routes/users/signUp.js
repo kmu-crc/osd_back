@@ -11,6 +11,7 @@ let userData = {
     "is_facebook": 0
   };
   function createHashPw () {
+console.log("createHashPw");
     const p = new Promise((resolve, reject) => {
       bcrypt.hash(password, 10, function (err, hash) {
         if (!err) {
@@ -25,6 +26,7 @@ let userData = {
   };
 
   function createUser (data) {
+console.log("createUser");
     const p = new Promise((resolve, reject) => {
       connection.query("INSERT INTO user SET ?", data, (err, rows, fields) => {
         if (!err) {
@@ -38,6 +40,7 @@ let userData = {
     return p;
   };
   function createUserDetail (data) {
+console.log("createUserDetail");
     const p = new Promise((resolve, reject) => {
       connection.query(`INSERT INTO user_detail (user_id) VALUES ('${data}')`, (err, rows, fields) => {
         if (!err) { 

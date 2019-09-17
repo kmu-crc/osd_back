@@ -210,6 +210,45 @@ exports.modifyDetail = (req, res) => {
       );
     });
   };
+  const isCount = (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT uid FROM user_counter WHERE user_id = ${req.decoded.uid}`, (err, row) => {
+          if (!err && row.length === 0) {
+            resolve(true);
+          } else if (!err && row.length > 0) {
+            resolve(false);
+          } else {
+            reject(err);
+          }
+        }
+      );
+    });
+  };
+  const insertUserCount = async () => {
+    return new Promise(async (resolve, reject) => {
+      const newCount = {
+        user_id: req.decoded.uid,
+        total_like: 0,
+        total_design: 0,
+        total_group: 0,
+        total_view: 0
+      };
+      let isCountInfo = await isCount(req.decoded.uid);
+      if (isCountInfo) {
+        connection.query("INSERT INTO user_counter SET ?", newCount, (err, row) => {
+          if (!err) {
+            resolve(row);
+          } else {
+            //console.log(err);
+            reject(err);
+          }
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  };
 
   const respond = data => {
     res.status(200).json({
@@ -238,6 +277,7 @@ exports.modifyDetail = (req, res) => {
       }
     })
     .then(userUpdata)
+    .then(insertUserCount)
     .then(respond)
     .catch(error);
 };

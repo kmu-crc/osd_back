@@ -156,7 +156,11 @@ function getTitleById(type, content_id) {
   })
 }
 function validContentId(type, content_id) {
-  const table = type === "DESIGN" ? "opendesign.design" : "opendesign.group"
+  let table = "opendesign.design";
+ if(type === "DESIGN") table = "opendesign.design";
+ if(type === "GROUP") table = "opendesign.group"
+ if(type === "DESIGNER") table = "opendesign.user";
+
   return new Promise((resolve, reject) => {
     connection.query(
       `SELECT count(uid) FROM ${table} WHERE uid = ${content_id}`,
@@ -275,7 +279,7 @@ function sendAlarmList(socketId, uid, newlist, io) {
     // .then(() => 
     countUnconfirmAlarm(uid, newlist) // )
       .then(count => { 
-console.log("count.msg:", count.msg)
+//console.log("count.msg:", count.msg)
 io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist }) })
       .catch(error => console.log(`ERR: send noti, ${error}`))
   })
@@ -306,10 +310,10 @@ exports.newGetAlarm = (socketId, uid, io) => {
     .then(extList => sendAlarmList(socketId, uid, extList, io))
     .catch(error => console.log(error))
 }
-exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subContentId = null) => {
+exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subContentId) => {
   let type = null;
   let kinds = null;
-  let sub_content_id = null;
+  let sub_content_id = subContentId;
   if (message === "ReceiveMsg") {
     type = "MESSAGE";
     kinds = "SEND";
@@ -354,6 +358,9 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
     kinds = "LIKE";
   } else if (message === "LikeGroup") {
     type = "GROUP";
+    kinds = "LIKE";
+  } else if (message === "LikeDesigner"){
+    type = "DESIGNER";
     kinds = "LIKE";
   } else if (message === "CommentDesign") {
     type = "DESIGN";
