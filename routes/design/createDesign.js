@@ -66,8 +66,9 @@ exports.createDesign = async (req, res, next) => {
   //}
 
   let members = req.body.members;
- 
-  const userId = req.decoded.uid;
+  delete req.body.members;
+  const userId = req.body.uid;
+  delete req.body.uid;
   req.body.user_id = userId;
   let designId = null;
   let cardId = null;
@@ -75,11 +76,10 @@ exports.createDesign = async (req, res, next) => {
   //   members.push({uid: userId});
   //   req.body.is_members = 1;
   // }
-  //members.push({uid: userId});
+  // members.push({uid: userId});
   req.body.is_members = 1;
   req.body["is_public"] = 1;
   req.body["is_project"] = req.body.is_project;
-  delete req.body.members;
 
   // 1. 디자인 생성
   const insertDesign = (data) => {
@@ -155,10 +155,13 @@ exports.createDesign = async (req, res, next) => {
       return updateDesignFn({designId, userId, data: {thumbnail: thumbnailId}});
     })
     .then(() => {
-  if(members != null && members.add != null && members.add.length){
-    members = members.add.map(mem =>{return {design_id:designId, uid:mem.user_id}});
-  }
-  else { return true; }
+      if(members != null && members.add != null && members.add.length){
+        members = members.add.map(mem =>{return {design_id:designId, uid:mem.user_id}});
+        members.push({design_id:designId, uid:userId});
+      } 
+      else{
+        members = [{design_id:designId, uid:userId}];
+      }
       return joinMember({decoded: req.decoded, design_id: designId, members});
     })
     .then(() => {
