@@ -23,7 +23,7 @@ exports.topGroupList = (req, res, next) => {
   ) as T `;
   // search
   if(keyword && keyword !== "null" && keyword !== "undefined")
-    sql = sql +`WHERE T.title LIKE `+ keyword + `OR T.nick_name LIKE `+keyword+` `;
+    sql = sql +` WHERE T.title LIKE "%`+ keyword + `%" OR T.nick_name LIKE "%` + keyword + `%" `;
   // 1st sort(NEEDED)
   sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
   // 2st sort(OPTIONAL)
