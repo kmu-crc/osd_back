@@ -8,16 +8,16 @@ const { joinMember } = require("../design/joinMember");
 exports.updateDesignInfo = (req, res, next) => {
   const designId = req.params.id;
   const designUserId = req.params.uid;
-  req.body["update_time"] = new Date(new Date().getTime()+32400000);
-//delete req.body["update_time"];
-//console.log("update-date:", req.body);
+  // req.body["update_time"] = new Date();
+  // req.body["update_time"] = new Date(new Date().getTime());
+  // delete req.body["update_time"];
 
-//  if (req.body.category_level1 === 0) {
-//    req.body.category_level1 = null;
-//  }
-//  if (req.body.category_level2 === 0) {
-//    req.body.category_level2 = null;
-//  }
+  //  if (req.body.category_level1 === 0) {
+  //    req.body.category_level1 = null;
+  //  }
+  //  if (req.body.category_level2 === 0) {
+  //    req.body.category_level2 = null;
+  //  }
 
   let members = req.body.members;
 
@@ -25,9 +25,9 @@ exports.updateDesignInfo = (req, res, next) => {
   delete req.body.members;
 
   const alarmSetting = async (data, type) => {
-    const { sendAlarm, getSocketId} = require("../../socket");
+    const { sendAlarm, getSocketId } = require("../../socket");
     getSocketId(data.user_id)
-      .then(socket => sendAlarm(socket.socketId, data.user_id, designId, type === "invite" ? "DesignInvite" : "DesignGetout", designUserId, designId)); 
+      .then(socket => sendAlarm(socket.socketId, data.user_id, designId, type === "invite" ? "DesignInvite" : "DesignGetout", designUserId, designId));
   };
   const addmember = (data) => {
     const is_join = 0;
@@ -55,18 +55,18 @@ exports.updateDesignInfo = (req, res, next) => {
     });
   };
   const manageMember = (mems) => {
-    if(mems==null) return true;
+    if (mems == null) return true;
     return new Promise((resolve, reject) => {
       let addjobs = mems.add.map(job => {
         addmember(job)
-          .then(alarmSetting(job,"invite"))
+          .then(alarmSetting(job, "invite"))
           .catch(err => reject(err));
-      });  
+      });
       let deljobs = mems.del.map(job => {
-         delmember(job)
-           .then(alarmSetting(job,"getout"))
-           .catch(err => reject(err));
-       });
+        delmember(job)
+          .then(alarmSetting(job, "getout"))
+          .catch(err => reject(err));
+      });
       Promise.all(addjobs).catch(err => reject(err));
       Promise.all(deljobs).catch(err => reject(err));
       resolve(true);
@@ -74,7 +74,7 @@ exports.updateDesignInfo = (req, res, next) => {
   };
   const updateDesign = (data) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design SET ? WHERE uid = ${designId}`, data, (err, result) => {
+      connection.query(`UPDATE design SET ?, update_time = now() WHERE uid = ${designId}`, data, (err, result) => {
         if (!err) {
           // console.log(result);
           resolve(result);
@@ -181,6 +181,19 @@ exports.updateDesignInfo = (req, res, next) => {
     });
   };
 
+  const updateTIME = () => {
+    return new Promise((res, rej) => {
+      connection.query(
+        `UPDATE design SET update_time = now() WHERE uid = ${designId}`, (err, result) => {
+          if (!err) {
+            res.status(200).json({ success: true, design_id: designId });
+          } else {
+            res.status(500).json({ success: false, design_id: designId });
+          }
+        });
+    });
+  };
+
   updateDesign(req.body)
     .then(() => {
       if (req.file == null) {
@@ -188,47 +201,44 @@ exports.updateDesignInfo = (req, res, next) => {
       } else {
         return createThumbnails(req.file);
       }
-    }).then(designUpdata)
+    })
+    .then(designUpdata)
     .then(() => findParentGroup(designId))
     .then(() => manageMember(members))
+    .then(() => updateMemberCount(designId))
+    //.then(() => updateTIME)
     .then(success)
     .catch(fail);
 };
 
 exports.updateDesignTime = (req, res, next) => {
   const designId = req.params.id;
-  
   const success = () => {
     res.status(200).json({
       success: true,
       design_id: designId
     });
   };
-
   const fail = () => {
     res.status(500).json({
       success: false
     });
   };
-
-  const updateTIME = (data) => {
+  const updateTIME = () => {
     return new Promise((res, rej) => {
       connection.query(
-        `UPDATE design SET update_time = now() WHERE uid = ${data.designId}`,
-         (err, result) => {
-        if (!err) {
-          res.status(200).json({success: true, design_id: designId});
-        } else {
-          res.status(500).json({success: false, design_id: designId});
-        }
-      });
+        `UPDATE design SET update_time = now() WHERE uid = ${designId}`,
+        (err, result) => {
+          if (!err) {
+            res.status(200).json({ success: true, design_id: designId });
+          } else {
+            res.status(500).json({ success: false, design_id: designId });
+          }
+        });
     });
   };
-
- console.log("update time --",req.body);
   updateTIME(req.body)
     .then(success)
     .cath(next);
-
 };
 

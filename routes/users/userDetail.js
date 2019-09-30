@@ -23,7 +23,7 @@ exports.insertDetail = (req, res) => {
     //console.log("id", id);
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE user SET update_time=now(),? WHERE uid = ${req.decoded.uid} `,
+        `UPDATE user SET update_time = now(), ? WHERE uid = ${req.decoded.uid} `,
         { thumbnail: id },
         (err, rows) => {
           if (!err) {
@@ -52,29 +52,21 @@ exports.insertDetail = (req, res) => {
   };
   const isCount = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT uid FROM user_counter WHERE user_id = ${req.decoded.uid}`,
-        (err, row) => {
-          if (!err && row.length === 0) {
-            resolve(true);
-          } else if (!err && row.length > 0) {
-            resolve(false);
-          } else {
-            reject(err);
-          }
+      connection.query(`SELECT uid FROM user_counter WHERE user_id = ${req.decoded.uid}`, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(true);
+        } else if (!err && row.length > 0) {
+          resolve(false);
+        } else {
+          reject(err);
         }
+      }
       );
     });
   };
   const insertUserCount = async () => {
     return new Promise(async (resolve, reject) => {
-      const newCount = {
-        user_id: req.decoded.uid,
-        total_like: 0,
-        total_design: 0,
-        total_group: 0,
-        total_view: 0
-      };
+      const newCount = { user_id: req.decoded.uid, total_like: 0, total_design: 0, total_group: 0, total_view: 0 };
       let isCountInfo = await isCount(req.decoded.uid);
       if (isCountInfo) {
         connection.query("INSERT INTO user_counter SET ?", newCount, (err, row) => {
@@ -120,8 +112,8 @@ exports.modifyDetail = (req, res) => {
   // user 테이블에 들어가야 할 정보
   let userInfo = {
     password: req.body.password || null,
-    nick_name: req.body.nick_name,
-    update_time:new Date()
+    nick_name: req.body.nick_name
+    // update_time:new Date()
   };
   // user detail 테이블에 들어가야 할 정보
   const detailInfo = {
@@ -159,11 +151,11 @@ exports.modifyDetail = (req, res) => {
             if (rows.affectedRows) {
               resolve(rows);
             } else {
-              console.log("err1:",err);
+              console.log("err1:", err);
               reject(err);
             }
           } else {
-            console.log("err2:",err);
+            console.log("err2:", err);
             reject(err);
           }
         }
@@ -193,10 +185,10 @@ exports.modifyDetail = (req, res) => {
     if (id !== null) {
       info.thumbnail = id;
     }
-    if(info.password === null) delete info.password
+    if (info.password === null) delete info.password
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`,
+        `UPDATE user SET ?, update_time = NOW() WHERE uid = ${req.decoded.uid}`,
         info,
         (err, rows) => {
           if (!err) {

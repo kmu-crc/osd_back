@@ -2,13 +2,13 @@ var connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 
 exports.updateGroup = (req, res, next) => {
-  req.body["update_time"] = new Date();
-  req.body["child_update_time"] = new Date();
+  // req.body["update_time"] = new Date();
+  // req.body["child_update_time"] = new Date();
   const groupId = req.params.id;
 
   const updateGroup = (data) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId}`, data, (err, result) => {
+      connection.query(`UPDATE opendesign.group SET ? , update_time = NOW(), child_update_time = NOW() WHERE uid = ${groupId}`, data, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
@@ -25,7 +25,7 @@ exports.updateGroup = (req, res, next) => {
       info.thumbnail = id;
     }
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId}`, info, (err, rows) => {
+      connection.query(`UPDATE opendesign.group SET ?, update_time = now() WHERE uid = ${groupId}`, info, (err, rows) => {
         if (!err) {
           //console.log("detail: ", rows);
           resolve(groupId);
