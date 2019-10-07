@@ -6,7 +6,7 @@ const getDesignerList = require("../../middlewares/getDesignerList");
 const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 const { getLikeDesigner, likeDesigner, unlikeDesigner } = require("./likeDesigner");
-const { myDesignInDesigner, designInDesigner, likeInDesigner } = require("./designInDesigner");
+const { allDesignInDesigner, myDesignInDesigner, designInDesigner, likeInDesigner } = require("./designInDesigner");
 const { getTopList } = require("./topList");
 const { designerDetail, getCount } = require("./designerDetail");
 const { designerList, getTotalCount } = require("./designerList");
@@ -17,6 +17,7 @@ router.get("/designerCount/:cate1?/:cate2?", getTotalCount);
 router.get("/designerDetail/:id", designerDetail);
 router.get("/designerDetail/:id/myDesign/:page", myDesignInDesigner, getDesignList);
 router.get("/designerDetail/:id/design/:page", designInDesigner, getDesignList);
+router.get("/designerDetail/:id/allDesignDesigner/:page", allDesignInDesigner, getDesignList);
 router.get("/designerDetail/:id/like/:page", likeInDesigner, getDesignList);
 
 router.get("/designerDetail/:id/inGroup/:page", inGroup, getGroupList);

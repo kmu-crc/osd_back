@@ -27,12 +27,19 @@ exports.designerList = (req, res, next) => {
   }
 
   if (sort === "update") {
-    sql = sql + " ORDER BY U.update_time DESC LIMIT " + (page * 10) + ", 10";
+    sql = sql + " ORDER BY U.update_time DESC LIMIT ";
   } else if (sort === "create") {
-    sql = sql + " ORDER BY U.create_time DESC LIMIT " + (page * 10) + ", 10";
+    sql = sql + " ORDER BY U.create_time DESC LIMIT ";
   } else if (sort === "like") {
-    sql = sql + " ORDER BY C.total_like DESC LIMIT " + (page * 10) + ", 10";
+    sql = sql + " ORDER BY C.total_like DESC LIMIT ";
   }
+
+  if(page == 0){
+  	sql = sql + page*30 + ", 30;";
+  } else {
+	sql = sql + page*10 + 30 + ", 10;";
+  }
+
   req.sql = sql;
   next();
 };

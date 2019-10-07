@@ -20,9 +20,7 @@ const createCardFn = req => {
 
 const createCount = id => {
   return new Promise((resolve, reject) => {
-    connection.query(
-      "INSERT INTO card_counter SET ?",
-      { card_id: id },
+    connection.query("INSERT INTO card_counter SET ?", { card_id: id }, 
       (err, rows) => {
         if (!err) {
           resolve(rows);
@@ -37,9 +35,7 @@ const createCount = id => {
 
 const updateDesignCount = id => {
   return new Promise((resolve, reject) => {
-    connection.query(
-      "UPDATE design_counter SET card_count = card_count + 1 WHERE design_id = ?",
-      id,
+    connection.query("UPDATE design_counter SET card_count = card_count + 1 WHERE design_id = ?", id,
       (err, rows) => {
         if (!err) {
           resolve(rows);
@@ -261,7 +257,7 @@ exports.updateTitle = (req, res, next) => {
   const titleUpdate = data => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_card SET ? WHERE uid = ${cardId}`,
+        `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${cardId}`,
         data,
         (err, rows) => {
           if (!err) {
@@ -294,7 +290,7 @@ exports.updateContent = (req, res, next) => {
   const ContentUpdate = data => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_card SET ? WHERE uid = ${cardId}`,
+        `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${cardId}`,
         data,
         (err, rows) => {
           if (!err) {
@@ -581,7 +577,7 @@ exports.deleteCard = (req, res, next) => {
         arr.push(
           new Promise((resolve, reject) => {
             connection.query(
-              `UPDATE design_card SET ? WHERE uid=${item.uid}`,
+              `UPDATE design_card SET update_time = NOW(), ? WHERE uid=${item.uid}`,
               { order: index },
               (err, rows) => {
                 if (!err) {
@@ -797,11 +793,9 @@ exports.updateCardSource = async (req, res, next) => {
   }
 
   const updateDB = async arr => {
-    //console.log("updatearr", arr);
     let pArr = [];
     if (arr.length === 0) return Promise.resolve(true);
     for (let item of arr) {
-      //console.log("update", item);
       let obj = {
         file_name: item.file_name,
         content: item.content,
@@ -827,17 +821,29 @@ exports.updateCardSource = async (req, res, next) => {
     }
 
     return Promise.all(pArr);
-  }
-
-  const respond = data => {
-    // //console.log(data);
-    res.status(200).json({
-      success: true,
-      message: "저장되었습니다."
-    });
   };
 
-  deleteDB(req.body.deleteContent)
+  const updateCardTime = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `UPDATE opendesign.design_card SET update_time = NOW() WHERE uid = ${cardId}`,
+        (err, rows) => {
+          if (!err) {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          })
+        }
+      );
+    }
+
+  const respond = data => {
+    res.status(200).json({ success: true, message: "저장되었습니다." });
+  };
+
+  updateCardTime()
+    .then(() =>  deleteDB(req.body.deleteContent))
     .then(() => updateDB(req.body.updateContent))
     .then(() => upLoadFile(req.body.newContent))
     .then(insertDB)

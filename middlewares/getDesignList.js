@@ -94,7 +94,7 @@ const getDesignList = (req, res, next) => {
       if (data.thumbnail === null) {
         resolve(null);
       } else {
-        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
