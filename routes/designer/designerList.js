@@ -34,12 +34,12 @@ exports.designerList = (req, res, next) => {
     sql = sql + " ORDER BY C.total_like DESC LIMIT ";
   }
 
-  if(page == 0){
+//  if(page == 0){
   	sql = sql + page*30 + ", 30;";
-  } else {
-	sql = sql + page*10 + 30 + ", 10;";
-  }
-
+//  } else {
+//	sql = sql + (page*10 +30)+ ", 10;";
+//  }
+//  console.log(sql);
   req.sql = sql;
   next();
 };

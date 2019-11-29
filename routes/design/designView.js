@@ -12,7 +12,8 @@ exports.designView = (req, res, next) => {
 
   // 완료된 카드 id 가져오기
   function getViewCard (id) {
-    const p = new Promise((resolve, reject) => {
+console.log("getViewCard");
+    return new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design_card WHERE design_id = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -24,12 +25,12 @@ exports.designView = (req, res, next) => {
         }
       });
     });
-    return p;
   };
 
   // 이미지 정보 가져오기
   function getImage (data) {
-    const p = new Promise((resolve, reject) => {
+console.log("getImage");
+    return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
       } else {
@@ -46,12 +47,12 @@ exports.designView = (req, res, next) => {
         });
       }
     });
-    return p;
   };
 
   // 첨부 파일 정보 가져오기
   function getSource (data) {
-    const p = new Promise((resolve, reject) => {
+console.log("getSource");
+    return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
       } else {
@@ -68,12 +69,12 @@ exports.designView = (req, res, next) => {
         });
       }
     });
-    return p;
   };
 
   // 내가 멤버인지 (수정 권한이 있는지) 검증하기
   function isTeam (data) {
-    const p = new Promise((resolve, reject) => {
+console.log("isTeam",data);
+    return new Promise((resolve, reject) => {
       if (loginId === null) {
         data.is_team = 0;
         resolve(data);
@@ -91,7 +92,6 @@ exports.designView = (req, res, next) => {
         });
       }
     });
-    return p;
   };
 
   // 코멘트 가져오기

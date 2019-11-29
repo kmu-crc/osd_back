@@ -108,7 +108,6 @@ exports.insertDetail = (req, res) => {
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
   const userId = req.decoded.uid;
-  console.log(" modifyDetail : body:", req.body);
   // user 테이블에 들어가야 할 정보
   let userInfo = {
     password: req.body.password || null,
@@ -127,7 +126,6 @@ exports.modifyDetail = (req, res) => {
     contact: req.body.contact
   };
   //console.log(req.body);
-
   if (req.body.category_level1 === 0) {
     detailInfo.category_level1 = null;
   }
@@ -141,7 +139,6 @@ exports.modifyDetail = (req, res) => {
   }
 
   const updateDetailDB = data => {
-    console.log("updatedetail:", data);
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user_detail SET ? WHERE user_id=${userId}`,
@@ -257,7 +254,6 @@ exports.modifyDetail = (req, res) => {
       error: err,
     });
   };
-
   isOnlyNicName(userInfo.nick_name, userId)
     .then(() => createHashPw(userInfo))
     .then(() => updateDetailDB(detailInfo))
@@ -265,7 +261,8 @@ exports.modifyDetail = (req, res) => {
       if (req.file == null) {
         return Promise.resolve(null);
       } else {
-        return createThumbnails(req.file);
+      	console.log("createThumbnail?",req.file);return;
+	  return createThumbnails(req.file);
       }
     })
     .then(userUpdata)

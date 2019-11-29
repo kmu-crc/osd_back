@@ -1,5 +1,29 @@
 var connection = require("../../configs/connection");
 
+exports.myAllDesign = (req, res, next) => {
+  const id = req.decoded.uid;
+  const page = req.params.page;
+  let sql = `
+  SELECT 
+  D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time, 
+  C.like_count, C.member_count, C.card_count, C.view_count, F.children_count
+  FROM design D
+  LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM opendesign.design DD GROUP BY DD.parent_design) F ON F.parent_design = D.uid
+  LEFT JOIN design_counter C ON C.design_id = D.uid 
+  WHERE D.user_id = ${id} 
+UNION
+  SELECT
+  D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.category_level1, D.category_level2, D.create_time,
+  C.like_count, C.member_count, C.card_count, C.view_count, F.children_count
+  FROM design_member M
+  JOIN design D ON D.uid = M.design_id
+  LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM opendesign.design DD GROUP BY DD.parent_design) F ON F.parent_design = D.uid
+  LEFT JOIN design_counter C ON C.design_id = D.uid
+  WHERE M.is_join = 1 AND M.user_id = ${id} AND D.user_id != ${id} LIMIT ` + (page * 10) + `, 10`
+  req.sql = sql;
+  next();
+ 
+}
 // 내 기본 정보 가져오기
 exports.myPage = (req, res, next) => {
   const id = req.decoded.uid;
@@ -134,6 +158,52 @@ exports.myDesign = (req, res, next) => {
   req.sql = sql;
   next();
 };
+
+// 내가 속한 그룹 리스트 가져오기
+exports.inGroup = (req, res, next) => {
+  const id = req.params.id;
+  const page = req.params.page;
+  let sql = `
+SELECT 
+	U.nick_name, 
+	T.*,
+	GC.uid AS 'group_counter_uid', GC.group_id, GC.like, GC.design, GC.group,
+	TN.uid AS 'thumbnail_uid', TN.user_id, TN.s_img, TN.m_img, TN.l_img 
+		FROM (SELECT 
+			G.uid, G.user_id, G.title, G.explanation, G.thumbnail, 
+			G.create_time, G.update_time, G.child_update_time, G.d_flag 
+				FROM opendesign.group G 
+					WHERE uid IN (SELECT DISTINCT parent_group_id 
+						FROM opendesign.group_join_design 
+							WHERE design_id IN (SELECT uid FROM opendesign.design WHERE user_id = ${id}))) AS T 
+	LEFT JOIN opendesign.group_counter GC ON T.uid = GC.group_id 
+	LEFT JOIN opendesign.thumbnail TN ON TN.uid = T.thumbnail 
+	LEFT JOIN opendesign.user U ON T.user_id = U.uid 
+UNION 
+SELECT 
+	U.nick_name, 
+	T.*,
+	GC.uid AS 'group_counter_uid', GC.group_id, GC.like, GC.design, GC.group,
+	TN.uid AS 'thumbnail_uid', TN.user_id, TN.s_img, TN.m_img, TN.l_img 
+		FROM (SELECT 
+			G.uid, G.user_id, G.title, G.explanation, G.thumbnail, 
+			G.create_time, G.update_time, G.child_update_time, G.d_flag 
+				FROM opendesign.group G 
+					WHERE uid IN (SELECT DISTINCT parent_group_id 
+						FROM opendesign.group_join_group 
+							WHERE group_id IN (SELECT uid FROM opendesign.group WHERE user_id = ${id}))) AS T
+	LEFT JOIN opendesign.group_counter GC ON T.uid = GC.group_id 
+	LEFT JOIN opendesign.thumbnail TN ON TN.uid = T.thumbnail 
+	LEFT JOIN opendesign.user U ON T.user_id = U.uid
+`;
+
+ if(page){
+   sql = sql + ` LIMIT ${page * 10}, 10`;
+ }
+ req.sql = sql;
+ next();
+};
+
 
 // 내가 그룹장인 그룹 리스트 가져오기
 exports.myGroup = (req, res, next) => {

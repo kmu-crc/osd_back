@@ -34,6 +34,20 @@ SELECT
 	LEFT JOIN opendesign.group_counter GC ON T.uid = GC.group_id 
 	LEFT JOIN opendesign.thumbnail TN ON TN.uid = T.thumbnail 
 	LEFT JOIN opendesign.user U ON T.user_id = U.uid
+UNION
+SELECT
+	U.nick_name,
+	T.*,
+	GC.uid AS 'group_counter_uid', GC.group_id, GC.like, GC.design, GC.group,
+	TN.uid AS 'thumbnail_uid', TN.user_id, TN.s_img, TN.m_img, TN.l_img
+		FROM (SELECT
+			G.uid, G.user_id, G.title, G.explanation, G.thumbnail,
+			G.create_time, G.update_time, G.child_update_time, G.d_flag
+				FROM opendesign.group G
+					WHERE user_id = ${id}) AS T
+	LEFT JOIN opendesign.group_counter GC ON T.uid = GC.group_id
+	LEFT JOIN opendesign.thumbnail TN ON TN.uid = T.thumbnail
+	LEFT JOIN opendesign.user U ON T.user_id = U.uid
 `;
 
 if(page){

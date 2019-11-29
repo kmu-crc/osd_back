@@ -1,8 +1,8 @@
 const fs = require("fs");
 
 const imageUpload = async (req, res, next) => {
-  //console.log(req.body);
-  if (req.body.files) {
+// console.log(req.body);
+  if (req.body.files && req.body.files.length>0) {
     const WriteFile = (file, filename) => {
       let originname = filename.split(".");
       let name = new Date().valueOf() + "." + originname[originname.length - 1];

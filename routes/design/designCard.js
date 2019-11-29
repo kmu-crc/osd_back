@@ -52,7 +52,7 @@ const updateCardFn = req => {
   //console.log("fn", req);
   return new Promise((resolve, reject) => {
     connection.query(
-      `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
+      `UPDATE design_card SET ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
       (err, rows) => {
         if (!err) {
           if (rows.affectedRows) {
@@ -257,7 +257,7 @@ exports.updateTitle = (req, res, next) => {
   const titleUpdate = data => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${cardId}`,
+        `UPDATE design_card SET ? WHERE uid = ${cardId}`,
         data,
         (err, rows) => {
           if (!err) {
@@ -290,7 +290,7 @@ exports.updateContent = (req, res, next) => {
   const ContentUpdate = data => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${cardId}`,
+        `UPDATE design_card SET ? WHERE uid = ${cardId}`,
         data,
         (err, rows) => {
           if (!err) {
@@ -577,7 +577,7 @@ exports.deleteCard = (req, res, next) => {
         arr.push(
           new Promise((resolve, reject) => {
             connection.query(
-              `UPDATE design_card SET update_time = NOW(), ? WHERE uid=${item.uid}`,
+              `UPDATE design_card SET ? WHERE uid=${item.uid}`,
               { order: index },
               (err, rows) => {
                 if (!err) {
@@ -850,11 +850,12 @@ exports.updateCardSource = async (req, res, next) => {
     .then(respond)
     .catch(next)
 };
-
+// All Data
 exports.updateCardAllData = async (req, res, next) => {
   const cardId = req.params.card_id
   const userId = req.decoded.uid
-  let thumbnail = null;
+  let thumbnail = req.body.thumbnail || null;
+
   const WriteFile = (file, filename) => {
     let originname = filename.split(".");
     let name = new Date().valueOf() + "." + originname[originname.length - 1];
@@ -892,8 +893,8 @@ exports.updateCardAllData = async (req, res, next) => {
     .then(() =>{
       updateCardFn({ userId, cardId, data: { content: req.body.content } })})
     .then(async() =>{
-	if(req.body.thumbnail===undefined) return Promise.resolve(true);
-      await upLoadFile(userId, req.body.thumbnail)})
+	if(thumbnail==null) return Promise.resolve(true);
+      await upLoadFile(userId, thumbnail)})
     .then(_thumbnail => {
         console.log("22222", _thumbnail, thumbnail, userId, cardId);
       if (thumbnail) 

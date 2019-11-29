@@ -4,7 +4,7 @@ const { isOnlyNicName, isOnlyEmail } = require("../../middlewares/verifications"
 
 const signUp = (req, res, next) => {
   console.log("===================signup==============\n", req.body);
-  let { email, password, nickName } = req.body;
+  let { email, password, nick_name } = req.body;
 let userData = {
     ...req.body,
     "is_admin": 0,
@@ -66,7 +66,7 @@ console.log("createUserDetail");
 
   isOnlyEmail(email)
   .then(() => {
-    return isOnlyNicName(nickName);
+    return isOnlyNicName(nick_name);
   })
   .then(createHashPw)
   .then(createUser)

@@ -79,6 +79,7 @@ exports.createDesign = async (req, res, next) => {
   // members.push({uid: userId});
   req.body.is_members = 1;
   req.body["is_public"] = 1;
+console.log("is_project:", req.body.is_project);
   req.body["is_project"] = req.body.is_project;
 
   // 1. 디자인 생성
