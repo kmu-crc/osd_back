@@ -26,7 +26,7 @@ const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
 const { updateDesignInfo, updateDesignTime } = require("./updateDesign");
-const { joinDesign, acceptMember, getoutMember, getWaitingMember } = require("../design/joinMember");
+const { joinDesign, acceptMember, getoutMember, getWaitingMember, getWaitingToAcceptMember } = require("../design/joinMember");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designCount/:cate1?/:cate2?", getTotalCount);
@@ -36,7 +36,7 @@ router.get("/designDetail/:id/step", designStep);
 router.get("/designDetail/:id/cardDetail/:card_id", designCardDetail);
 
 router.get("/designDetail/:id/getBoardList", getBoardList);
-router.get("/designDetail/:id/:board_id/getCardList", getCardList, );
+router.get("/designDetail/:id/:board_id/getCardList", getCardList);
 router.get("/designDetail/getCardDetail/:cardId", getCardDetail);
 
 // 디자인에 가입 신청
@@ -47,6 +47,7 @@ router.post("/designDetail/:id/acceptDesign/:member_id", auth, acceptMember);
 router.delete("/designDetail/:id/getoutDesign/:member_id/:refuse", auth, getoutMember);
 // 디자인에 가입 신청중인 멤버 리스트 가져오기
 router.get("/designDetail/:id/waitingList", auth, getWaitingMember);
+router.get("/designDetail/:id/waitingListAccept", auth, getWaitingToAcceptMember);
 
 // 디자인 좋아요 기능 관련
 router.get("/getLike/:id", auth, getLikeDesign);
