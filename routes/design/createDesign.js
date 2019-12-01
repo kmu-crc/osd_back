@@ -123,25 +123,15 @@ exports.createDesign = async (req, res, next) => {
   // 5 + 6
   const inputDataSource = () => {
     return new Promise(async (resolve, reject) => {
-      // input data to project-design
-      if (req.body.is_project) {
-        // contents.map(step => {/* */});
-      } else {
+      // input data to blog-design
+      if (req.body.is_project === 0) {
         const board_id = await createBoardDB({ user_id: userId, design_id: designId, order: 0, title: req.body.title })
         const card_id = await createCardDB2({ design_id: designId, board_id: board_id, user_id: userId, title: req.body.title, content: req.body.explanation, order: 0 })
-        // input data to blog-design
-        console.log("1");
-        // contents && contents.length > 0 &&
-        console.log("2", item);
-        contents.card_id = card_id;
-        contents.uid = userId;
-        await updateCardSourceClone(contents);
-        // await contents.map(async item => {
-        // item.card_id = card_id;
-        // item.uid = userId;
-        // console.log("2", item);
-        // await updateCardSourceClone(item);
-        // });
+        if (contents) {
+          contents.card_id = card_id;
+          contents.uid = userId;
+          await updateCardSourceClone(contents);
+        }
       }
       resolve(true);
     });

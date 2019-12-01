@@ -4,7 +4,19 @@ const { S3SourcesDetele, S3Upload } = require("../../middlewares/S3Sources");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 var fs = require("fs");
 
-const createCardFn = req => {
+const getCardLastOrder = (boardId) => {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT COUNT(*) FROM opendesign.design_card WHERE board=?", boardId, (err, row => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row["COUNT(*)"]);
+      }
+    }));
+  })
+}
+const createCardFn = async req => {
+  // req.order = await getCardLastOrder(req.board_id);
   return new Promise((resolve, reject) => {
     connection.query("INSERT INTO design_card SET ?", req, (err, rows) => {
       if (!err) {
@@ -917,13 +929,13 @@ exports.updateCardSourceClone = async (data) => {
               item.file_name = item.file_name.replace(ext, ".mp4")
               item.extension = "mp4"
               let new_file_name = await convertToMP4(data, ext).catch((err) => { console.log("err", err) })
-              item.content = await S3Upload(new_file_name, item.file_name)
+              item.contents = await S3Upload(new_file_name, item.file_name)
             } catch (e) {
               console.log('convert error:' + e)
             }
           }
           else {
-            item.content = await S3Upload(data, item.file_name)
+            item.contents = await S3Upload(data, item.file_name)
           }
           item.data_type = item.file_type
           delete item.fileUrl
