@@ -5,7 +5,7 @@ const connection = require("../../configs/connection");
 const getSocketId = (data, uid) => {
   return new Promise((resolve, reject) => {
     //console.log("uid", uid);
-    connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+    connection.query(`SELECT socket_id FROM opendesign.user WHERE uid = ${uid}`, (err, row) => {
       if (!err && row.length === 0) {
         resolve(null);
       } else if (!err && row.length > 0) {
@@ -20,7 +20,7 @@ const getSocketId = (data, uid) => {
 
 const getCreateDesignUser = (designId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT user_id FROM design WHERE uid = ${designId}`, (err, row) => {
+    connection.query(`SELECT user_id FROM opendesign.design WHERE uid = ${designId}`, (err, row) => {
       if (!err) {
         resolve(row[0].user_id);
       } else {
@@ -33,10 +33,10 @@ const getCreateDesignUser = (designId) => {
 
 const joinMemberFn = (req, flag) => {
   return new Promise((resolve, reject) => {
-    //console.log(req, flag, "+++");
+    // console.log(req, flag, "+++");
     let arr = req.members.map(item => {
       return new Promise(async (resolve, reject) => {
-        connection.query("INSERT INTO design_member SET ?", { design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag }, async (err, rows) => {
+        connection.query("INSERT INTO opendesign.design_member SET ?", { design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag }, async (err, rows) => {
           if (!err) {
             const { sendAlarm } = require("../../socket");
             if (req.decoded.uid !== item.uid && (flag === "1" || flag === 1)) {
@@ -95,7 +95,7 @@ exports.joinDesign = (req, res, next) => {
 // 초대인지 요청인지 구분하는 함수
 const whatIsAccept = (designId, memberId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, (err, rows) => {
+    connection.query(`SELECT * FROM opendesign.design_member WHERE user_id = ${memberId} AND design_id = ${designId}`, (err, rows) => {
       if (!err && rows.length !== 0) {
         resolve(rows[0].invited);
       } else {
@@ -109,7 +109,7 @@ const whatIsAccept = (designId, memberId) => {
 // 디자인 승인하는 로직 따로 분리
 const acceptMember = (designId, memberId, isLeader) => {
   return new Promise((resolve, reject) => {
-    const sql = `UPDATE design_member SET is_join = 1 WHERE user_id = ${memberId} AND design_id = ${designId}`;
+    const sql = `UPDATE opendesign.design_member SET is_join = 1 WHERE user_id = ${memberId} AND design_id = ${designId}`;
     connection.query(sql, async (err, rows, fields) => {
       if (!err) {
         // 초대인지 요청인지 구분하여 알람 전송 기능을 추가해야함
@@ -138,7 +138,7 @@ const acceptMember = (designId, memberId, isLeader) => {
 // 카운트 값 가져오기
 const getCount = (designId) => {
   return new Promise((resolve, reject) => {
-    connection.query("SELECT count(*) FROM design_member WHERE design_id = ? AND is_join = 1", designId, (err, result) => {
+    connection.query("SELECT count(*) FROM opendesign.design_member WHERE design_id = ? AND is_join = 1", designId, (err, result) => {
       if (!err) {
         resolve(result[0]["count(*)"]);
       } else {
@@ -152,7 +152,7 @@ const getCount = (designId) => {
 // 카운트 값 업데이트
 const updateCount = (count, designId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`UPDATE design_counter SET member_count = ${count} WHERE design_id = ${designId}`, (err, row) => {
+    connection.query(`UPDATE opendesign.design_counter SET member_count = ${count} WHERE design_id = ${designId}`, (err, row) => {
       if (!err) {
         resolve(row.insertId);
       } else {
@@ -259,7 +259,7 @@ LEFT JOIN opendesign.thumbnail T ON T.user_id = M.user_id AND T.uid = U.thumbnai
 exports.getWaitingMember = (req, res, next) => {
   const getMember = (designId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT M.user_id, U.nick_name, T.s_img, T.m_img FROM design_member M JOIN user U ON U.uid = M.user_id LEFT JOIN thumbnail T ON T.user_id = M.user_id AND T.uid = U.thumbnail WHERE design_id = ${designId} AND is_join = 0 AND invited = 0`, (err, rows) => {
+      connection.query(`SELECT M.user_id, U.nick_name, T.s_img, T.m_img FROM opendesign.design_member M JOIN user U ON U.uid = M.user_id LEFT JOIN thumbnail T ON T.user_id = M.user_id AND T.uid = U.thumbnail WHERE design_id = ${designId} AND is_join = 0 AND invited = 0`, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {

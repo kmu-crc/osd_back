@@ -11,12 +11,12 @@ exports.designView = (req, res, next) => {
   }
 
   // 완료된 카드 id 가져오기
-  function getViewCard (id) {
-console.log("getViewCard");
+  function getViewCard(id) {
+    console.log("getViewCard");
     return new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design_card WHERE design_id = ?", id, (err, row) => {
         if (!err && row.length === 0) {
-          resolve(null);
+          resolve({});
         } else if (!err && row.length > 0) {
           const cardData = row[0];
           resolve(cardData);
@@ -28,8 +28,8 @@ console.log("getViewCard");
   };
 
   // 이미지 정보 가져오기
-  function getImage (data) {
-console.log("getImage");
+  function getImage(data) {
+    console.log("getImage");
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
@@ -50,11 +50,11 @@ console.log("getImage");
   };
 
   // 첨부 파일 정보 가져오기
-  function getSource (data) {
-console.log("getSource");
+  function getSource(data) {
+    console.log("getSource");
     return new Promise((resolve, reject) => {
       if (data === null) {
-        resolve(null);
+        resolve({});
       } else {
         connection.query("SELECT uid, name, link FROM design_source_file WHERE card_id = ?", data.uid, (err, row) => {
           if (!err && row.length === 0) {
@@ -72,8 +72,8 @@ console.log("getSource");
   };
 
   // 내가 멤버인지 (수정 권한이 있는지) 검증하기
-  function isTeam (data) {
-console.log("isTeam",data);
+  function isTeam(data) {
+    console.log("isTeam");
     return new Promise((resolve, reject) => {
       if (loginId === null) {
         data.is_team = 0;
