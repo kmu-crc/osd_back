@@ -2,8 +2,9 @@ const connection = require("../../configs/connection");
 
 const createBoardFn = (req) => {
   return new Promise((resolve, reject) => {
-    connection.query("INSERT INTO design_board SET ?", req, (err, rows) => {
+    connection.query("INSERT INTO opendesign.design_board SET ?", req, (err, rows) => {
       if (!err) {
+        console.log("board:",rows.insertId);
         resolve(rows.insertId);
       } else {
         console.error("MySQL Error:", err);
@@ -148,7 +149,7 @@ exports.updateBoard = (req, res, next) => {
   const update = (obj) => {
     //console.log("obj: ---------", obj);
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
+      connection.query(`UPDATE opendesign.design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
@@ -168,7 +169,7 @@ exports.updateBoard = (req, res, next) => {
     });
   };
 
-  update({board_id, data: req.body})
+  update({ board_id, data: req.body })
     .then(respond)
     .catch(next);
 };
@@ -209,7 +210,7 @@ exports.deleteBoard = (req, res, next) => {
       let arr = [];
       list.map((item, index) => {
         arr.push(new Promise((resolve, reject) => {
-          connection.query(`UPDATE design_board SET ? WHERE uid=${item.uid}`, {order: index}, (err, rows) => {
+          connection.query(`UPDATE opendesign.design_board SET ? WHERE uid=${item.uid}`, { order: index }, (err, rows) => {
             if (!err) {
               resolve(rows);
             } else {
