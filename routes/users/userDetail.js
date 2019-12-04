@@ -261,7 +261,7 @@ exports.modifyDetail = (req, res) => {
       if (req.file == null) {
         return Promise.resolve(null);
       } else {
-      	console.log("createThumbnail?",req.file);return;
+      	console.log("createThumbnail?",req.file);
 	  return createThumbnails(req.file);
       }
     })
