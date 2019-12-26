@@ -4,7 +4,7 @@ const getDesignList = (req, res, next) => {
   const sql = req.sql;
   // //console.log(sql);
   // 디자인 리스트 가져오기 (GET)
-  function getList (sql) {
+  function getList(sql) {
     return new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, (err, row) => {
@@ -26,10 +26,15 @@ const getDesignList = (req, res, next) => {
     });
   };
 
-  function newData (data) {
+  function newData(data) {
     return new Promise((resolve, reject) => {
       getUserName(data).then(name => {
         data.userName = name;
+        return data;
+      }).then(
+        getPrice
+      ).then(price => {
+        data.price = price;
         return data;
       }).then(
         getCategory
@@ -48,7 +53,7 @@ const getDesignList = (req, res, next) => {
   };
 
   // 유저 닉네임 가져오는 함수
-  function getUserName (data) {
+  function getUserName(data) {
     return new Promise((resolve, reject) => {
       if (data.user_id === null) {
         resolve(null);
@@ -64,8 +69,22 @@ const getDesignList = (req, res, next) => {
     });
   };
 
+  // GET PRICE OF DESIGN
+  const getPrice = (data) => {
+    const _sql = `SELECT price FROM opendesign.price WHERE design_id=${data.uid};`;
+    return new Promise((resolve, reject) => {
+      connection.query(_sql, (err, row) => {
+        if (!err) {
+          resolve(row[0] ? row[0].price : null);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
   // 카테고리 이름 가져오는 함수
-  function getCategory (data) {
+  function getCategory(data) {
     return new Promise((resolve, reject) => {
       let cate;
       let sqlCate;
@@ -89,7 +108,7 @@ const getDesignList = (req, res, next) => {
   };
 
   // 디자인 썸네일 가져오는 함수
-  function getThumbnail (data) {
+  function getThumbnail(data) {
     return new Promise((resolve, reject) => {
       if (data.thumbnail === null) {
         resolve(null);
@@ -106,6 +125,7 @@ const getDesignList = (req, res, next) => {
       }
     });
   }
+
 
   getList(sql)
     .then(data => {
