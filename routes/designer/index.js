@@ -10,6 +10,14 @@ const getDesignList = require("../../middlewares/getDesignList");
 const { getLikeDesigner, likeDesigner, unlikeDesigner } = require("./likeDesigner");
 const { getTopList } = require("./topList");
 
+// board
+const { designerBoardList, getDesignerBoardTotalCount } = require("./designerBoardList");
+const { designerBoardDetail, getBoardCount } = require("./designerBoardDetail");
+router.get("/board/:page/:sorting?/:cate1?/:cate2?/:keyword?", designerBoardList, getDesignerList);
+router.get("/boardCount/:cate1?/:cate2?", getDesignerBoardTotalCount);
+router.get("/boardDetail/:id", designerBoardDetail);
+router.get("/getBoardCount/:id", getBoardCount);
+
 router.get("/designerList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designerList, getDesignerList);
 router.get("/designerCount/:cate1?/:cate2?", getTotalCount);
 router.get("/designerDetail/:id", designerDetail);

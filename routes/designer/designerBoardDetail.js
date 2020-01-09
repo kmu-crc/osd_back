@@ -1,0 +1,105 @@
+var connection = require("../../configs/connection");
+
+
+// title, category, create_time, 
+// writer, level, 
+
+exports.designerBoardDetail = (req, res, next) => {
+  const id = req.params.id;
+
+  // get board detail
+  const getBoardDetail = (id) => {
+    return new Promise((resolve, reject) => {
+      const sql =
+`SELECT 
+`;
+      /*
+      SELECT U.uid, U.nick_name, U.thumbnail, D.category_level1, D.category_level2, D.about_me 
+      FROM user U 
+      LEFT JOIN user_detail D ON U.uid = D.user_id WHERE U.uid = ?", id
+      */
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(row.length ? row[0] : null);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  // 디자이너 프로필 썸네일 가져오기
+  const getMyThumbnail = (data) => {
+    return new Promise((resolve, reject) => {
+      if (!data.thumbnail) {
+        data.thumbnailUrl = null;
+        resolve(data);
+      } else {
+        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+          if (!err && row.length === 0) {
+            data.thumbnailUrl = null;
+            resolve(data);
+          } else if (!err && row.length > 0) {
+            data.thumbnailUrl = row[0];
+            resolve(data);
+          } else {
+            reject(err);
+          }
+        });
+      }
+    });
+  };
+
+  // 카테고리 이름 가져오기
+  const getCategory = (data) => {
+    return new Promise((resolve, reject) => {
+      let cate, sql
+      if (!data.category_level1 && !data.category_level2) {
+        data.categoryName = null;
+        resolve(data);
+      } else if (data.category_level2 && data.category_level2 !== "") {
+        cate = data.category_level2;
+        sql = "SELECT name FROM category_level2 WHERE uid = ?";
+      } else {
+        cate = data.category_level1;
+        sql = "SELECT name FROM category_level1 WHERE uid = ?";
+      }
+      connection.query(sql, cate, (err, result) => {
+        if (!err) {
+          data.categoryName = result[0].name;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  getBoardDetail(id)
+    // .then(getMyThumbnail)
+    // .then(getCategory)
+    .then(result => res.status(200).json(result))
+    .catch(err => { console.log(err); res.status(500).json(err); });
+};
+
+exports.getBoardCount = (req, res, next) => {
+  const designerId = req.params.id;
+
+  // 디자이너 count 정보 가져오기 (GET)
+  function getDesignerCount(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query("SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id = ?", designerId, (err, row) => {
+        if (!err) {
+          //console.log(row[0]);
+          res.status(200).json(row[0]);
+        } else {
+          //console.log(err);
+          res.status(500).json(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  getDesignerCount(designerId);
+};

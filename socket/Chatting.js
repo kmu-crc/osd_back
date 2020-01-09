@@ -1,6 +1,7 @@
-var connection = require("../../configs/connection");
+var connection = require("../configs/connection");
 
 exports.getMyMsgList = (req, res, next) => {
+  // console.log("chanho debug chanho debug chanho debug chanho debug")
   const userId = req.decoded.uid;
   // 내가 주고 받은 메시지 id 가져오기
   async function getList (id) {
@@ -43,7 +44,7 @@ exports.getMyMsgList = (req, res, next) => {
       if(data === null){
         resolve(null)
       } else{
-	const sql = `SELECT count(confirm) 
+        const sql = `SELECT count(confirm) 
         from alarm where user_id = ${data.to_user_id} AND alarm.type="MESSAGE" AND alarm.confirm=0
         AND alarm.from_user_id=${data.from_user_id}`
         connection.query(sql, (error, row)=>{
@@ -116,7 +117,6 @@ exports.getMyMsgList = (req, res, next) => {
 exports.sendMsg = (req, res, next) => {
   const myUserId = req.decoded.uid;
   const toUserId = req.params.id;
-
   req.body["from_user_id"] = myUserId;
   req.body["to_user_id"] = toUserId;
 
@@ -216,14 +216,12 @@ exports.sendMsg = (req, res, next) => {
   };
 
   const respond = (data) => {
-    const { sendAlarm} = require("../../socket");
-    //GetNewMsg = (socketId, uid, req, res, next)
+    const { sendAlarm } = require("../../socket");
     //console.log(sendAlarm);
     //console.log("socketId", data.socketId);
     try {
       sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
       res.status(200).json({success: true, groupId: data.data});
-      //getNewMsg(data.socketId, toUserId, req, res, next);
     } catch (err) {
       next(err);
     }
@@ -248,12 +246,12 @@ exports.sendMsg = (req, res, next) => {
     .catch(error);
 };
 
-exports.getMyMsgDetail = (req, res, next) => {
+exports.GetNewMsg = (socketId, uid, io, req, res, next)=>{
   const userId = req.decoded.uid;
   const groupId = req.params.id;
 
   function getDetail (groupId) {
-    const p = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (!groupId) {
         resolve(null);
       } else {
@@ -266,7 +264,7 @@ exports.getMyMsgDetail = (req, res, next) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            console.log(row);
+            //console.log(row);
             resolve(row);
           } else {
             //console.log(err);
@@ -275,25 +273,7 @@ exports.getMyMsgDetail = (req, res, next) => {
         });
       }
     });
-    return p;
-  };
-
-  const getSocketId = (data, uid) => {
-    return new Promise((resolve, reject) => {
-      //console.log("uid", uid);
-      connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
-        if (!err && row.length === 0) {
-          resolve(null);
-        } else if (!err && row.length > 0) {
-          resolve({data, socketId: row[0].socket_id});
-        } else {
-          //console.log(err);
-          reject(err);
-        }
-      });
-    });
-  };
-
+  }
   const AlarmConfirm = (uid, groupId) => {
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, {confirm: 1}, (err, row) => {
@@ -307,22 +287,29 @@ exports.getMyMsgDetail = (req, res, next) => {
     });
   }
 
-  const respond = async data => {
+  const respond = async (data, socketId) => {
     const { getAlarm } = require("../../socket");
     await AlarmConfirm(userId, groupId);
-    getSocketId(data, userId).then(data => {
-      getAlarm(data.socketId, userId);
-      res.status(200).json(data.data);
-    }
-    ).catch(next);
+    getAlarm(socketId, userId)
+      .then(()=>{res.status(200).json(data.data)})
+      .catch(next);
+
+    // getSocketId(data, userId).then(data => {
+    //     getAlarm(data.socketId, userId);
+    //     res.status(200).json(data.data);
+    //   }
+    // ).catch(next);
   };
+
+  getDetail(groupId)
+    .then(list => io.to(`${socketId}`).emit("getNewMsg", list))
+    .then((data)=>respond(data, socketId))
+    .catch(error => console.log(error))
 
   const error = err => {
     res.status(500).json({error: err});
   };
 
-  getDetail(groupId)
-    .then(data=>respond())
-    .catch(error);
-};
+}
+
 
