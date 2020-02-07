@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const connection = require("../../configs/connection");
 
+const { addOrder, getOrderList } = require("./order");
+const { addCart, getCartList,deleteSelectCart,deleteAllCart, } = require("./cart");
 const { designList, getTotalCount } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
@@ -14,6 +16,7 @@ const auth = require("../../middlewares/auth");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
+const getItemList = require("../../middlewares/getItemList");
 const { createDesign } = require("./createDesign");
 const { forkDesign, getForkDesignList } = require("./forkDesign")
 
@@ -28,10 +31,18 @@ const { getTopList } = require("./topList");
 const { updateDesignInfo, updateDesignTime } = require("./updateDesign");
 const { joinDesign, acceptMember, getoutMember, getWaitingMember } = require("../design/joinMember");
 
+// order
+router.post("/addOrder", auth, addOrder);
+router.get("/getOrderList/:id", getOrderList);
+// cart
+router.post("/addCart", auth, addCart);
+router.get("/getCartList/:id", getCartList);
+router.delete("/deleteSelectCart/:id",auth,deleteSelectCart);
+router.delete("/deleteAllCart/:id",auth,deleteAllCart);
 // detail
 router.get("/detail/:id", tokenDecoded, designDetail);
 router.get("/Count/:cate1?/:cate2?", getTotalCount);
-router.get("/List/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
+router.get("/list/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 
 
 router.get("/designDetail/:id/view", tokenDecoded, designView);
@@ -102,7 +113,7 @@ router.delete("/designDetail/:id/deleteDetailComment/:comment_id", auth, deleteD
 router.post("/changeToProject/:id", auth, changeToProject);
 
 // top 5개 리스트 가져오기 (메인용)
-router.get("/TopList/:page", getTopList, getDesignList);
+router.get("/TopList/:page", getTopList, getItemList);
 
 // 새로운 디자인 디테일 로직
 router.get("/designDetail/getCardSource/:card_id", getCardSource);

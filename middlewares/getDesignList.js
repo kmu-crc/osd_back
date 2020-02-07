@@ -44,7 +44,7 @@ const getDesignList = (req, res, next) => {
       }).then(
         getThumbnail
       ).then(url => {
-        data.thumbnailUrl = url;
+        data.thumbnail = url;
         resolve(data);
       }).catch(err => {
         reject(err);
@@ -71,7 +71,7 @@ const getDesignList = (req, res, next) => {
 
   // GET PRICE OF DESIGN
   const getPrice = (data) => {
-    const _sql = `SELECT price FROM opendesign.price WHERE design_id=${data.uid};`;
+    const _sql = `SELECT price FROM opendesign.price WHERE item_id=${data.uid};`;
     return new Promise((resolve, reject) => {
       connection.query(_sql, (err, row) => {
         if (!err) {
@@ -113,11 +113,11 @@ const getDesignList = (req, res, next) => {
       if (data.thumbnail === null) {
         resolve(null);
       } else {
-        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        connection.query("SELECT m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            resolve(row[0]);
+            resolve(row[0]["m_img"]);
           } else {
             reject(err);
           }

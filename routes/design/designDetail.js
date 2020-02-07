@@ -281,7 +281,7 @@ exports.designDetail = (req, res, next) => {
   // GET PRICE OF DESIGN
   const getPrice = (data) => {
     return new Promise((resolve, reject) => {
-      const _sql = `SELECT price FROM opendesign.price WHERE design_id = ${data.uid};`;
+      const _sql = `SELECT price FROM opendesign.price WHERE item_id = ${data.uid};`;
       connection.query(_sql, (err, row) => {
         if (!err) {
           if (row.length) {

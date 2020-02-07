@@ -1,11 +1,16 @@
 var connection = require("../../configs/connection");
+const socketIO = require("socket.io");
+const { WServer } = require("../../bin/www");
+
+const io = socketIO(WServer);
+let isConnection = true;
 
 exports.getMyMsgList = (req, res, next) => {
   const userId = req.decoded.uid;
   // 내가 주고 받은 메시지 id 가져오기
-  async function getList (id) {
+  async function getList(id) {
     let rows = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM (SELECT message_group.*,M.create_time,M.message,TH.s_img FROM message_group LEFT JOIN message M ON message_group.uid = M.group_id LEFT JOIN thumbnail TH ON TH.uid IN (SELECT uid FROM thumbnail WHERE thumbnail.uid IN (SELECT opendesign.user.thumbnail FROM opendesign.user WHERE opendesign.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))WHERE create_time IN (SELECT MAX(create_time) FROM message GROUP BY group_id)) as T WHERE T.to_user_id=${id} OR T.from_user_id=${id}`, (err, row) => {
+      connection.query(`SELECT DISTINCT * FROM (SELECT message_group.*,M.create_time,M.message,TH.s_img FROM message_group LEFT JOIN message M ON message_group.uid = M.group_id LEFT JOIN thumbnail TH ON TH.uid IN (SELECT uid FROM thumbnail WHERE thumbnail.uid IN (SELECT opendesign.user.thumbnail FROM opendesign.user WHERE opendesign.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))WHERE create_time IN (SELECT MAX(create_time) FROM message GROUP BY group_id)) as T WHERE T.to_user_id=${id} OR T.from_user_id=${id}`, (err, row) => {
         if (!err && row.length === 0) {
           //console.log("w");
           resolve(null);
@@ -38,20 +43,20 @@ exports.getMyMsgList = (req, res, next) => {
       return data;
     });
   };
-  async function getNotiNum(data){
-    return new Promise((resolve, reject)=>{
-      if(data === null){
+  async function getNotiNum(data) {
+    return new Promise((resolve, reject) => {
+      if (data === null) {
         resolve(null)
-      } else{
-	const sql = `SELECT count(confirm) 
+      } else {
+        const sql = `SELECT count(confirm) 
         from alarm where user_id = ${data.to_user_id} AND alarm.type="MESSAGE" AND alarm.confirm=0
         AND alarm.from_user_id=${data.from_user_id}`
-        connection.query(sql, (error, row)=>{
-          if(!error && row.length === 0){
+        connection.query(sql, (error, row) => {
+          if (!error && row.length === 0) {
             resolve(null)
-          } else if(!error&&row.length >0){
+          } else if (!error && row.length > 0) {
             resolve(row[0]["count(confirm)"])
-          } else{
+          } else {
             next(error)
           }
         })
@@ -59,7 +64,7 @@ exports.getMyMsgList = (req, res, next) => {
     })
   }
   // 보낸 사람 id&닉네임 가져오기
-  async function getNameFrom (data) {
+  async function getNameFrom(data) {
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
@@ -80,7 +85,7 @@ exports.getMyMsgList = (req, res, next) => {
   };
 
   // 받는 사람 id&닉네임 가져오기
-  async function getNameTo (data) {
+  async function getNameTo(data) {
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
@@ -105,7 +110,7 @@ exports.getMyMsgList = (req, res, next) => {
   };
 
   const error = err => {
-    res.status(500).json({error: err});
+    res.status(500).json({ error: err });
   };
 
   getList(userId)
@@ -116,12 +121,10 @@ exports.getMyMsgList = (req, res, next) => {
 exports.sendMsg = (req, res, next) => {
   const myUserId = req.decoded.uid;
   const toUserId = req.params.id;
-
   req.body["from_user_id"] = myUserId;
   req.body["to_user_id"] = toUserId;
-
   // 기존에 대화방이 있었는지 확인
-  function ifGroupExist (myUserId, toUserId) {
+  function ifGroupExist(myUserId, toUserId) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
@@ -142,7 +145,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   // 채팅방이 없으면 대화방 생성, 채팅방 id를 리턴해줌
-  function groupNotExist (myUserId, toUserId) {
+  function groupNotExist(myUserId, toUserId) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
@@ -161,7 +164,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   // 채팅방이 있으면 날짜와 유저 업데이트, 채팅방 id를 리턴해줌
-  function groupExist (id) {
+  function groupExist(id) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
@@ -180,7 +183,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   // 메시지 테이블에 새 대화내용 저장
-  function sendMsg (id) {
+  function sendMsg(id) {
     const p = new Promise((resolve, reject) => {
       if (id === null) {
         resolve(null);
@@ -206,7 +209,7 @@ exports.sendMsg = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          resolve({data, socketId: row[0].socket_id});
+          resolve({ data, socketId: row[0].socket_id });
         } else {
           //console.log(err);
           reject(err);
@@ -216,13 +219,19 @@ exports.sendMsg = (req, res, next) => {
   };
 
   const respond = (data) => {
-    const { sendAlarm} = require("../../socket");
-    //GetNewMsg = (socketId, uid, req, res, next)
-    //console.log(sendAlarm);
-    //console.log("socketId", data.socketId);
+    const { sendMessage, checkOpponentConnected ,sendAlarm} = require("../../socket");
     try {
-      sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
-      res.status(200).json({success: true, groupId: data.data});
+        ifGroupExist(myUserId, toUserId).then(groupId => {
+        sendMessage(data.socketId, myUserId, groupId);
+      });
+
+      checkOpponentConnected(data.socketId, toUserId, myUserId).then(()=>{
+        console.log("check" + isConnection)
+        if(!isConnection){
+          sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
+        }
+      })      
+      res.status(200).json({ success: true, groupId: data.data });
       //getNewMsg(data.socketId, toUserId, req, res, next);
     } catch (err) {
       next(err);
@@ -231,7 +240,7 @@ exports.sendMsg = (req, res, next) => {
 
   const error = err => {
     //console.log("err", err);
-    res.status(500).json({success: false, groupId: null, error: err});
+    res.status(500).json({ success: false, groupId: null, error: err });
   };
 
   ifGroupExist(myUserId, toUserId)
@@ -251,8 +260,7 @@ exports.sendMsg = (req, res, next) => {
 exports.getMyMsgDetail = (req, res, next) => {
   const userId = req.decoded.uid;
   const groupId = req.params.id;
-
-  function getDetail (groupId) {
+  function getDetail(groupId) {
     const p = new Promise((resolve, reject) => {
       if (!groupId) {
         resolve(null);
@@ -266,7 +274,6 @@ exports.getMyMsgDetail = (req, res, next) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            console.log(row);
             resolve(row);
           } else {
             //console.log(err);
@@ -285,7 +292,7 @@ exports.getMyMsgDetail = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          resolve({data, socketId: row[0].socket_id});
+          resolve({ data, socketId: row[0].socket_id });
         } else {
           //console.log(err);
           reject(err);
@@ -296,7 +303,7 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const AlarmConfirm = (uid, groupId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, {confirm: 1}, (err, row) => {
+      connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, { confirm: 1 }, (err, row) => {
         if (!err) {
           resolve(true);
         } else {
@@ -318,11 +325,24 @@ exports.getMyMsgDetail = (req, res, next) => {
   };
 
   const error = err => {
-    res.status(500).json({error: err});
+    res.status(500).json({ error: err });
   };
 
   getDetail(groupId)
-    .then(data=>respond())
+    .then(data => respond(data))
     .catch(error);
 };
+exports.CheckOpponentConnected = (req, res, next)=>{
+    //isConnection이 프론트에서 보낸 checkData이다. 상대방이 접속해있는지 아닌지 판별한다. 
+    //접속해있다면 true가 돼야하고 아니라면 false가 돼야 한다. 
+    //그런데 현재 동기 처리가 되지 않아서 알람을 만들게 되는 부분에서는 isConnection의 값이 예상이 되지 않는다. 로직 대로라면 342라인이 호출 된 후 229라인이 호출 되어야 하는데 그러지 않는다. 
+    //접속해있다는 말은 채팅을 받은 사람의 selectId(client)와 보낸 사람의 uid가 일치할 때다. 
+    //접속의 여부를 판단하는 부분은 229라인에 적힌 메소드다. 
+    isConnection = req.body.checkData;
+    
+    // if(req.body.count === 2){
+    //   isConnection = !isConnection;
+    // }
 
+    console.log("checkcheck" + isConnection)
+};

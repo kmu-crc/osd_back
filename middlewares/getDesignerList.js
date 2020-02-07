@@ -4,7 +4,7 @@ const getDesignerList = (req, res, next) => {
   const sql = req.sql;
   //console.log(sql);
   // 디자이너 리스트 불러오기 (GET)
-  function getDesignerList (sql) {
+  function getDesignerList(sql) {
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, (err, row) => {
@@ -26,7 +26,7 @@ const getDesignerList = (req, res, next) => {
     return p;
   };
 
-  function newData (data) {
+  function newData(data) {
     return new Promise((resolve, reject) => {
       getMyThumbnail(data).then(url => {
         data.imgURL = url;
@@ -61,7 +61,7 @@ const getDesignerList = (req, res, next) => {
   // };
 
   // 디자이너 본인의 썸네일 가져오는 함수
-  function getMyThumbnail (data) {
+  function getMyThumbnail(data) {
     return new Promise((resolve, reject) => {
       if (!data.thumbnail) {
         resolve(null);
@@ -80,7 +80,7 @@ const getDesignerList = (req, res, next) => {
   };
 
   // 카테고리 이름 가져오는 함수
-  function getCategory (data) {
+  function getCategory(data) {
     return new Promise((resolve, reject) => {
       let cate;
       let sqlCate;
@@ -104,9 +104,7 @@ const getDesignerList = (req, res, next) => {
   };
 
   getDesignerList(sql)
-    .then(data => {
-      res.status(200).json(data);
-    })
+    .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };
 

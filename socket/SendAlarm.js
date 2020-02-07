@@ -295,7 +295,6 @@ exports.newGetMsg = (socketId, uid, io) => {
     .catch(error => console.log(error))
 }
 exports.newGetAlarm = (socketId, uid, io) => {
-  // console.log("chanho chanho debug chanho debug chanho debug")
   getAlarmList(uid)
     .then(list => extendAlarm(list))
     .then(extList => sendAlarmList(socketId, uid, extList, io))

@@ -3,8 +3,8 @@ const bcrypt = require("bcrypt");
 const { isOnlyNicName, isOnlyEmail } = require("../../middlewares/verifications");
 
 const signUp = (req, res, next) => {
-  //console.log("===================signup==============", req.body);
-  let { email, password, nickName } = req.body;
+  // console.log("===================signup==============", req.body);
+  let { email, password, nick_name } = req.body;
   let userData = {
     ...req.body,
     "is_admin": 0,
@@ -51,7 +51,7 @@ const signUp = (req, res, next) => {
 
   isOnlyEmail(email)
   .then(() => {
-    return isOnlyNicName(nickName);
+    return isOnlyNicName(nick_name);
   })
   .then(createHashPw)
   .then(createUser)

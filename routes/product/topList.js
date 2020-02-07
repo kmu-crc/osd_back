@@ -8,9 +8,9 @@ exports.getTopList = (req, res, next) => {
     FROM opendesign.design D
     LEFT JOIN opendesign.design_counter C ON C.design_id = D.uid
     LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM design DD group by DD.parent_design) F ON F.parent_design = D.uid
-    LEFT JOIN opendesign.collection_design CD ON CD.design_id = D.uid 
-    WHERE D.uid IN(SELECT CD.design_id FROM opendesign.collection_design)
-    ORDER BY CD.order ASC, C.like_count DESC LIMIT ${(page * 0)}, 4`;
+    LEFT JOIN opendesign.top_design CD ON CD.design_id = D.uid 
+    WHERE D.uid IN(SELECT CD.design_id FROM opendesign.top_design)
+    ORDER BY CD.order ASC, C.like_count DESC LIMIT ${page * 10}, 10`;
   req.sql = sql;
   next();
 };

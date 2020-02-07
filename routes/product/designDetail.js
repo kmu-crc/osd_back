@@ -14,7 +14,7 @@ exports.designDetail = (req, res, next) => {
   // 디자인 기본 정보 가져오기
   function getDesignInfo(id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM design WHERE uid = ?", id, (err, row) => {
+      connection.query("SELECT * FROM item WHERE uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -281,7 +281,7 @@ exports.designDetail = (req, res, next) => {
   // GET PRICE OF DESIGN
   const getPrice = (data) => {
     return new Promise((resolve, reject) => {
-      const _sql = `SELECT price FROM opendesign.price WHERE design_id = ${data.uid};`;
+      const _sql = `SELECT price FROM opendesign.price WHERE item_id = ${data.uid};`;
       connection.query(_sql, (err, row) => {
         if (!err) {
           if (row.length) {
@@ -301,9 +301,9 @@ exports.designDetail = (req, res, next) => {
       const _sql = `
 SELECT T.m_img AS 'img', UT.m_img AS 'who', U.nick_name AS 'user_id', R.comment, R.order_id FROM opendesign.review R
 LEFT JOIN opendesign.user U ON U.uid = R.user_id
-LEFT JOIN opendesign.thumbnail T ON T.uid IN (SELECT thumbnail FROM opendesign.design WHERE uid=R.product_id)
+LEFT JOIN opendesign.thumbnail T ON T.uid IN (SELECT thumbnail FROM opendesign.item WHERE uid=R.product_id)
 LEFT JOIN opendesign.thumbnail UT ON UT.uid IN (SELECT thumbnail FROM opendesign.user WHERE uid=U.uid)
-WHERE R.product_id IN (SELECT uid FROM opendesign.design WHERE user_id=${data.user_id});`;
+WHERE R.product_id IN (SELECT uid FROM opendesign.item WHERE user_id=${data.user_id});`;
       // SELECT 
       // U.nick_name AS 'user_id', R.comment, R.order_id FROM opendesign.review R
       // LEFT JOIN opendesign.user U ON U.uid = R.user_id WHERE R.product_id=${data.user_id}`;

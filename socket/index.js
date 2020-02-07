@@ -2,6 +2,7 @@ const socketIO = require("socket.io");
 const connection = require("../configs/connection");
 require("dotenv").config();
 const { SendAlarm, newGetMsg, newGetAlarm } = require("./SendAlarm");
+const { SendMsg, CheckOpponentConnected } = require("./Chatting");
 
 const { WServer } = require("../bin/www");
 
@@ -76,9 +77,18 @@ function SocketConnection() {
     })
   })
 }
+//채팅 상대가 접속해있는지 확인
+exports.checkOpponentConnected = (socketId, uid,myUserId) => {
+  CheckOpponentConnected(socketId, uid, myUserId ,io);
+  return new Promise((resolve, reject)=>{
+    resolve();
+  });
+}
+exports.sendMessage = (socketId, uid, groupId) => {
+	SendMsg(socketId, uid, io, groupId);
+}
 
-
-exports.sendAlarm = (socketId, uid, contentId, message, fromUserId, subContentId = null) => {
+exports.sendAlarm = (socketId, uid, contentId, message, fromUserId, subContentId = null) => {  
   SendAlarm(socketId, uid, contentId, message, fromUserId, io, subContentId);
 };
 
