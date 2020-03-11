@@ -5,15 +5,14 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const signIn = (req, res, next) => {
-  const {email, password} = req.body;
-  console.log("body", req.body);
+  const { email, password } = req.body;
   let userInfo = null;
   const verificationEmail = (email) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM user WHERE email='${email}'`, (err, rows) => {
+      connection.query(`SELECT * FROM market.user WHERE email='${email}'`, (err, rows) => {
         if (!err) {
           if (rows.length === 0) {
-            const errorMessage = `${email}은 opendesign 회원이 아닙니다.`;
+            const errorMessage = `${email}은 opendesign market 회원이 아닙니다.`;
             reject(errorMessage);
             // res.status(200).json({success: false, isMember: false, isPassword: false});
           } else if (rows[0].email === email) {
@@ -30,14 +29,14 @@ const signIn = (req, res, next) => {
 
   const verificationPw = (pw) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM user WHERE email='${email}';`, (err, rows) => {
+      connection.query(`SELECT * FROM market.user WHERE email='${email}';`, (err, rows) => {
         if (!err) {
           bcrypt.compare(pw, rows[0].password, function (err, respond) {
             if (!err) {
               if (respond) {
                 resolve(rows[0].uid);
               } else {
-                res.status(200).json({success: false, isMember: true, isPassword: false});
+                res.status(200).json({ success: false, isMember: true, isPassword: false });
               }
             } else {
               reject(err);
@@ -59,8 +58,6 @@ const signIn = (req, res, next) => {
           uid: userInfo.uid,
           email: userInfo.email,
           nickName: userInfo["nick_name"],
-          isAdmin: userInfo["is_admin"],
-          isDetail: detail
         },
         process.env.SECRET_CODE,
         {
@@ -95,11 +92,11 @@ const signIn = (req, res, next) => {
   };
 
   verificationEmail(email)
-  .then(() => verificationPw(password))
-  .then((uid)=>isUserDetail(uid))
-  .then(createJWT)
-  .then(respond)
-  .catch(error);
+    .then(() => verificationPw(password))
+    .then((uid) => isUserDetail(uid))
+    .then(createJWT)
+    .then(respond)
+    .catch(error);
 };
 
 module.exports = signIn;

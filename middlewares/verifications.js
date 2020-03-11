@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 // 닉네임이 중복되는지 확인하는 로직
 exports.isOnlyNicName = (name, userId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT nick_name, uid FROM user WHERE nick_name='${name}'`, (err, rows) => {
+    connection.query(`SELECT nick_name, uid FROM market.user WHERE nick_name='${name}'`, (err, rows) => {
       if (!err) {
         if (rows.length === 0) {
           resolve(true);
@@ -24,8 +24,9 @@ exports.isOnlyNicName = (name, userId) => {
 // email이 중복되는지 확인하는 로직
 exports.isOnlyEmail = (email) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(email) FROM user WHERE email='${email}'`, (err, rows) => {
+    connection.query(`SELECT count(email) FROM market.user WHERE email='${email}'`, (err, rows) => {
       if (!err) {
+
         if (rows[0]["count(email)"] === 0) {
           resolve(rows);
         } else {
@@ -42,7 +43,7 @@ exports.isOnlyEmail = (email) => {
 // 페이스북으로 가입하기한 이력이 잇는지 확인하는 로직
 exports.isOnlyFBId = (FBId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(FB_user_id) FROM user WHERE FB_user_id='${FBId}'`, (err, rows) => {
+    connection.query(`SELECT count(FB_user_id) FROM market.user WHERE FB_user_id='${FBId}'`, (err, rows) => {
       if (!err) {
         if (rows[0]["count(FB_user_id)"] === 0) {
           resolve(true);
@@ -60,9 +61,10 @@ exports.isOnlyFBId = (FBId) => {
 // 작성자의 uid로 user_detail이 작성된 이력이 있는지 확인하는 로직
 exports.isUserDetail = (userId) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(user_id) FROM user_detail WHERE user_id='${userId}'`, (err, rows) => {
+    // connection.query(`SELECT count(user_id) FROM user_detail WHERE user_id='${userId}'`, (err, rows) => {
+      connection.query(`SELECT count(uid) FROM market.user WHERE uid='${userId}'`, (err, rows) => {
       if (!err) {
-        if (rows[0]["count(user_id)"] === 0) {
+        if (rows[0]["count(uid)"] === 0) {
           resolve(false);
         } else {
           resolve(true);

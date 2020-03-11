@@ -62,10 +62,10 @@ exports.designDetail = (req, res, next) => {
         resolve(data);
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
-        sql = "SELECT name FROM category_level2 WHERE uid = ?";
+        sql = "SELECT name FROM marketcategory_level2 WHERE uid = ?";
       } else {
         cate = data.category_level1;
-        sql = "SELECT name FROM category_level1 WHERE uid = ?";
+        sql = "SELECT name FROM market.category_level1 WHERE uid = ?";
       }
       connection.query(sql, cate, (err, result) => {
         if (!err) {

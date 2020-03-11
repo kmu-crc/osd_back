@@ -1,19 +1,35 @@
 var connection = require("../../configs/connection");
+const { createThumbnails } = require("../../middlewares/createThumbnails");
+const { updateThumbnailID } = require("../../middlewares/updateThumbnailID");
+exports.modifyUserDetail = (req,res,next)=>{
+  console.log("modifyUserDetial========",req.id);
+  // const thumbnail = {image:req.body.image,filename:req.body.filename};
+  // const data = {user_id:req.params.id,image:req.body.image,filename:req.body.filename};
+  // const data = {user_id:req.params.id,thumbnail_id:req}
+  createThumbnails({...req.file})
+  .then((data)=>{
+    console.log(data);
+    updateThumbnailID({thumbnail_id:data,user_id: parseInt(req.params.id,10)})})
+  // .then(updateThumbnailID)
+  .then(data => res.status(200).json(data))
+  .catch(err => res.status(500).json(err));
 
+}
 // 내 기본 정보 가져오기
 exports.myPage = (req, res, next) => {
   const id = req.decoded.uid;
-  console.log("getMyInfo",req.decoded.uid);
+  // console.log("getMyInfo", req.decoded.uid);
   // 마이페이지 내 기본 정보 가져오기 (GET)
-  function getMyInfo (id) {
-   
+  function getMyInfo(id) {
+
     const p = new Promise((resolve, reject) => {
       update_totals(id)
-       connection.query("SELECT U.uid, U.nick_name, U.thumbnail, U.password, D.category_level1, D.category_level2, D.about_me, D.is_designer FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.email, U.nick_name, U.password FROM market.user U WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
           let data = row[0];
+          console.log("!err row not zero!");
           resolve(data);
         } else {
           //console.log(err);
@@ -24,39 +40,67 @@ exports.myPage = (req, res, next) => {
     return p;
   };
 
-  // 내 프로필 사진 가져오기 (GET)
-  function getThumbnail (data) {
-    const p = new Promise((resolve, reject) => {
-      if (data.thumbnail === null) {
-        data.profileImg = null;
-        resolve(data);
-      } else {
-        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
-          if (!err && row.length === 0) {
-            data.profileImg = null;
-            resolve(data);
-          } else if (!err && row.length > 0) {
-            data.profileImg = row[0];
-            resolve(data);
-          } else {
-            //console.log(err);
-            reject(err);
-          }
-        });
-      }
+  const getThumbnail = data => {
+    return new Promise((resolve, reject) => {
+      const sql = 
+      `SELECT K.m_img FROM 
+        (SELECT * FROM market.thumbnail T WHERE T. user_id=${data.uid} AND T.uid IN (SELECT thumbnail FROM market.user U WHERE U.uid=${id}) 
+          UNION SELECT * FROM market.thumbnail T WHERE T.user_id=${data.uid} AND T.uid IN (SELECT thumbnail_id FROM market.expert E WHERE E.user_id=${id})) K
+      ORDER BY K.uid DESC
+      LIMIT 1`;
+      connection.query(sql, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          data.thumbnail = rows[0]?rows[0].m_img:null;
+          // console.log("rows",rows[0])
+          resolve(data);
+        }
+      });
     });
-    return p;
   };
 
-  function update_totals (uid) {
+  function update_totals(uid) {
     connection.query(`UPDATE opendesign.user_counter SET total_design =(SELECT COUNT(*) FROM opendesign.design WHERE user_id=${uid}) WHERE user_id=${uid};`)
     connection.query(`UPDATE opendesign.user_counter SET total_like   =(SELECT COUNT(*) FROM opendesign.design_like WHERE user_id=${uid}) WHERE user_id=${uid};`)
     connection.query(`UPDATE opendesign.user_counter SET total_group  =(SELECT COUNT(*) FROM opendesign.group WHERE user_id=${uid}) WHERE user_id=${uid};`)
     connection.query(`UPDATE opendesign.user_counter SET total_view   =(SELECT SUM(view_count) FROM opendesign.design_counter WHERE design_id IN (SELECT uid FROM opendesign.design WHERE user_id=${uid})) WHERE user_id=${uid};`)
   }
 
+  function isDesigner(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT (IF(COUNT(*)>0,1,0)) as isDesigner FROM market.expert WHERE user_id=${id} AND type="designer"`, (err, row) => {
+        if (!err && row.length === 0) {
+          data.isDesigner = false;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.isDesigner = row[0].isDesigner;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+  function isMaker(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT (IF(COUNT(*)>0,1,0)) as isMaker FROM market.expert WHERE user_id=${id} AND type="maker"`, (err, row) => {
+        if (!err && row.length === 0) {
+          data.isMaker = false;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.isMaker = row[0].isMaker;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
   // 나의 count 정보 가져오기 (GET)
-  function getMyCount (data) {
+  function getMyCount(data) {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id =${data.uid}`, data.uid, (err, row) => {
         if (!err && row.length === 0) {
@@ -72,40 +116,64 @@ exports.myPage = (req, res, next) => {
     });
     return p;
   };
-
-  // 카테고리 이름 가져오기
-  function getCategory (data) {
-    const p = new Promise((resolve, reject) => {
-      let cate;
-      let sql;
-      if (!data.category_level1 && !data.category_level2) {
-        data.categoryName = null;
-        //console.log("no cate");
-        resolve(data);
-      } else if (data.category_level2 && data.category_level2 !== "") {
-        cate = data.category_level2;
-        sql = "SELECT name FROM category_level2 WHERE uid = ?";
-      } else {
-        cate = data.category_level1;
-        sql = "SELECT name FROM category_level1 WHERE uid = ?";
-      }
-      connection.query(sql, cate, (err, result) => {
+  function getMyLike(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'count' FROM market.like L WHERE (L.type LIKE 'DESIGNER' OR L.type LIKE 'MAKER') AND L.to_id=${id}`;
+      connection.query(sql, (err, row) => {
         if (!err) {
-          data.categoryName = result[0].name;
-          //console.log(data);
+          data.like = row[0]['count'] || 0;
           resolve(data);
         } else {
           reject(err);
         }
       });
     });
-    return p;
+  };
+  function getMyItemCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'count' FROM market.item L WHERE L.user_id=${id}`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.count = row[0]['count'] || 0;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  // 카테고리 이름 가져오기
+  function getCategory(data) {
+    // console.log("getCategory",data);
+    return new Promise((resolve, reject) => {
+      let cate;
+      let sqlCate;
+      console.log("category_level", data.category_level1, data.category_level2);
+      if (!data.category_level1 && !data.category_level2) {
+        resolve(null);
+      } else if (data.category_level2 && data.category_level2 !== "") {
+        sqlCate = `SELECT name FROM market.category_level2 where parents_id=${data.category_level1} LIMIT ${data.category_level2 - 1},1`
+      } else {
+        sqlCate = `SELECT name FROM market.category_level1 WHERE uid = ${data.category_level1}`;
+      }
+      connection.query(sqlCate, (err, result) => {
+        if (!err) {
+          console.log("result[0]=================", result[0]);
+          resolve(result[0].name);
+        } else {
+          reject(err);
+        }
+      });
+    });
   };
 
   getMyInfo(id)
     .then(getThumbnail)
-    .then(getMyCount)
-    .then(getCategory)
+    .then(getMyLike)
+    .then(getMyItemCount)
+    .then(isDesigner)
+    .then(isMaker)
+    // .then(getCategory)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };

@@ -4,12 +4,12 @@ exports.GetPoint = (req, res, next) => {
     const id = req.decoded.uid;
     function getPoint(id) {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT U.point FROM opendesign.user U WHERE uid=${id}`;
+            const sql = `SELECT U.point FROM market.point U WHERE user_id=${id}`;
             connection.query(sql, (err, rows) => {
                 if (err)
                     reject(err);
                 else {
-                    resolve(rows[0]["point"]);
+                    resolve(rows[0] ? rows[0]["point"] : 0);
                 }
             })
         })
@@ -22,7 +22,7 @@ exports.GetHistory = (req, res, next) => {
     const id = req.decoded.uid;
     function getHistory(total, id) {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM opendesign.point_history H WHERE user_id=${id} ORDER BY H.uid DESC`;
+            const sql = `SELECT * FROM market.point_history H WHERE user_id=${id} ORDER BY H.uid DESC`;
             connection.query(sql, (err, rows) => {
                 if (err)
                     reject(err);
@@ -34,7 +34,7 @@ exports.GetHistory = (req, res, next) => {
     }
     function getHistoryTotal(id) {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT COUNT(*) AS 'total' FROM opendesign.point_history H WHERE user_id=${id}`;
+            const sql = `SELECT COUNT(*) AS 'total' FROM market.point_history H WHERE user_id=${id}`;
             connection.query(sql, (err, row) => {
                 if (err)
                     reject(err);
@@ -55,7 +55,7 @@ exports.PointUp = (req, res, next) => {
     const type = req.body.type;
     function up(id, point) {
         return new Promise((resolve, reject) => {
-            const sql = `UPDATE opendesign.user U SET U.point = U.point + ${point} WHERE U.uid=${id}`;
+            const sql = `UPDATE market.point U SET U.point = U.point + ${point} WHERE U.uid=${id}`;
             connection.query(sql, (err, row) => {
                 if (err)
                     reject(err);
@@ -68,7 +68,7 @@ exports.PointUp = (req, res, next) => {
         return new Promise((resolve, reject) => {
             const sql = `
             INSERT INTO 
-                opendesign.point_history(user_id, point_variation, charge_type)
+                market.point_history(user_id, point_variation, charge_type)
                     VALUES(${id}, ${point}, "${type}")`;
             connection.query(sql, (err, row) => {
                 if (err)

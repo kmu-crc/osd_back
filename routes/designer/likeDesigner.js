@@ -30,8 +30,13 @@ exports.likeDesigner = (req, res, next) => {
 
   // user(designer)_like 테이블 업데이트
   const updateDesignerLike = () => {
+    const data = {
+      type:"designer",
+      user_id:userId,
+      to_id:designerId
+    }
     return new Promise((resolve, reject) => {
-      connection.query("INSERT INTO user_like SET ? ", {user_id: userId, designer_id: designerId}, (err, row) => {
+      connection.query("INSERT INTO market.like SET ? ", data, (err, row) => {
         if (!err) {
           resolve(designerId);
         } else {
@@ -43,21 +48,21 @@ exports.likeDesigner = (req, res, next) => {
   };
 
   // user_counter 테이블 업데이트
-  const updateDesignerCount = () => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE user_counter SET total_like = total_like + 1 WHERE user_id = ${designerId}`, (err, row) => {
-        if (!err) {
-          res.status(200).json({success: true, designer_id: designerId});
-        } else {
-          //console.log(err);
-          res.status(500).json({success: false, designer_id: designerId});
-        }
-      });
-    });
-  };
+  // const updateDesignerCount = () => {
+  //   return new Promise((resolve, reject) => {
+  //     connection.query(`UPDATE user_counter SET total_like = total_like + 1 WHERE user_id = ${designerId}`, (err, row) => {
+  //       if (!err) {
+  //         res.status(200).json({success: true, designer_id: designerId});
+  //       } else {
+  //         //console.log(err);
+  //         res.status(500).json({success: false, designer_id: designerId});
+  //       }
+  //     });
+  //   });
+  // };
 
-  updateDesignerLike()
-    .then(updateDesignerCount);
+  updateDesignerLike();
+    // .then(updateDesignerCount);
 };
 
 exports.unlikeDesigner = (req, res, next) => {
@@ -67,7 +72,7 @@ exports.unlikeDesigner = (req, res, next) => {
   // user(designer)_like 테이블 업데이트
   const deleteDesignerLike = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM user_like WHERE user_id = ${userId} AND designer_id = ${designerId}`, (err, row) => {
+      connection.query(`DELETE FROM market.like WHERE user_id = ${userId} AND to_id = ${designerId}`, (err, row) => {
         if (!err) {
           resolve(designerId);
         } else {
@@ -79,19 +84,19 @@ exports.unlikeDesigner = (req, res, next) => {
   };
 
   // user_counter 테이블 업데이트
-  const updateDesignerCount = () => {
-    return new Promise((resolve, reject) => {
-      connection.query(`UPDATE user_counter SET total_like = total_like - 1 WHERE user_id = ${designerId}`, (err, row) => {
-        if (!err) {
-          res.status(200).json({success: true, designer_id: designerId});
-        } else {
-          //console.log(err);
-          res.status(500).json({success: false, designer_id: designerId});
-        }
-      });
-    });
-  };
+  // const updateDesignerCount = () => {
+  //   return new Promise((resolve, reject) => {
+  //     connection.query(`UPDATE user_counter SET total_like = total_like - 1 WHERE user_id = ${designerId}`, (err, row) => {
+  //       if (!err) {
+  //         res.status(200).json({success: true, designer_id: designerId});
+  //       } else {
+  //         //console.log(err);
+  //         res.status(500).json({success: false, designer_id: designerId});
+  //       }
+  //     });
+  //   });
+  // };
 
-  deleteDesignerLike()
-    .then(updateDesignerCount);
+  deleteDesignerLike();
+    // .then(updateDesignerCount);
 };

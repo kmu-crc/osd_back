@@ -14,7 +14,7 @@ function SocketConnection() {
     //console.log("New client connected");
     socket.on("INIT", (uid) => {
       //console.log("socket", uid, socket.id);
-      connection.query(`UPDATE user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, rows) => {
+      connection.query(`UPDATE market.user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, rows) => {
         if (!err) {
           // GetAlarm(socket.id, uid, io);
           newGetAlarm(socket.id, uid, io)
@@ -26,7 +26,7 @@ function SocketConnection() {
 
     socket.on("live socket id", (uid) => {
       // //console.log(uid, socket.id);
-      connection.query(`UPDATE user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, rows) => {
+      connection.query(`UPDATE market.user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, rows) => {
         if (!err) {
           // //console.log(rows);
         } else {

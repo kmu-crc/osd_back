@@ -10,7 +10,16 @@ exports.getMyMsgList = (req, res, next) => {
   // 내가 주고 받은 메시지 id 가져오기
   async function getList(id) {
     let rows = new Promise((resolve, reject) => {
-      connection.query(`SELECT DISTINCT * FROM (SELECT message_group.*,M.create_time,M.message,TH.s_img FROM message_group LEFT JOIN message M ON message_group.uid = M.group_id LEFT JOIN thumbnail TH ON TH.uid IN (SELECT uid FROM thumbnail WHERE thumbnail.uid IN (SELECT opendesign.user.thumbnail FROM opendesign.user WHERE opendesign.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))WHERE create_time IN (SELECT MAX(create_time) FROM message GROUP BY group_id)) as T WHERE T.to_user_id=${id} OR T.from_user_id=${id}`, (err, row) => {
+      connection.query(`SELECT DISTINCT * 
+      FROM (SELECT market.message_group.*,M.create_time,M.message,TH.s_img 
+        FROM market.message_group 
+        LEFT JOIN market.message M ON message_group.uid = M.group_id 
+        LEFT JOIN market.thumbnail TH ON TH.uid 
+        IN (SELECT uid FROM thumbnail 
+          WHERE thumbnail.uid IN (SELECT market.user.thumbnail FROM market.user 
+            WHERE market.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))
+            WHERE create_time IN (SELECT MAX(create_time) FROM market.message GROUP BY group_id)) as T 
+            WHERE T.to_user_id=${id} OR T.from_user_id=${id}`, (err, row) => {
         if (!err && row.length === 0) {
           //console.log("w");
           resolve(null);
@@ -35,7 +44,7 @@ exports.getMyMsgList = (req, res, next) => {
           item.friend_id = result.uid;
         } else {
           const result = await getNameFrom(item);
-          item.noti = await getNotiNum(item);
+          // item.noti = await getNotiNum(item);
           item.friend_name = result.nick_name;
           item.friend_id = result.uid;
         }
@@ -69,7 +78,7 @@ exports.getMyMsgList = (req, res, next) => {
       if (data === null) {
         resolve(null);
       } else {
-        connection.query(`SELECT uid, nick_name FROM user WHERE uid = ${data.from_user_id}`, (err, row) => {
+        connection.query(`SELECT uid, nick_name FROM market.user WHERE uid = ${data.from_user_id}`, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
@@ -90,7 +99,7 @@ exports.getMyMsgList = (req, res, next) => {
       if (data === null) {
         resolve(null);
       } else {
-        connection.query(`SELECT uid, nick_name FROM user WHERE uid = ${data.to_user_id}`, (err, row) => {
+        connection.query(`SELECT uid, nick_name FROM market.user WHERE uid = ${data.to_user_id}`, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
@@ -123,13 +132,15 @@ exports.sendMsg = (req, res, next) => {
   const toUserId = req.params.id;
   req.body["from_user_id"] = myUserId;
   req.body["to_user_id"] = toUserId;
+  console.log("sendMsg:::::",myUserId,toUserId);
   // 기존에 대화방이 있었는지 확인
   function ifGroupExist(myUserId, toUserId) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
       } else {
-        connection.query(`SELECT uid FROM message_group WHERE to_user_id = ${myUserId} AND from_user_id = ${toUserId} OR to_user_id = ${toUserId} AND from_user_id = ${myUserId}`, (err, row) => {
+        connection.query(`SELECT uid FROM market.message_group WHERE to_user_id = ${myUserId} 
+        AND from_user_id = ${toUserId} OR to_user_id = ${toUserId} AND from_user_id = ${myUserId}`, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
@@ -150,7 +161,7 @@ exports.sendMsg = (req, res, next) => {
       if (!myUserId || !toUserId) {
         resolve(null);
       } else {
-        connection.query("INSERT INTO message_group SET ?", { from_user_id: myUserId, to_user_id: toUserId }, (err, row) => {
+        connection.query("INSERT INTO market.message_group SET ?", { from_user_id: myUserId, to_user_id: toUserId }, (err, row) => {
           if (!err) {
             resolve(row.insertId);
           } else {
@@ -169,7 +180,7 @@ exports.sendMsg = (req, res, next) => {
       if (!myUserId || !toUserId) {
         resolve(null);
       } else {
-        connection.query(`UPDATE message_group SET ? WHERE uid = ${id}`, { from_user_id: myUserId, to_user_id: toUserId, update_time: new Date() }, (err, row) => {
+        connection.query(`UPDATE market.message_group SET ? WHERE uid = ${id}`, { from_user_id: myUserId, to_user_id: toUserId, update_time: new Date() }, (err, row) => {
           if (!err) {
             resolve(id);
           } else {
@@ -189,7 +200,7 @@ exports.sendMsg = (req, res, next) => {
         resolve(null);
       } else {
         req.body["group_id"] = id;
-        connection.query("INSERT INTO message SET ?", req.body, (err, row) => {
+        connection.query("INSERT INTO market.message SET ?", req.body, (err, row) => {
           if (!err) {
             resolve(id);
           } else {
@@ -205,7 +216,7 @@ exports.sendMsg = (req, res, next) => {
   const getSocketId = (data, uid) => {
     return new Promise((resolve, reject) => {
       //console.log("uid", uid);
-      connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+      connection.query(`SELECT socket_id FROM market.user WHERE uid = ${uid}`, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -267,9 +278,9 @@ exports.getMyMsgDetail = (req, res, next) => {
       } else {
         connection.query(`SELECT
                     M.uid, M.group_id, M.from_user_id, M.to_user_id, M.message, M.create_time, U.nick_name, T.s_img
-                          FROM message M
-                          JOIN user U ON U.uid = M.from_user_id
-                          LEFT JOIN thumbnail T ON T.uid = U.thumbnail
+                          FROM market.message M
+                          JOIN market.user U ON U.uid = M.from_user_id
+                          LEFT JOIN market.thumbnail T ON T.uid = U.thumbnail
                           WHERE M.group_id = ${groupId}`, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
@@ -288,7 +299,7 @@ exports.getMyMsgDetail = (req, res, next) => {
   const getSocketId = (data, uid) => {
     return new Promise((resolve, reject) => {
       //console.log("uid", uid);
-      connection.query(`SELECT socket_id FROM user WHERE uid = ${uid}`, (err, row) => {
+      connection.query(`SELECT socket_id FROM market.user WHERE uid = ${uid}`, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -318,7 +329,7 @@ exports.getMyMsgDetail = (req, res, next) => {
     const { getAlarm } = require("../../socket");
     await AlarmConfirm(userId, groupId);
     getSocketId(data, userId).then(data => {
-      getAlarm(data.socketId, userId);
+      // getAlarm(data.socketId, userId);
       res.status(200).json(data.data);
     }
     ).catch(next);

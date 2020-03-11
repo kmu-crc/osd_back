@@ -14,7 +14,7 @@ const { designInGroup } = require("./designInGroup");
 const { groupInGroup } = require("./groupInGroup");
 
 const { groupSignUp, groupSignUpGroup } = require("./groupSignUp");
-const { createGroup } = require("./createGroup");
+const { createGroup,getAllHaveInItem } = require("./createGroup");
 const { updateGroup, createGroupIssue, deleteGroupIssue } = require("./updateGroup");
 const { deleteAllGroup } = require("./deleteGroup");
 const { waitingDesign, waitingGroup } = require("./waitingList");
@@ -51,8 +51,8 @@ router.get("/:id/join/myExistDesignList", auth, myExistDesignList);
 router.get("/:id/join/myExistGroupList", auth, myExistGroupList);
 
 // 그룹 생성, 수정, 삭제
-router.post("/createGroup", auth, insertThumbnail, stringToNumber, createGroup);
-router.post("/:id/updateGroup", auth, insertThumbnail, stringToNumber, updateGroup);
+router.post("/createGroup", auth, insertThumbnail , createGroup);
+router.post("/:id/updateGroup", auth, insertThumbnail, updateGroup);
 router.post("/:id/updateTopGroup", auth, updateTopGroup);
 router.post("/:id/insertTopGroup",auth, insertTopGroup);
 router.post("/:id/deleteTopGroup",auth, deleteTopGroup);
@@ -67,5 +67,11 @@ router.post("/unlike/:id", auth, unlikeGroup);
 
 // 그룹 count 조회
 router.get("/getCount/:id", getCount);
+
+// 그룹 아이템
+router.get("/itemDetail/:id/haveAll",getAllHaveInItem);
+
+// 내 갤러리 리스트
+// router.get("/gallerylist/:id/:page",groupList);
 
 module.exports = router;

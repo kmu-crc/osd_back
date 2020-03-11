@@ -3,7 +3,7 @@ const router = express.Router();
 
 const auth = require("../../middlewares/auth");
 const { designerList, getTotalCount } = require("./list");
-const { designerDetail, getCount } = require("./detail");
+const { designerDetail, getCount, getDesignerReview, getDesignerReviewCount } = require("./detail");
 const getDesignerList = require("../../middlewares/getDesignerList");
 const { myDesignInDesigner, designInDesigner, likeInDesigner } = require("./designInDesigner");
 const getDesignList = require("../../middlewares/getDesignList");
@@ -26,4 +26,7 @@ router.get("/getCount/:id", getCount);
 // top 5개 리스트 가져오기 (메인용)
 router.get("/TopList/:page", getTopList, getDesignerList);
 
+
+router.get("/get-review/:id/:page", getDesignerReview);
+router.get("/get-review-count/:id", getDesignerReviewCount);
 module.exports = router;

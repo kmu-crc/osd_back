@@ -1,5 +1,7 @@
 const connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
+const { updateThumbnailID } = require("../../middlewares/updateThumbnailID");
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { isOnlyNicName } = require("../../middlewares/verifications");
@@ -120,7 +122,7 @@ exports.modifyDetail = (req, res) => {
   // user 테이블에 들어가야 할 정보
   let userInfo = {
     password: req.body.password || null,
-    nick_name: req.body.nick_name,
+    nick_name: req.body.nick_name, 
     update_time: new Date()
   };
 
@@ -237,3 +239,242 @@ exports.modifyDetail = (req, res) => {
     .then(respond)
     .catch(error);
 };
+
+// 디자이너 정보 등록
+exports.insertDesignerDetail = async (req,res)=>{
+  // console.log("===========",req.body);
+
+  req.body["user_id"] = req.decoded.uid;
+  if (req.body.category_level1 === 0) {
+    req.body.category_level1 = null;
+  }
+  if (req.body.category_level2 === 0) {
+    req.body.category_level2 = null;
+  }
+
+  const respond = data => {
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 업데이트되었습니다.",
+      token: data,
+    });
+  };
+
+  const error = err => {
+    //console.log(err);
+    res.status(500).json({
+      success: false,
+      error: err,
+    });
+  };
+  const insertDesigner = (thumbnail_id)=>{
+    console.log("thumbnail_id",thumbnail_id);
+    //저장데이터 정리
+    const data = req.body;
+    const dbData = {
+      user_id:data.user_id,
+      thumbnail_id:thumbnail_id,
+      type:data.type,
+      description:data.description,
+      location:data.location,
+      category_level1:data.category_level1,
+      category_level2:data.category_level2,
+      tag:data.tag,
+      experience:data.experience,
+    }
+    console.log("insertDesigner",dbData);
+    const p = new Promise((resolve, reject) => {
+      connection.query("INSERT INTO market.expert SET ?", dbData, (err, rows, fields) => {
+        if (!err) {
+          console.log("success");
+
+          resolve(dbData);
+        } else {
+          console.log("err");
+
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+  createThumbnails({...req.file})
+  .then(insertDesigner)
+  .then(updateThumbnailID)
+  .then(respond)
+  .catch(error);
+}
+
+// 디자이너 정보 수정
+exports.modifyDesignerDetail = async (req,res)=>{
+  // console.log(req.body);
+
+  req.body["user_id"] = req.decoded.uid;
+  if (req.body.category_level1 === 0) {
+    req.body.category_level1 = null;
+  }
+  if (req.body.category_level2 === 0) {
+    req.body.category_level2 = null;
+  }
+
+  const respond = data => {
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 업데이트되었습니다.",
+      token: data,
+    });
+  };
+
+  const error = err => {
+    //console.log(err);
+    res.status(500).json({
+      success: false,
+      error: err,
+    });
+  };
+  const modifyDesigner = (thumbnail_id)=>{
+    const data = {
+      ...req.body,
+      thumbnail_id:thumbnail_id
+    };
+    
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `UPDATE market.expert SET ? WHERE user_id=${data.user_id} AND type="designer"`,
+        data,
+        (err, rows) => {
+          if (!err) {
+            if (rows.affectedRows) {
+              resolve(data);
+            } else {
+              //console.log(err);
+              reject(err);
+            }
+          } else {
+            //console.log(err);
+            reject(err);
+          }
+        }
+      );
+    });
+  }
+  createThumbnails({...req.file})
+  .then(modifyDesigner)
+  .then(updateThumbnailID)
+  .then(respond)
+  .catch(error);
+}
+
+
+// 메이커 정보 등록
+exports.insertMakerDetail = async (req,res)=>{
+
+  console.log("insertMakerDetail");
+  req.body["user_id"] = req.decoded.uid;
+  if (req.body.category_level1 === 0) {
+    req.body.category_level1 = null;
+  }
+  if (req.body.category_level2 === 0) {
+    req.body.category_level2 = null;
+  }
+
+  const respond = data => {
+    console.log("respond");
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 업데이트되었습니다.",
+      token: data,
+    });
+  };
+
+  const error = err => {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      error: err,
+    });
+  };
+  const insertMaker = (thumbnail_id)=>{
+    console.log("insertMaker");
+
+    const data = {
+      ...req.body,
+      thumbnail_id:thumbnail_id,
+    };
+    const p = new Promise((resolve, reject) => {
+      connection.query("INSERT INTO market.expert SET ?", data, (err, rows, fields) => {
+        if (!err) {
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+  createThumbnails({...req.file})
+  .then(insertMaker)
+  .then(updateThumbnailID)
+  .then(respond)
+  .catch(error);
+}
+
+// 메이커 정보 수정
+exports.modifyMakerDetail = async (req,res)=>{
+  // console.log(req.body);
+
+  req.body["user_id"] = req.decoded.uid;
+  if (req.body.category_level1 === 0) {
+    req.body.category_level1 = null;
+  }
+  if (req.body.category_level2 === 0) {
+    req.body.category_level2 = null;
+  }
+
+  const respond = data => {
+    res.status(200).json({
+      success: true,
+      message: "성공적으로 업데이트되었습니다.",
+      token: data,
+    });
+  };
+
+  const error = err => {
+    //console.log(err);
+    res.status(500).json({
+      success: false,
+      error: err,
+    });
+  };
+  const modifyMaker = (thumbnail_id)=>{
+    console.log("user_id:::",data.user_id);
+    const data = {
+      ...req.body,
+      thumbnail_id:thumbnail_id,
+    }
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `UPDATE market.expert SET ? WHERE user_id=${data.user_id} AND type="maker"`,
+        data,
+        (err, rows) => {
+          if (!err) {
+            if (rows.affectedRows) {
+              resolve(data);
+            } else {
+              //console.log(err);
+              reject(err);
+            }
+          } else {
+            //console.log(err);
+            reject(err);
+          }
+        }
+      );
+    });
+  }
+  createThumbnails({...req.file})
+  .then(modifyMaker)
+  .then(updateThumbnailID)
+  .then(respond)
+  .catch(error);
+}

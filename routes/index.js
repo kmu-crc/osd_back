@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const users = require("./users");
 const design = require("./design");
 const product = require("./product");
@@ -16,6 +17,9 @@ const request = require("./request");
 const expert = require("./expert");
 const item = require("./item");
 const point = require("./point");
+const payment = require("./payment");
+
+const gallery = require("./gallery");
 
 /* GET home page. */
 router.use("/common", common);
@@ -33,5 +37,13 @@ router.use("/request", request);
 router.use("/expert", expert);
 router.use("/item", item);
 router.use("/point", point);
+router.use("/payment", payment);
+router.use("/gallery", gallery);
+
+
+// v0205
+// const category = require('./category');
+// router.use("/category", category);
 
 module.exports = router;
+

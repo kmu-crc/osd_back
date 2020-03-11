@@ -21,7 +21,8 @@ const imageUpload = async (req, res, next) => {
     let file = {
       image: data,
       filename: data.split("/")[1],
-      uid: req.decoded.uid
+      uid: req.decoded.uid,
+      type: req.body.type
     };
     req.file = file;
   } else {

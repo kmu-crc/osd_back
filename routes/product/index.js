@@ -7,6 +7,8 @@ const { addCart, getCartList,deleteSelectCart,deleteAllCart, } = require("./cart
 const { designList, getTotalCount } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
+// const { likeItem, unlikeItem, getLikeItem,likeInItem} = require("./like");
+
 const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
 const { designIssue, designIssueDetail } = require("./designIssue");
@@ -66,6 +68,12 @@ router.get("/designDetail/:id/waitingList", auth, getWaitingMember);
 router.get("/getLike/:id", auth, getLikeDesign);
 router.post("/like/:id", auth, likeDesign);
 router.post("/unlike/:id", auth, unlikeDesign);
+
+//아이템 좋아요
+// router.post("/likeItem/:id", auth, likeItem);
+// router.post("/unlikeItem/:id", auth, unlikeItem);
+// router.get("/getLikeItem/:id", auth, getLikeItem);
+// router.get("/itemDetail/:id/like/:page", likeInItem, getItemList);
 
 // 조회수
 router.get("/getCount/:id", getCount);

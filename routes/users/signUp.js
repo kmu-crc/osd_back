@@ -7,10 +7,8 @@ const signUp = (req, res, next) => {
   let { email, password, nick_name } = req.body;
   let userData = {
     ...req.body,
-    "is_admin": 0,
-    "is_facebook": 0
   };
-  function createHashPw () {
+  function createHashPw() {
     const p = new Promise((resolve, reject) => {
       bcrypt.hash(password, 10, function (err, hash) {
         if (!err) {
@@ -24,9 +22,9 @@ const signUp = (req, res, next) => {
     return p;
   };
 
-  function createUser (data) {
+  function createUser(data) {
     const p = new Promise((resolve, reject) => {
-      connection.query("INSERT INTO user SET ?", data, (err, rows, fields) => {
+      connection.query("INSERT INTO market.user SET ?", data, (err, rows, fields) => {
         if (!err) {
           let userId = rows.insertId;
           resolve(userId);
@@ -37,12 +35,24 @@ const signUp = (req, res, next) => {
     });
     return p;
   };
+  function createPointEntry(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `INSERT INTO market.point SET ?`;
+      connection.query(sql, { point: 0, user_id: data }, (err, row) => {
+        if (!err) {
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    })
+  }
 
-  function respond (data) {
+  function respond(data) {
     next();
   }
 
-  function error (err) {
+  function error(err) {
     res.status(500).json({
       success: false,
       error: err
@@ -50,13 +60,14 @@ const signUp = (req, res, next) => {
   };
 
   isOnlyEmail(email)
-  .then(() => {
-    return isOnlyNicName(nick_name);
-  })
-  .then(createHashPw)
-  .then(createUser)
-  .then(respond)
-  .catch(error);
+    .then(() => {
+      return isOnlyNicName(nick_name);
+    })
+    .then(createHashPw)
+    .then(createUser)
+    .then(createPointEntry)
+    .then(respond)
+    .catch(error);
 };
 
 module.exports = signUp;

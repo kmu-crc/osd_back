@@ -4,6 +4,7 @@ const fs = require("fs");
 const { S3Thumbnail } = require("../middlewares/S3Thumbnail");
 
 exports.createThumbnails = (data) => {
+  // console.log("createThumbnails", data);
   return new Promise((resolve, reject) => {
     let filename = null;
     if (data === null || !data.image) {
@@ -28,6 +29,7 @@ exports.createThumbnails = (data) => {
       "l_img": null
     };
     const createThumbnailForSize = async (file) => {
+      console.log("createThumbnailForSize");
       return new Promise((resolve, reject) => {
         let arr = [];
         for (let key in thumbnailSizeObj) {
@@ -53,10 +55,11 @@ exports.createThumbnails = (data) => {
     };
 
     const insertThumbnail = (obj) => {
+      console.log("insertThumbnail");
       return new Promise((resolve, reject) => {
-        connection.query("INSERT INTO thumbnail SET ?", thumbnailObj, (err, rows) => {
+        connection.query("INSERT INTO market.thumbnail SET ?", thumbnailObj, (err, rows) => {
           if (!err) {
-            //console.log(rows.insertId);
+            console.log(rows.insertId);
             resolve(rows.insertId);
           } else {
             reject(err);

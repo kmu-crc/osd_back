@@ -59,12 +59,12 @@ const getExpertList = (req, res, next) => {
         resolve(null);
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
-        sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
+        sqlCate = `SELECT name FROM market.category_level2 WHERE parents_id=${data.category_level1} AND value=${data.category_level2}`;
       } else {
         cate = data.category_level1;
-        sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
+        sqlCate = `SELECT name FROM market.category_level1 WHERE uid = ${data.category_level1}`;
       }
-      connection.query(sqlCate, cate, (err, result) => {
+      connection.query(sqlCate, (err, result) => {
         if (!err) {
           resolve(result[0].name);
         } else {

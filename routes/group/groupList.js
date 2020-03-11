@@ -1,46 +1,31 @@
 const connection = require("../../configs/connection");
 
-exports.groupList = (req, res, next) => {
-  const page = req.params.page; 
-  let sort = "update"; 
-  const keyword = req.params.keyword; 
- 
-  let sql = `
-  SELECT T.uid, T.title, T.thumbnail, T.create_time, T.child_update_time, T.user_id, T.explanation, T.like, T.design, T.group, T.nick_name, T.order FROM (
-    SELECT G.uid,G.title,G.thumbnail,G.create_time,G.child_update_time ,G.user_id,G.explanation,C.like,C.design,C.group,U.nick_name,CG.order
-      FROM opendesign.group G
-        LEFT JOIN opendesign.group_counter C ON C.group_id = G.uid
-        LEFT JOIN opendesign.user U ON U.uid = G.user_id
-        LEFT JOIN opendesign.collection_group CG ON CG.group_id = G.uid
-      WHERE G.uid IN (SELECT CG.group_id FROM opendesign.collection_group CG)
-  UNION 
-    SELECT G.uid,G.title,G.thumbnail,G.create_time,G.child_update_time,G.user_id,G.explanation,C.like,C.design,C.group,U.nick_name,CG.order
-         FROM opendesign.group G
-        LEFT JOIN opendesign.group_counter C ON C.group_id = G.uid
-        LEFT JOIN opendesign.user U ON U.uid = G.user_id
-        LEFT JOIN opendesign.collection_group CG ON CG.group_id = G.uid
-      WHERE G.uid NOT IN (SELECT CG.group_id FROM opendesign.collection_group CG)        
-  ) as T `;
-  // search
-  if(keyword && keyword !== "null" && keyword !== "undefined")
-    sql = sql +`WHERE T.title LIKE `+ keyword + `OR T.nick_name LIKE `+keyword+` `;
-  // 1st sort(NEEDED)
-  sql = sql +`ORDER BY T.order IS NULL ASC, T.order ASC`;
-  // 2st sort(OPTIONAL)
-  // default : update
-//console.log("sorting", req.params.sorting);
-  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined")  
-    sort = req.params.sorting; 
-  sort ==="update"?sort="child_update_time":null;
-  sort ==="create"?sort="create_time":null;
-//console.log("option:",sort);
-  sql = sql +`, T.`+sort+` DESC `
-  // for infinite scroll
-  sql = sql +`LIMIT `+(page*10)+`,10;`;
-  // console.log(sql);
-  req.sql = sql; 
-  next(); 
-};
+exports.groupList = (req,res,next)=>{
+  console.log("groupList");
+  const id = req.params.id;
+  const page =req.params.page;
+  const getGroupList = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT G.uid,G.thumbnail_id,G.title,G.user_id,U.nick_name,G.description,T.m_img as thumbnail,G.create_time,G.update_time
+      FROM market.gallery G 
+      LEFT JOIN market.thumbnail T ON G.thumbnail_id = T.uid 
+      LEFT JOIN market.user U ON G.user_id = U.uid
+      WHERE G.user_id=${id} LIMIT ${page * 10}, 10`, (err, result) => {
+        if (!err && result.length>0) {
+          console.log("getgrouplist",result[0]);
+          resolve(result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  getGroupList()
+    .then(num => res.status(200).json(num))
+    .catch(err => res.status(500).json(err));
+}
 
 exports.getTotalCount = (req, res, next) => {
   const getCount = () => {

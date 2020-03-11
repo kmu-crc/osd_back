@@ -2,14 +2,60 @@ const express = require("express");
 const router = express.Router();
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getItemList = require("../../middlewares/getItemList");
-const { itemList, getTotalCount, getTopList } = require("./list");
-const { itemDetail } = require("./detail");
+const insertThumbnail = require("../../middlewares/insertThumbnail");
+const { itemList, getTotalCount, getTopList, getUploadItemList, updateItemList, deleteItemList, createItemList } = require("./list");
+const { itemDetail, itemCard, itemStep, HaveInItem, updateCardAllData, updateCardSource, createItemCard } = require("./detail");
+const { createItem, updateItem, deleteItem } = require("./create");
+const { updateItemContent, deleteItemCard } = require("./itemCard");
+const { GetQuestion, RemoveQuestion, CreateQuestion } = require("./itemQuestion");
+const { GetReview, RemoveReview, CreateReview } = require("./itemReview");
+const auth = require("../../middlewares/auth");
+const { likeItem, unlikeItem, getLikeItem, likeInItem } = require("./like");
 
 router.get("/list/:page/:sorting?/:cate1?/:cate2?/:keyword?", itemList, getItemList);
 router.get("/list-count/:cate1?/:cate2?", getTotalCount);
 router.get("/detail/:id", tokenDecoded, itemDetail);
 // router.get("/item-count/:id", getCount);
 router.get("/toplist/:page", getTopList, getItemList);
+router.get("/detail/:card/content", tokenDecoded, itemCard);
+router.get("/detail/:id/step", tokenDecoded, itemStep);
+
+router.post("/create", auth, insertThumbnail, createItem);
+router.post("/update/:id", auth, updateItem);
+router.post("/detail/:card/update", auth, updateItemContent);
+router.delete("/delete/:id", auth, deleteItem);
+
+// question
+router.get("/detail/:id/question/:page", tokenDecoded, GetQuestion);
+router.post("/detail/:id/create-question", auth, CreateQuestion);
+router.delete("/detail/:id/delete-question/:target_id", auth, RemoveQuestion);
+
+// review
+router.get("/detail/:id/review/:page", tokenDecoded, GetReview);
+router.post("/detail/:id/create-review", auth, CreateReview);
+router.delete("/detail/:id/delete-review/:target_id", auth, RemoveReview);
+;
+
+// like
+router.post("/likeItem/:id", auth, likeItem);
+router.post("/unlikeItem/:id", auth, unlikeItem);
+router.get("/getLikeItem/:id", auth, getLikeItem);
+router.get("/itemDetail/:id/like/:page", likeInItem, getItemList);
+router.get("/itemDetail/:id/have/:page", HaveInItem, getItemList);
+
+
+// list
+router.post("/detail/:id/createList", auth, createItemList);
+router.delete("/detail/:id/deleteList/:list_id", auth, deleteItemList);
+router.post("/detail/:id/updateList/:list_id", auth, updateItemList);
+// card
+router.post("/detail/:id/:list_id/createCard", auth, createItemCard);
+router.post("/detail/updateCardAllData/:card_id", auth, updateCardAllData, updateCardSource);
+router.delete("/detail/:id/deleteCard/:card_id", auth, deleteItemCard);
+// ${host}/item/detail/${id}/${list_id}/createCard
+
+// uploaditemlist
+router.get("/getUploadItemList/:id/:page", getUploadItemList, getItemList);
 
 module.exports = router;
 

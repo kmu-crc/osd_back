@@ -664,18 +664,19 @@ exports.updateCardSource = async (req, res, next) => {
   const convertToMP4 = (encoded_filename, ext) => {
     return new Promise((resolve, reject) => {
       const new_file_name = encoded_filename.replace(ext, "_.mp4")
-      const args = ['-y','-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
+      const args = ['-y', '-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
       var proc = spawn('ffmpeg', args)
       console.log('Spawning ffmpeg ' + args.join(' '))
       proc.on('exit', code => {
         if (code === 0) {
           console.log('successful!')
-          fs.unlink(encoded_filename, err=>{if(err)console.log(err)})
+          fs.unlink(encoded_filename, err => { if (err) console.log(err) })
           resolve(new_file_name)
         }
         else {
-			console.log("why come here?ahm")
-			reject(false)}
+          console.log("why come here?ahm")
+          reject(false)
+        }
       })
     })
   }
@@ -703,15 +704,15 @@ exports.updateCardSource = async (req, res, next) => {
           const fileStr = item.fileUrl.split("base64,")[1];
           let data = await WriteFile(fileStr, item.file_name);
           if (item.file_type === "video") {
-			try{	
-            const ext = data.substring(data.lastIndexOf("."), data.length)
-            item.file_name = item.file_name.replace(ext, ".mp4")
-            item.extension = "mp4"
-            let new_file_name = await convertToMP4(data, ext).catch((err)=>{console.log("err",err)})
-            item.content = await S3Upload(new_file_name, item.file_name)
-} catch(e){
-	console.log('convert error:'+e)
-}
+            try {
+              const ext = data.substring(data.lastIndexOf("."), data.length)
+              item.file_name = item.file_name.replace(ext, ".mp4")
+              item.extension = "mp4"
+              let new_file_name = await convertToMP4(data, ext).catch((err) => { console.log("err", err) })
+              item.content = await S3Upload(new_file_name, item.file_name)
+            } catch (e) {
+              console.log('convert error:' + e)
+            }
           }
           else {
             item.content = await S3Upload(data, item.file_name)

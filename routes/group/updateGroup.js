@@ -2,99 +2,84 @@ var connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 
 exports.updateGroup = (req, res, next) => {
-  req.body["update_time"] = new Date();
-  req.body["child_update_time"] = new Date();
-  const groupId = req.params.id;
-
-  const updateGroup = (data) => {
+  const id = parseInt(req.params.id,10);
+  // console.log(id);
+  // return;
+  const updateDetailDB = (data) => {
+    console.log("updateDetailDB");
+    const dbData = req.file?{
+      user_id:req.body.user_id,
+      title:req.body.title,
+      description:req.body.description,
+      thumbnail_id:data.thumbnail_id,
+    }:{
+      user_id:req.body.user_id,
+      title:req.body.title,
+      description:req.body.description,
+    }
+    console.log(dbData,id);
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId}`, data, (err, result) => {
+      connection.query(`UPDATE market.gallery SET ? WHERE uid=${id}`,dbData, (err, rows) => {
         if (!err) {
-          resolve(result);
+          console.log("updateDetailDB: ", rows);
+          groupId = rows.insertId;
+          resolve(rows);
         } else {
-          //console.log(err);
-          reject(result);
+          console.log("updateDetailDB: ", err);
+          reject(err);
         }
       });
     });
   };
-
-  const groupUpdata = (id) => {
-    let info = req.body;
-    if (id !== null) {
-      info.thumbnail = id;
-    }
+  const deleteGalleryItem = (data) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.group SET ? WHERE uid = ${groupId}`, info, (err, rows) => {
+      connection.query(`DELETE FROM market.gallery_item WHERE gallery_id = ${id}`, (err, rows) => {
         if (!err) {
-          //console.log("detail: ", rows);
-          resolve(groupId);
+          resolve(data);
         } else {
           reject(err);
         }
       });
     });
   };
+  const insertGalleryItem = (data)=>{
+    console.log("insertGalleryItem");
+    return new Promise((resolve, reject) => {
+      let arr = req.body.itemList.map(item => {
+        return new Promise(async (resolve, reject) => {
+          connection.query("INSERT INTO market.gallery_item SET ?", {gallery_id:id,item_id:item.value}, async (err, rows) => {
+            if (!err) {
+              resolve(rows.insertId);
+            } else {
+              console.error("MySQL Error:", err);
+              reject(err);
+            }
+          });
+        });
+      })
+      Promise.all(arr).then(resolve(true))
+      .catch(error=>
+        reject(error)
+      )
+    });
+  };
 
-  // const findParentGroup = (id) => {
-  //   return new Promise((resolve, reject) => {
-  //     connection.query("SELECT parent_group_id FROM group_join_group WHERE group_id = ?", id, (err, row) => {
-  //       if (!err && row.length === 0) {
-  //         resolve(row);
-  //       } else if (!err && row.length > 0) {
-  //         let arr = [];
-  //         row.map(data => {
-  //           arr.push(updateParentGroup(data));
-  //         });
-  //         Promise.all(arr).then(result => {
-  //           resolve(result);
-  //         });
-  //       } else {
-  //         //console.log(err);
-  //         reject(err);
-  //       }
-  //     });
-  //   });
-  // };
 
-  // const updateParentGroup = (row) => {
-  //   return new Promise((resolve, reject) => {
-  //     connection.query(`UPDATE opendesign.group SET child_update_time = now() WHERE uid = ${row.parent_group_id}`, (err, result) => {
-  //       if (!err) {
-  //         //console.log("result", result);
-  //         resolve(result);
-  //       } else {
-  //         //console.log(err);
-  //         reject(err);
-  //       }
-  //     });
-  //   });
-  // };
-
-  const success = () => {
+  const respond = (data) => {
+    console.log("respond", data);
     res.status(200).json({
-      success: true
+      message: "성공적으로 등록되었습니다.",
+      success: true,
+      id: data
     });
   };
 
-  const fail = () => {
-    res.status(500).json({
-      success: false
-    });
-  };
-
-  updateGroup(req.body)
-    .then(() => {
-      if (req.file == null) {
-        return Promise.resolve(null);
-      } else {
-        return createThumbnails(req.file);
-      }
-    })
-    .then(groupUpdata)
-    // .then(findParentGroup)
-    .then(success)
-    .catch(fail);
+  createThumbnails({...req.file})
+  .then((data)=>updateDetailDB({thumbnail_id:data}))
+  .then(deleteGalleryItem)
+  .then(insertGalleryItem)
+  .then(respond)
+  .catch(next);
 };
 
 exports.createGroupIssue = (req, res, next) => {

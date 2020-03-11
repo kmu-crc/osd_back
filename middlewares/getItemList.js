@@ -2,14 +2,13 @@ const connection = require("../configs/connection");
 
 const getItemList = (req, res, next) => {
   const sql = req.sql;
-  const getList = sql => {
+  function getList(sql) {
     return new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          //console.log("+++", row);
           row.map(data => {
             arr.push(newData(data));
           });
@@ -17,7 +16,6 @@ const getItemList = (req, res, next) => {
             resolve(result);
           });
         } else {
-          //console.log(err);
           reject(err);
         }
       });
@@ -34,15 +32,19 @@ const getItemList = (req, res, next) => {
       ).then(price => {
         data.price = price;
         return data;
-        // }).then(
-        // getCategory
-        // ).then(name => {
-        // data.categoryName = name;
-        // return data;
       }).then(
         getThumbnail
       ).then(url => {
         data.thumbnail = url;
+        return data;
+      }).then(async data => {
+        data.reviews = await getReviews(data.uid);
+        return data;
+      }).then(async data => {
+        data.score = await getScore(data.uid);
+        return data;
+      }).then(async data => {
+        data.members = await getMemberList(data.uid);
         resolve(data);
       }).catch(err => {
         reject(err);
@@ -56,9 +58,9 @@ const getItemList = (req, res, next) => {
       if (data.user_id === null) {
         resolve(null);
       } else {
-        connection.query("SELECT nick_name FROM user WHERE uid = ?", data.user_id, (err, result) => {
+        connection.query("SELECT nick_name FROM market.user WHERE uid = ?", data.user_id, (err, rows) => {
           if (!err) {
-            resolve(result[0].nick_name);
+            resolve(rows[0]["nick_name"]);
           } else {
             reject(err);
           }
@@ -66,12 +68,11 @@ const getItemList = (req, res, next) => {
       }
     });
   };
-
-  // GET PRICE OF DESIGN
-  const getPrice = (data) => {
-    const _sql = `SELECT price FROM opendesign.price WHERE item_id=${data.uid};`;
+  // 아이템 가격 가져오는 함수
+  function getPrice(data) {
     return new Promise((resolve, reject) => {
-      connection.query(_sql, (err, row) => {
+      const sql = `SELECT price FROM market.\`item-detail\` WHERE \`item-id\`=${data.uid};`;
+      connection.query(sql, (err, row) => {
         if (!err) {
           resolve(row[0] ? row[0].price : null);
         } else {
@@ -80,42 +81,17 @@ const getItemList = (req, res, next) => {
       });
     });
   };
-
-  // // 카테고리 이름 가져오는 함수
-  // function getCategory(data) {
-  //   return new Promise((resolve, reject) => {
-  //     let cate;
-  //     let sqlCate;
-  //     if (!data.category_level1 && !data.category_level2) {
-  //       resolve(null);
-  //     } else if (data.category_level2 && data.category_level2 !== "") {
-  //       cate = data.category_level2;
-  //       sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
-  //     } else {
-  //       cate = data.category_level1;
-  //       sqlCate = "SELECT name FROM category_level1 WHERE uid = ?";
-  //     }
-  //     connection.query(sqlCate, cate, (err, result) => {
-  //       if (!err) {
-  //         resolve(result[0].name);
-  //       } else {
-  //         reject(err);
-  //       }
-  //     });
-  //   });
-  // };
-
   // 디자인 썸네일 가져오는 함수
   function getThumbnail(data) {
     return new Promise((resolve, reject) => {
-      if (data.thumbnail === null) {
+      if (data.thumbnail_id === null) {
         resolve(null);
       } else {
-        connection.query(`SELECT m_img FROM thumbnail WHERE uid = ?`, data.thumbnail, (err, row) => {
+        connection.query(`SELECT m_img FROM market.thumbnail WHERE uid = ?`, data.thumbnail_id, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            resolve(row[0]["m_img"]);
+            resolve(row[0] ? row[0]["m_img"] : null);
           } else {
             reject(err);
           }
@@ -123,7 +99,52 @@ const getItemList = (req, res, next) => {
       }
     });
   }
+  // get score
+  function getScore(id) {
+    return new Promise((resolve, reject) => {
+      connection.query(`
+      SELECT AVG(score) AS "score" FROM market.review R
+      WHERE item_id=${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows[0]["score"] || 0);
+        } else {
+          reject(err);
+        }
+      }
+      );
+    })
+  }
+  // get review
+  function getReviews(id) {
+    return new Promise((resolve, reject) => {
+      connection.query(`
+      SELECT COUNT(*) AS 'reviews' 
+      FROM market.review WHERE item_id=${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows[0]["reviews"]);
+        } else {
+          reject(err);
+        }
+      }
+      );
+    })
+  }
+  // get member
+  function getMemberList(id) {
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT user_id 
+          FROM market.member WHERE item_id=${id}`, (err, rows) => {
+        if (!err) {
+          resolve(rows || null);
+        } else {
+          reject(err);
+        }
+      }
+      );
+    })
 
+  }
   getList(sql)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));

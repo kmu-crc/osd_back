@@ -5,7 +5,7 @@ exports.createCategoryLevel1 = (req, res) => {
 
   const CCategoryLevel1 = (name) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`INSERT INTO category_level1 (name) VALUES ('${name}')`, (err, rows) => {
+      connection.query(`INSERT INTO market.category_level1 (name) VALUES ('${name}')`, (err, rows) => {
         if (!err) {
           resolve(true);
         } else {
