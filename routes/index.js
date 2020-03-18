@@ -8,6 +8,7 @@ const categorys = require("./categorys");
 const admins = require("./admins");
 const search = require("./search");
 const common = require("./common")
+const upload = require("./fileupload");
 
 /* GET home page. */
 router.use("/common", common)
@@ -18,5 +19,7 @@ router.use("/group", group);
 router.use("/designer", designer);
 router.use("/categorys", categorys);
 router.use("/search", search);
+
+router.use("/upload", upload);
 
 module.exports = router;

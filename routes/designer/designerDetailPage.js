@@ -100,6 +100,6 @@ exports.likeGroup = (req, res, next) => {
 		sql = sql + `;`;
 	}
 	req.sql = sql;
-	console.log(sql);
+	// console.log(sql);
 	next();
 };

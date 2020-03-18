@@ -21,7 +21,11 @@ const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const stringToBoolean = require("../../middlewares/stringToBoolean");
 const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./designBoard");
-const { createCard, getCardList, updateTitle, updateContent, getCardDetail, updateImages, updateSources, deleteCard, getCardSource, updateCardSource, updateCardAllData } = require("./designCard");
+const {
+    createCard, getCardList, updateTitle, updateContent, getCardDetail,
+    updateImages, updateSources, deleteCard, getCardSource, updateCardSource, updateCardAllData,
+    updateCardAllData2, updateCardSource2
+} = require("./designCard");
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
@@ -107,6 +111,7 @@ router.post("/designDetail/updateCardSource/:card_id", auth, updateCardSource);
 
 // 카드의 모든 정보 업데이트
 router.post("/designDetail/updateCardAllData/:card_id", auth, updateCardAllData, updateCardSource);
+router.post("/designDetail/updateCardAllData_temp/:card_id", auth, updateCardAllData2, updateCardSource2);
 
 // fork Design
 router.get("/forkDesign/:id/:user_id", auth, forkDesign)

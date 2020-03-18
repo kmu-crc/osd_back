@@ -7,11 +7,16 @@ const searchMembers = (req, res) => {
   const searcDB = (data) => {
     let sql;
     if (designId && designId !== "null") {
-      sql = `SELECT U.email, U.uid, U.nick_name FROM user U
+      // sql = `SELECT U.email, U.uid, U.nick_name FROM user U
+      // WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
+      // AND U.uid NOT IN (SELECT U.uid FROM user U WHERE U.uid = ${req.decoded.uid})
+      // AND NOT EXISTS (SELECT M.user_id FROM design_member M WHERE M.design_id = ${designId} AND U.uid = M.user_id)`;
+      sql = `SELECT U.email, U.uid, U.nick_name FROM opendesign.user U
       WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
-      AND U.uid NOT IN (SELECT U.uid FROM user U WHERE U.uid = ${req.decoded.uid})
-      AND NOT EXISTS (SELECT M.user_id FROM design_member M WHERE M.design_id = ${designId} AND U.uid = M.user_id)`;
-    } else {sql=`SELECT U.email,U.uid,U.nick_name,thumbnail.s_img FROM opendesign.user U JOIN thumbnail ON U.thumbnail = thumbnail.uid WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}') AND U.uid NOT IN (${req.decoded.uid})`
+      AND U.uid NOT IN (SELECT U.uid FROM market.user U WHERE U.uid = ${req.decoded.uid})`;
+    } else {
+      sql = `SELECT email, uid, nick_name FROM opendesign.user WHERE (email regexp '${data.key}' OR nick_name regexp '${data.key}') AND uid NOT IN (${req.decoded.uid})`;
+      // sql = `SELECT U.email,U.uid,U.nick_name,thumbnail.s_img FROM opendesign.user U JOIN thumbnail ON U.thumbnail = thumbnail.uid WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}') AND U.uid NOT IN (${req.decoded.uid})`
     }
     return new Promise((resolve, reject) => {
       console.log("sql", sql);

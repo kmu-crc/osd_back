@@ -726,20 +726,21 @@ exports.updateCardSource = async (req, res, next) => {
         if (item.type === "FILE") {
           const fileStr = item.fileUrl.split("base64,")[1];
           let data = await WriteFile(fileStr, item.file_name);
-          if (item.file_type === "video") {
-            try {
-              const ext = data.substring(data.lastIndexOf("."), data.length)
-              item.file_name = item.file_name.replace(ext, ".mp4")
-              item.extension = "mp4"
-              let new_file_name = await convertToMP4(data, ext).catch((err) => { console.log("err", err) })
-              item.content = await S3Upload(new_file_name, item.file_name)
-            } catch (e) {
-              console.log('convert error:' + e)
-            }
-          }
-          else {
-            item.content = await S3Upload(data, item.file_name)
-          }
+          // if (item.file_type === "video") {
+          // try {
+          // item.file_name = item.file_name.replace(ext, ".mp4")
+          // item.extension = "mp4"
+          // let new_file_name = await convertToMP4(data, ext).catch((err) => { console.log("err", err) })
+          // item.content = await S3Upload(new_file_name, item.file_name)
+          // const ext = data.substring(data.lastIndexOf("."), data.length)
+          // item.content = await S3Upload(data, item.file_name)
+          // } catch (e) {
+          // console.log('convert error:' + e)
+          // }
+          // }
+          // else {
+          item.content = await S3Upload(data, item.file_name)
+          // }
           item.data_type = item.file_type
           delete item.fileUrl
           pArr.push(Promise.resolve(item))
@@ -1071,3 +1072,263 @@ exports.updateCardAllData = async (req, res, next) => {
 
   // console.log("updateCardAllData", req.body.data.newContent);
 };
+// All Data
+exports.updateCardAllData2 = async (req, res, next) => {
+  // const cardId = req.params.card_id
+  // const userId = req.decoded.uid
+  // let thumbnail = req.body.thumbnail || null;
+  console.log("UPDATE CARD ALL DATA 2: ", req.body);
+
+  // const WriteFile = (file, filename) => {
+  //   let originname = filename.split(".");
+  //   let name = new Date().valueOf() + "." + originname[originname.length - 1];
+  //   return new Promise((resolve, reject) => {
+  //     fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
+  //       if (err) {
+  //         reject(err);
+  //       } else {
+  //         resolve(`uploads/${name}`);
+  //       }
+  //     });
+  //   });
+  // };
+
+  // const upLoadFile = async (userId, res) => {
+  //   return new Promise(async (resolve, reject) => {
+  //     if (!res) resolve(null);
+  //     try {
+  //       let fileStr = res.img.split("base64,")[1];
+  //       let data = await WriteFile(fileStr, res.file_name);
+  //       let _thumbnail = await createThumbnails({
+  //         image: data,
+  //         filename: data.split("/")[1],
+  //         uid: userId
+  //       });
+  //       thumbnail = _thumbnail;
+  //       resolve(_thumbnail);
+  //     } catch (err) {
+  //       reject(err);
+  //     }
+  //   });
+  // };
+
+  // updateCardFn({ userId, cardId, data: { title: req.body.title } })
+  //   .then(() => {
+  //     updateCardFn({ userId, cardId, data: { content: req.body.content } })
+  //   })
+  //   .then(async () => {
+  //     if (thumbnail == null) return Promise.resolve(true);
+  //     await upLoadFile(userId, thumbnail)
+  //   })
+  //   .then(_thumbnail => {
+  //     console.log("22222", _thumbnail, thumbnail, userId, cardId);
+  //     if (thumbnail)
+  //       updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
+  //     return Promise.resolve(true)
+  //   })
+  //   .then(() => {
+  //     req.body = req.body.data
+  //     return next()
+  //   }).catch(next)
+
+  // // console.log("updateCardAllData", req.body.data.newContent);
+};
+exports.updateCardSource2 = async (req, res, next) => {
+  console.log("UPDATE CARD SOURCE", req.body);
+  // const cardId = req.params.card_id;
+  // const userId = req.decoded.uid;
+  // const spawn = require('child_process').spawn
+
+  // const convertToMP4 = (encoded_filename, ext) => {
+  //   return new Promise((resolve, reject) => {
+  //     const new_file_name = encoded_filename.replace(ext, "_.mp4")
+  //     const args = ['-y', '-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
+  //     var proc = spawn('ffmpeg', args)
+  //     console.log('Spawning ffmpeg ' + args.join(' '))
+  //     proc.on('exit', code => {
+  //       if (code === 0) {
+  //         console.log('successful!')
+  //         fs.unlink(encoded_filename, err => { if (err) console.log(err) })
+  //         resolve(new_file_name)
+  //       }
+  //       else {
+  //         console.log("why come here?ahm")
+  //         reject(false)
+  //       }
+  //     })
+  //   })
+  // }
+
+  // const WriteFile = (file, filename) => {
+  //   let originname = filename.split(".");
+  //   let name = new Date().valueOf() + "." + originname[originname.length - 1];
+  //   return new Promise((resolve, reject) => {
+  //     fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
+  //       if (err) {
+  //         reject(err)
+  //       } else {
+  //         resolve(`uploads/${name}`)
+  //       }
+  //     });
+  //   });
+  // }
+
+  // const upLoadFile = async content => {
+  //   return new Promise(async (resolve, reject) => {
+  //     let pArr = [];
+  //     if (content.length === 0) resolve([]);
+  //     for (let item of content) {
+  //       if (item.type === "FILE") {
+  //         const fileStr = item.fileUrl.split("base64,")[1];
+  //         let data = await WriteFile(fileStr, item.file_name);
+  //         // if (item.file_type === "video") {
+  //         // try {
+  //         // item.file_name = item.file_name.replace(ext, ".mp4")
+  //         // item.extension = "mp4"
+  //         // let new_file_name = await convertToMP4(data, ext).catch((err) => { console.log("err", err) })
+  //         // item.content = await S3Upload(new_file_name, item.file_name)
+  //         // const ext = data.substring(data.lastIndexOf("."), data.length)
+  //         // item.content = await S3Upload(data, item.file_name)
+  //         // } catch (e) {
+  //         // console.log('convert error:' + e)
+  //         // }
+  //         // }
+  //         // else {
+  //         item.content = await S3Upload(data, item.file_name)
+  //         // }
+  //         item.data_type = item.file_type
+  //         delete item.fileUrl
+  //         pArr.push(Promise.resolve(item))
+  //       } else {
+  //         item.extension = item.type;
+  //         item.data_type = item.type;
+  //         item.file_name = null;
+  //         pArr.push(Promise.resolve(item));
+  //       }
+  //     }
+  //     //console.log(pArr);
+  //     Promise.all(pArr)
+  //       .then(data => resolve(data))
+  //       .catch(err => reject(err));
+  //   });
+  // }
+
+  // const deleteDB = async content => {
+  //   //console.log("deleteDB");
+  //   return new Promise(async (resolve, reject) => {
+  //     let pArr = [];
+  //     if (content.length === 0) resolve(true);
+  //     for (let item of content) {
+  //       await connection.query(
+  //         `DELETE FROM design_content WHERE uid = ${item.uid}`,
+  //         (err, rows) => {
+  //           if (!err) {
+  //             pArr.push(true);
+  //           } else {
+  //             console.error("MySQL Error:", err);
+  //             pArr.push(false);
+  //           }
+  //         }
+  //       );
+  //     }
+  //     //console.log(pArr);
+  //     Promise.all(pArr)
+  //       .then(data => resolve(data))
+  //       .catch(err => reject(err));
+  //   });
+  // }
+
+  // const insertDB = async arr => {
+  //   return new Promise(async (resolve, reject) => {
+  //     let pArr = [];
+  //     //console.log("insertDBarr", arr);
+  //     if (arr.length === 0) resolve(true);
+  //     for (let item of arr) {
+  //       let obj = {
+  //         file_name: item.file_name,
+  //         content: item.content,
+  //         card_id: cardId,
+  //         user_id: userId,
+  //         type: item.type,
+  //         extension: item.extension,
+  //         order: item.order,
+  //         data_type: item.data_type
+  //       };
+  //       await connection.query(
+  //         "INSERT INTO design_content SET ?",
+  //         obj,
+  //         (err, rows) => {
+  //           if (!err) {
+  //             pArr.push(Promise.resolve(true));
+  //           } else {
+  //             console.error("MySQL Error:", err);
+  //             pArr.push(Promise.reject(err));
+  //           }
+  //         }
+  //       );
+  //     }
+
+  //     Promise.all(pArr)
+  //       .then(resolve(true))
+  //       .catch(err => reject(err));
+  //   });
+  // }
+
+  // const updateDB = async arr => {
+  //   let pArr = [];
+  //   if (arr.length === 0) return Promise.resolve(true);
+  //   for (let item of arr) {
+  //     let obj = {
+  //       file_name: item.file_name,
+  //       content: item.content,
+  //       card_id: cardId,
+  //       user_id: userId,
+  //       type: item.type,
+  //       extension: item.extension,
+  //       order: item.order,
+  //       data_type: item.data_type
+  //     };
+  //     await connection.query(
+  //       `UPDATE design_content SET ? WHERE uid = ${item.uid}`,
+  //       obj,
+  //       (err, rows) => {
+  //         if (!err) {
+  //           pArr.push(Promise.resolve(true));
+  //         } else {
+  //           console.error("MySQL Error:", err);
+  //           pArr.push(Promise.reject(err));
+  //         }
+  //       }
+  //     );
+  //   }
+
+  //   return Promise.all(pArr);
+  // };
+
+  // const updateCardTime = () => {
+  //   return new Promise((resolve, reject) => {
+  //     connection.query(
+  //       `UPDATE opendesign.design_card SET update_time = NOW() WHERE uid = ${cardId}`,
+  //       (err, rows) => {
+  //         if (!err) {
+  //           resolve(true);
+  //         } else {
+  //           resolve(false);
+  //         }
+  //       })
+  //   }
+  //   );
+  // }
+
+  // const respond = data => {
+  //   res.status(200).json({ success: true, message: "저장되었습니다." });
+  // };
+
+  // updateCardTime()
+  //   .then(() => deleteDB(req.body.deleteContent))
+  //   .then(() => updateDB(req.body.updateContent))
+  //   .then(() => upLoadFile(req.body.newContent))
+  //   .then(insertDB)
+  //   .then(respond)
+  //   .catch(next)
+}

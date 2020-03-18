@@ -2,7 +2,6 @@ const connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { insertSource } = require("../../middlewares/insertSource");
 const { updateCardDB } = require("../design/designCard");
-const { joinMember } = require("../design/joinMember");
 
 // 디자인 정보 수정
 exports.updateDesignInfo = (req, res, next) => {
@@ -30,10 +29,10 @@ exports.updateDesignInfo = (req, res, next) => {
       .then(socket => sendAlarm(socket.socketId, data.user_id, designId, type === "invite" ? "DesignInvite" : "DesignGetout", designUserId, designId));
   };
   const addmember = (data) => {
+    return new Promise((resolve, reject) => {
     const is_join = 0;
     const invited = 1;
     const sql = `INSERT INTO opendesign.design_member VALUES (null, ${designId}, ${data.user_id}, ${is_join}, ${invited})`;
-    return new Promise((resolve, reject) => {
       connection.query(sql, (error, result) => {
         if (!error) {
           resolve(true);
@@ -45,9 +44,10 @@ exports.updateDesignInfo = (req, res, next) => {
   };
   const delmember = (data) => {
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM opendesign.design_member WHERE design_id=${designID} AND user_id=${data.user_id}`, (error, result) => {
-        if (!error) {
-          resolve(true);
+const sql = `DELETE FROM opendesign.design_member WHERE user_id=${data.user_id} AND design_id = ${designId}`;
+      connection.query(sql, (err, row)=> {
+        if(!err) {
+          resolve(true);	
         } else {
           reject(false);
         }
