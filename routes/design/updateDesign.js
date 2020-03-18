@@ -30,9 +30,9 @@ exports.updateDesignInfo = (req, res, next) => {
   };
   const addmember = (data) => {
     return new Promise((resolve, reject) => {
-    const is_join = 0;
-    const invited = 1;
-    const sql = `INSERT INTO opendesign.design_member VALUES (null, ${designId}, ${data.user_id}, ${is_join}, ${invited})`;
+      const is_join = 0;
+      const invited = 1;
+      const sql = `INSERT INTO opendesign.design_member VALUES (null, ${designId}, ${data.user_id}, ${is_join}, ${invited})`;
       connection.query(sql, (error, result) => {
         if (!error) {
           resolve(true);
@@ -44,10 +44,10 @@ exports.updateDesignInfo = (req, res, next) => {
   };
   const delmember = (data) => {
     return new Promise((resolve, reject) => {
-const sql = `DELETE FROM opendesign.design_member WHERE user_id=${data.user_id} AND design_id = ${designId}`;
-      connection.query(sql, (err, row)=> {
-        if(!err) {
-          resolve(true);	
+      const sql = `DELETE FROM opendesign.design_member WHERE user_id=${data.user_id} AND design_id = ${designId}`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(true);
         } else {
           reject(false);
         }
@@ -228,17 +228,17 @@ exports.updateDesignTime = (req, res, next) => {
     return new Promise((res, rej) => {
       connection.query(
         `UPDATE design SET update_time = now() WHERE uid = ${designId}`,
-        (err, result) => {
+        (err, _) => {
           if (!err) {
-            res.status(200).json({ success: true, design_id: designId });
+            res(true);
           } else {
-            res.status(500).json({ success: false, design_id: designId });
+            rej(err);
           }
         });
     });
   };
-  updateTIME(req.body)
+  updateTIME()
     .then(success)
-    .cath(next);
+    .catch(fail);
 };
 

@@ -24,7 +24,7 @@ const { createBoard, getBoardList, updateBoard, deleteBoard } = require("./desig
 const {
     createCard, getCardList, updateTitle, updateContent, getCardDetail,
     updateImages, updateSources, deleteCard, getCardSource, updateCardSource, updateCardAllData,
-    updateCardAllData2, updateCardSource2
+    updateCardInfo2, updateCardSource2
 } = require("./designCard");
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
@@ -65,9 +65,11 @@ router.post("/updateViewCount/:id", updateViewCount);
 
 router.post("/createDesign", auth, stringToNumber, stringToBoolean, createDesign);
 router.post("/updateDesignInfo/:id/:uid", auth, insertThumbnail, stringToNumber, updateDesignInfo);
-router.post("/updateDesignTime/:id", auth, (req, res) => {
-    connection.query("UPDATE design SET update_time = NOW() WHERE uid = ?", req.params.id);
-});
+router.post("/updateDesignTime/:id", /*auth,*/
+    updateDesignTime);
+// (req, res) => {
+// connection.query("UPDATE design SET update_time = NOW() WHERE uid = ?", req.params.id);
+// });
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
@@ -108,10 +110,11 @@ router.get("/TopDesignList/:page", getTopList, getDesignList);
 // 새로운 디자인 디테일 로직
 router.get("/designDetail/getCardSource/:card_id", getCardSource);
 router.post("/designDetail/updateCardSource/:card_id", auth, updateCardSource);
+router.post("/designDetail/updateCardSource_temp/:card_id", auth, updateCardSource2);
 
 // 카드의 모든 정보 업데이트
 router.post("/designDetail/updateCardAllData/:card_id", auth, updateCardAllData, updateCardSource);
-router.post("/designDetail/updateCardAllData_temp/:card_id", auth, updateCardAllData2, updateCardSource2);
+router.post("/designDetail/updateCardAllData_temp/:card_id", auth, updateCardInfo2, updateCardSource2);
 
 // fork Design
 router.get("/forkDesign/:id/:user_id", auth, forkDesign)
