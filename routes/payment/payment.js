@@ -280,6 +280,7 @@ exports.CreatePayment = (req, res, next) => {
                 if (!err) {
                     resolve(row.insertId);
                 } else {
+                    console.error(err);
                     reject(err);
                 }
             });
@@ -287,11 +288,13 @@ exports.CreatePayment = (req, res, next) => {
     };
     const minusPoint = (id) => {
         return new Promise((resolve, reject) => {
-            const sql = `UPDATE market.point SET point=point-${_.payment_price} WHERE user_id=${user_id}`;
+            const sql = `UPDATE market.user SET point=point-${_.payment_price} WHERE uid=${user_id}`;
+            console.log(sql);
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(id);
                 } else {
+                    console.error(err);
                     reject(err);
                 }
             });

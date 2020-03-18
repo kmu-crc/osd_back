@@ -29,4 +29,5 @@ router.get("/TopList/:page", getTopList, getDesignerList);
 
 router.get("/get-review/:id/:page", getDesignerReview);
 router.get("/get-review-count/:id", getDesignerReviewCount);
+
 module.exports = router;

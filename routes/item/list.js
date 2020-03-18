@@ -18,7 +18,7 @@ exports.itemList = (req, res, next) => {
 
   const optKeyword =
     (keyword && keyword !== "null" && keyword !== "undefined") ?
-      `AND I.title LIKE "%${keyword}%"` : ``;
+      `I.title LIKE "%${keyword}%"` : ``;
 
   const optSort = `ORDER BY ${(sort === "update") ? `I.update_time` : (sort === "create") ? `I.create_time` : `likes`}`;
   const sql = `${basic} WHERE I.visible = 1 AND I.private = 0 ${optCategory === `` && optKeyword === `` ? "" : "AND"} ${optCategory} ${optKeyword} ${optSort} DESC LIMIT ${page * 10}, 10`;
@@ -86,7 +86,21 @@ exports.getUploadItemList = (req, res, next) => {
   req.sql = sql;
   next();
 }
+exports.getMyProjectItemList = (req, res, next) => {
+  const id = req.params.id;
+  const page = req.params.page;
+  const sql = `
+    SELECT 
+      I.uid, I.user_id, I.title, I.thumbnail_id, I.category_level1, I.category_level2, I.create_time, I.update_time,
+      T.m_img
+        FROM market.item I 
+      LEFT JOIN market.thumbnail T ON I.thumbnail_id = T.uid
+      WHERE I.uid IN (SELECT DISTINCT item_id FROM market.member M WHERE M.user_id=${id})
+      LIMIT ${page * 10}, 10`;
 
+  req.sql = sql;
+  next();
+}
 
 
 exports.createItemList = (req, res, next) => {

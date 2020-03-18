@@ -22,7 +22,7 @@ const { modifyUserDetail,myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, m
 const { getMyMsgList, getMyMsgDetail, sendMsg, CheckOpponentConnected } = require("./myMsg");
 const { findPw } = require("./resetMail");
 
-router.post("/signUp", signUp, signIn);
+router.post("/signUp", signUp);
 router.post("/signIn", signIn);
 
 router.use("/check", auth, check);

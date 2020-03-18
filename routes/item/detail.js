@@ -1,8 +1,9 @@
 var connection = require("../../configs/connection");
+const fs = require("fs");
 const { createCardDB, } = require("./itemCard");
-// const { insertSource } = require("../../middlewares/insertSource");
-// const { S3SourcesDetele, S3Upload } = require("../../middlewares/S3Sources");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
+// const { insertSource } = require("../../middlewares/insertSource");
+const {/* S3SourcesDetele, */ S3Upload } = require("../../middlewares/S3Sources");
 
 exports.itemDetail = (req, res, next) => {
   // console.log("item-detail");
@@ -275,11 +276,12 @@ exports.itemStep = (req, res, next) => {
               SELECT 
                 C.uid, C.user_id, U.nick_name, 
                 C.list_id, C.order, 
-                C.thumbnail, 
+                T.m_img AS 'thumbnail', 
                 C.title, C.description, 
                 C.create_time, C.update_time
               FROM market.card C
                 LEFT JOIN market.user U ON U.uid = C.user_id
+                LEFT JOIN market.thumbnail T ON T.uid = C.thumbnail
               WHERE list_id like ${listData.uid}`
               connection.query(sql, (err, row) => {
                 if (!err && row.length === 0) {
@@ -319,6 +321,7 @@ exports.itemStep = (req, res, next) => {
     .then(respond)
     .catch(error);
 };
+
 exports.itemCard = (req, res, next) => {
   const cardId = req.params.card;
   function getContents(cardId) {
@@ -485,15 +488,17 @@ exports.updateCardSource = async (req, res, next) => {
       //console.log("insertDBarr", arr);
       if (arr.length === 0) resolve(true);
       for (let item of arr) {
+        console.log("!!!!!!!!!!!!", item);
         let obj = {
           file_name: item.file_name,
           content: item.content,
           card_id: cardId,
           user_id: userId,
-          type: item.type,
+          content_type: item.type,
           extension: item.extension,
           order: item.order,
-          data_type: item.data_type
+          data_type: item.data_type,
+          private: item.private,
         };
         await connection.query(
           "INSERT INTO market.content SET ?",
@@ -526,10 +531,11 @@ exports.updateCardSource = async (req, res, next) => {
         content: item.content,
         card_id: cardId,
         user_id: userId,
-        type: item.type,
+        content_type: item.type,
         extension: item.extension,
         order: item.order,
-        data_type: item.data_type
+        data_type: item.data_type,
+        private: item.private,
       };
       await connection.query(
         `UPDATE market.content SET ? WHERE uid = ${item.uid}`,
@@ -548,23 +554,23 @@ exports.updateCardSource = async (req, res, next) => {
     return Promise.all(pArr);
   }
 
-  const respond = data => {
-    // //console.log(data);
-    res.status(200).json({
-      success: true,
-      message: "저장되었습니다."
-    });
+  const respond = () => {
+    res.status(200).json({ success: true, message: "저장되었습니다." });
+  };
+  const error = err => {
+    res.status(500).json({ success: false, message: err, });
   };
 
-  deleteDB(req.body.deleteContent)
-    .then(() => updateDB(req.body.updateContent))
-    .then(() => upLoadFile(req.body.newContent))
+  deleteDB(req.body.data.deleteContent)
+    .then(() => updateDB(req.body.data.updateContent))
+    .then(() => upLoadFile(req.body.data.newContent))
     .then(insertDB)
     .then(respond)
-    .catch(next)
+    .catch(error)
 };
+
 const updateCardFn = req => {
-  console.log("fn", req);
+  // console.log("fn", req);
   return new Promise((resolve, reject) => {
     connection.query(
       `UPDATE market.card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
@@ -585,64 +591,97 @@ const updateCardFn = req => {
     );
   });
 };
-exports.updateCardAllData = async (req, res, next) => {
-  const cardId = req.params.card_id
-  const userId = req.decoded.uid
 
-  const WriteFile = (file, filename) => {
-    let originname = filename.split(".");
-    let name = new Date().valueOf() + "." + originname[originname.length - 1];
-    return new Promise((resolve, reject) => {
-      fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(`uploads/${name}`);
-        }
-      });
-    });
-  };
+exports.updateCardInfo = async (req, res, next) => {
+  const cardId = req.params.card_id;
+  const userId = req.decoded.uid;
+  const file = req.file;
 
-  const upLoadFile = async (userId, res) => {
-    return new Promise(async (resolve, reject) => {
-      if (!res) resolve(null);
-      try {
-        console.log("1");
-        let fileStr = res.img.split("base64,")[1];
-        console.log("2");
-        let data = await WriteFile(fileStr, res.file_name);
-        let thumbnail = await createThumbnails({
-          image: data,
-          filename: data.split("/")[1],
-          uid: userId
-        });
-        console.log("22222", thumbnail);
-        resolve(thumbnail);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  };
-
-  updateCardFn({ userId, cardId, data: { title: req.body.title } })
-    .then(() =>
-      updateCardFn({ userId, cardId, data: { description: req.body.content } }))
-    .then(() =>
-      upLoadFile(userId, req.body.thumbnail))
-    .then(thumbnail => {
-      if (thumbnail) {
-        updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
-      } else {
-        return Promise.resolve(true)
-      }
+  updateCardFn({ userId, cardId, data: { title: req.body.title, description: req.body.description } })
+    .then(async () => {
+      const id = await createThumbnails(file);
+      return id;
     })
-    .then(() => {
-      req.body = req.body.data
-      return next()
-    }).catch(next)
-
-  // console.log("updateCardAllData", req.body.data.newContent);
+    .then(thumbnail => {
+      thumbnail && updateCardFn({ userId, cardId, data: { thumbnail: thumbnail } });
+    })
+    .then(
+      // res.status(200).json({ success: true }))
+      // .catch(
+      // err => res.status(500).json({ success: false, message: err }));
+      next)
+    .catch(next);
 };
+
+// exports.updateCardAllData = async (req, res, next) => {
+//   const cardId = req.params.card_id
+//   const userId = req.decoded.uid
+//   const WriteFile = (file, filename) => {
+//     console.log("1");
+//     let originname = filename.split(".");
+//     console.log("2");
+//     let name = new Date().valueOf() + "." + originname[originname.length - 1];
+//     console.log("3");
+//     return new Promise((resolve, reject) => {
+//       console.log("4", `uploads/${name}`);
+//       fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
+//         console.log("5");
+//         if (err) {
+//           console.log("WRITE FILE:", err);
+//           reject(err);
+//         } else {
+//           resolve(`uploads/${name}`);
+//         }
+//       });
+//     });
+//   };
+//   const upLoadFile = async (userId, res) => {
+//     return new Promise(async (resolve, reject) => {
+//       if (!res) resolve(null);
+//       try {
+//         console.log("1");
+//         let fileStr = res.img.split("base64,")[1];
+//         console.log("2", res.file_name);
+//         let data = await WriteFile(fileStr, res.file_name);
+//         console.log("3", data);
+//         let thumbnail = await createThumbnails({
+//           image: data,
+//           filename: data.split("/")[1],
+//           uid: userId
+//         });
+//         console.log("22222", thumbnail);
+//         resolve(thumbnail);
+//       } catch (err) {
+//         reject(err);
+//       }
+//     });
+//   };
+//   updateCardFn({ userId, cardId, data: { title: req.body.title } })
+//     .then(() =>
+//       updateCardFn({ userId, cardId, data: { description: req.body.description } }))
+//     .then(() =>
+//       upLoadFile(userId, req.body.thumbnail))
+//     .then(thumbnail => {
+//       if (thumbnail) {
+//         updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
+//       } else {
+//         return Promise.resolve(true)
+//       }
+//     })
+//     .then(() => {
+//       req.body = req.body.data
+//       return next()
+//     }).catch(next)
+//   // console.log("updateCardAllData", req.body.data.newContent);
+// };
+
+
+
+
+
+
+
+
 
 
 

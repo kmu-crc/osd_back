@@ -5,14 +5,14 @@ const getDesignerList = (req, res, next) => {
   // console.log(sql);
   // 디자이너 리스트 불러오기 (GET)
   function getDesignerList(sql) {
-    console.log("getDesignerList", sql);
+    // console.log("getDesignerList", sql);
     const p = new Promise((resolve, reject) => {
       let arr = [];
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          console.log("row", row);
+          // console.log("row", row);
           row.map(data => {
             arr.push(newData(data));
           });
@@ -59,11 +59,11 @@ const getDesignerList = (req, res, next) => {
   const getLikeCount = (data) => {
     const designer = "designer";
     const designerId = data.user_id;
-    console.log("designerId:", designerId);
+    // console.log("designerId:", designerId);
     return new Promise((resolve, reject) => {
       connection.query(`SELECT count(*) as "count" FROM market.like WHERE to_id=${designerId} AND type="${designer}";`, (err, result) => {
         if (!err) {
-          console.log("getCount == ", result[0]);
+          // console.log("getCount == ", result[0]);
           resolve(result[0].count);
         } else {
           reject(err);
@@ -76,7 +76,7 @@ const getDesignerList = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT count(*) as "count" FROM market.item WHERE user_id=${designerId};`, (err, result) => {
         if (!err) {
-          console.log("getCount == ", result[0]);
+          // console.log("getCount == ", result[0]);
           resolve(result[0].count);
         } else {
           reject(err);

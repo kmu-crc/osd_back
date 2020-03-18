@@ -11,13 +11,13 @@ exports.GetReview = (req, res, next) => {
             const sql =
                 `SELECT 
                     Q.uid, Q.group_id, Q.sort_in_group, Q.user_id, Q.item_id, Q.comment, Q.score, Q.create_time,
-                    U.nick_name
+                    U.nick_name, T.m_img
                 FROM market.review Q
-                    LEFT JOIN market.user U ON U.uid=Q.user_id 
+                    LEFT JOIN market.user U ON U.uid = Q.user_id 
+                    LEFT JOIN market.thumbnail T ON T.uid IN (SELECT thumbnail_id FROM market.item WHERE uid=Q.item_id)
                 WHERE Q.item_id=${id}
                 ORDER BY group_id DESC, sort_in_group ASC
                 LIMIT ${page * 10}, 10`;
-            // LEFT JOIN market.thumbnail T ON T.uid=U.thumbnail
 
             connection.query(sql, (err, row) => {
                 if (!err) {

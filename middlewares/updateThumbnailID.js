@@ -5,6 +5,7 @@ exports.updateThumbnailID=(data)=>{
 
     function UpdateUserThumbnailID(data){
       const p = new Promise((resolve, reject) => {
+        if(data.thumbnail_id==null)resolve(null);
         connection.query(`UPDATE market.user SET thumbnail=${data.thumbnail_id} WHERE uid=${data.user_id}`, (err, rows, fields) => {
           if (!err) {
             console.log("success");
@@ -22,6 +23,7 @@ exports.updateThumbnailID=(data)=>{
 
     function UpdateExpertThumbnailID(data){
       const p = new Promise((resolve, reject) => {
+        if(data.thumbnail_id==null)resolve(null);
         connection.query(`UPDATE market.expert SET thumbnail_id=${data.thumbnail_id} WHERE user_id=${data.user_id}`, (err, rows, fields) => {
           if (!err) {
             console.log("success");

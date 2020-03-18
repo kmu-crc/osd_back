@@ -75,7 +75,10 @@ exports.createThumbnails = (data) => {
     createThumbnailForSize(filename)
       .then(S3Thumbnail)
       .then(insertThumbnail)
-      .then(thumbnailId => resolve(thumbnailId))
+      .then(thumbnailId => {
+        console.log("new thumbnail id: ", thumbnailId);
+        resolve(thumbnailId);
+      })
       .catch(onError);
   });
 };

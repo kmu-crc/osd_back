@@ -72,7 +72,7 @@ exports.createGroup = (req, res, next) => {
 
 exports.getAllHaveInItem = (req, res, next) => {
 
-  // console.log(req.body.user_id,req.params.id);
+  console.log("getAllHaveItem");
   const id = req.params.id;
 
   const getHaveAllItem = (data) => {

@@ -4,7 +4,7 @@ exports.GetPoint = (req, res, next) => {
     const id = req.decoded.uid;
     function getPoint(id) {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT U.point FROM market.point U WHERE user_id=${id}`;
+            const sql = `SELECT U.point FROM market.user U WHERE uid=${id}`;
             connection.query(sql, (err, rows) => {
                 if (err)
                     reject(err);
@@ -55,7 +55,7 @@ exports.PointUp = (req, res, next) => {
     const type = req.body.type;
     function up(id, point) {
         return new Promise((resolve, reject) => {
-            const sql = `UPDATE market.point U SET U.point = U.point + ${point} WHERE U.uid=${id}`;
+            const sql = `UPDATE market.user U SET U.point = U.point + ${point} WHERE U.uid=${id}`;
             connection.query(sql, (err, row) => {
                 if (err)
                     reject(err);

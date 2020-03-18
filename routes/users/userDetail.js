@@ -333,7 +333,10 @@ exports.modifyDesignerDetail = async (req,res)=>{
     });
   };
   const modifyDesigner = (thumbnail_id)=>{
-    const data = {
+    const data = thumbnail_id==null?{
+      ...req.body,
+    }:
+    {
       ...req.body,
       thumbnail_id:thumbnail_id
     };
@@ -421,7 +424,6 @@ exports.insertMakerDetail = async (req,res)=>{
 
 // 메이커 정보 수정
 exports.modifyMakerDetail = async (req,res)=>{
-  // console.log(req.body);
 
   req.body["user_id"] = req.decoded.uid;
   if (req.body.category_level1 === 0) {
@@ -440,18 +442,20 @@ exports.modifyMakerDetail = async (req,res)=>{
   };
 
   const error = err => {
-    //console.log(err);
+    console.log(err);
     res.status(500).json({
       success: false,
       error: err,
     });
   };
   const modifyMaker = (thumbnail_id)=>{
-    console.log("user_id:::",data.user_id);
-    const data = {
+    const data = thumbnail_id==null?{
       ...req.body,
-      thumbnail_id:thumbnail_id,
-    }
+    }:
+    {
+      ...req.body,
+      thumbnail_id:thumbnail_id
+    };
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE market.expert SET ? WHERE user_id=${data.user_id} AND type="maker"`,
@@ -461,11 +465,11 @@ exports.modifyMakerDetail = async (req,res)=>{
             if (rows.affectedRows) {
               resolve(data);
             } else {
-              //console.log(err);
+              console.log(err);
               reject(err);
             }
           } else {
-            //console.log(err);
+            console.log(err);
             reject(err);
           }
         }

@@ -35,18 +35,18 @@ const signUp = (req, res, next) => {
     });
     return p;
   };
-  function createPointEntry(data) {
-    return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO market.point SET ?`;
-      connection.query(sql, { point: 0, user_id: data }, (err, row) => {
-        if (!err) {
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    })
-  }
+  // function createPointEntry(data) {
+  //   return new Promise((resolve, reject) => {
+  //     const sql = `INSERT INTO market.point SET ?`;
+  //     connection.query(sql, { point: 0, user_id: data }, (err, row) => {
+  //       if (!err) {
+  //         resolve(data);
+  //       } else {
+  //         reject(err);
+  //       }
+  //     });
+  //   })
+  // }
 
   function respond(data) {
     next();
@@ -65,7 +65,7 @@ const signUp = (req, res, next) => {
     })
     .then(createHashPw)
     .then(createUser)
-    .then(createPointEntry)
+    // .then(createPointEntry)
     .then(respond)
     .catch(error);
 };

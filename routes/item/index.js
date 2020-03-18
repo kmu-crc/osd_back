@@ -3,8 +3,8 @@ const router = express.Router();
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getItemList = require("../../middlewares/getItemList");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
-const { itemList, getTotalCount, getTopList, getUploadItemList, updateItemList, deleteItemList, createItemList } = require("./list");
-const { itemDetail, itemCard, itemStep, HaveInItem, updateCardAllData, updateCardSource, createItemCard } = require("./detail");
+const { itemList, getTotalCount, getTopList, getUploadItemList, getMyProjectItemList, updateItemList, deleteItemList, createItemList } = require("./list");
+const { itemDetail, itemCard, itemStep, HaveInItem, updateCardInfo, updateCardSource, createItemCard } = require("./detail");
 const { createItem, updateItem, deleteItem } = require("./create");
 const { updateItemContent, deleteItemCard } = require("./itemCard");
 const { GetQuestion, RemoveQuestion, CreateQuestion } = require("./itemQuestion");
@@ -50,12 +50,14 @@ router.delete("/detail/:id/deleteList/:list_id", auth, deleteItemList);
 router.post("/detail/:id/updateList/:list_id", auth, updateItemList);
 // card
 router.post("/detail/:id/:list_id/createCard", auth, createItemCard);
-router.post("/detail/updateCardAllData/:card_id", auth, updateCardAllData, updateCardSource);
+router.post("/detail/updateCardAllData/:card_id", auth, insertThumbnail, updateCardInfo, updateCardSource);
 router.delete("/detail/:id/deleteCard/:card_id", auth, deleteItemCard);
 // ${host}/item/detail/${id}/${list_id}/createCard
 
 // uploaditemlist
 router.get("/getUploadItemList/:id/:page", getUploadItemList, getItemList);
+// my project item list
+router.get("/getMyProjectItemList/:id/:page", getMyProjectItemList, getItemList);
 
 module.exports = router;
 

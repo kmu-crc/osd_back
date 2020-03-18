@@ -1,5 +1,63 @@
 var connection = require("../../configs/connection");
 
+exports.getMakerReviewCount = (req, res, next) => {
+  const id = req.params.id;
+
+  const getReview = () => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+        SELECT COUNT(*) AS 'count' FROM market.review
+          WHERE item_id IN 
+            (SELECT uid FROM market.item WHERE user_id = ${id}) AND sort_in_group LIKE 0`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(row[0] ? row[0]['count'] : 0);
+        } else {
+          reject(err);
+        }
+      })
+    });
+  }
+  const respond = total => { res.status(200).json({ success: true, data: total }) }
+  const error = err => { res.status(500).json({ success: false, data: err }) };
+  getReview()
+    .then(respond)
+    .catch(error);
+};
+exports.getMakerReview = (req, res, next) => {
+  const id = req.params.id;
+  const page = req.params.page || 0;
+
+  const getReview = () => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+        SELECT 
+          R.item_id, R.sort_in_group, R.user_id, R.payment_id, R.comment, R.score, 
+          T.m_img, U.nick_name
+        FROM market.review R
+          LEFT JOIN market.item I ON I.uid = R.item_id
+          LEFT JOIN market.thumbnail T ON T.uid = I.thumbnail_id
+          LEFT JOIN market.user U ON U.uid = R.user_id
+            WHERE item_id IN 
+              (SELECT uid FROM market.item WHERE user_id = ${id}) 
+          AND sort_in_group LIKE 0
+        LIMIT ${page * 10}, 10`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(row);
+        } else {
+          reject(err);
+        }
+      })
+    });
+  }
+  const respond = data => { res.status(200).json({ success: true, data: data }) }
+  const error = err => { res.status(500).json({ success: false, data: err }) };
+  getReview()
+    .then(respond)
+    .catch(error);
+};
+
 exports.makerDetail = (req, res, next) => {
   const id = req.params.id;
 
