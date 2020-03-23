@@ -4,7 +4,7 @@ const auth = require("../../middlewares/auth");
 
 const { RequestList, RequestListCount, ExtendRequestList } = require("./list");
 const { RequestDetail } = require("./detail");
-const { CreateRequest, GetRequest, GetDesignerRequest, GetMakerRequest, GetMyDesignerRequest, GetMyMakerRequest } = require("./request");
+const { CreateRequest, UpdateRequest, deleteRequest, GetRequest, GetDesignerRequest, GetMakerRequest, GetMyDesignerRequest, GetMyMakerRequest } = require("./request");
 const { GetComment, RemoveComment, CreateComment } = require("./comment");
 
 // router.get("/list/:page/:sorting?/:cate1?/:cate2?/:keyword?/:private?", RequestList, ExtendRequestList);
@@ -15,6 +15,8 @@ router.delete("/comment-remove/:id", auth, RemoveComment);
 router.post("/comment-create/:id", auth, CreateComment);
 
 router.post("/create", auth, CreateRequest);
+router.post("/update/:id", auth, UpdateRequest);
+router.delete("/delete/:id", auth, deleteRequest);
 router.get("/list/:type/:page/:cate1?/:cate2?/:sort?/:keyword?", GetRequest);
 router.get("/designer-list/:id/:page/", GetDesignerRequest);
 router.get("/maker-list/:id/:page/", GetMakerRequest);

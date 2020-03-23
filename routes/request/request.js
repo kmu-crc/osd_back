@@ -534,3 +534,143 @@ exports.GetMyMakerRequest = (req, res, next) => {
     .then(success)
     .catch(failure);
 };
+
+
+exports.UpdateRequest = (req, res, next) => {
+  const uid = req.params.id;
+
+}
+
+//Create Request
+exports.UpdateRequest = (req, res, next) => {
+  let data = { ...req.body };
+  const uid = req.params.id;
+  const update_sort = () => {
+    // 1.UPDATE BOARD SET SORTS = SORTS + 1 
+    // WHERE BGROUP =  (원글의 BGROUP)  AND SORTS >(원글의 SORTS)
+    return new Promise((resolve, reject) => {
+      if (data.group_id == null) resolve(id);
+      const sql = `UPDATE market.request SET sort_in_group = sort_in_group + 1
+      WHERE group_id = ${ data.group_id} AND sort_in_group > ${data.sort_in_group} `;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(true);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  }
+  const answer = id => {
+    // 2. INSERT INTO BOARD VALUES (번호, (원글의 BGROUP), (원글의 SORTS +1), (원글의 DEPTH +1) ,' 제목')
+    return new Promise((resolve, reject) => {
+      if (data.expert_id !== "null" && data.expert_id) {
+        data.expert_id = parseInt(data.expert_id, 10);
+      } else {
+        delete data.expert_id;
+      }
+      if (data.personal !== "null" && data.personal) {
+        data.personal = parseInt(data.personal, 10);
+      } else {
+        delete data.personal;
+      }
+      const obj = { ...data, group_id: data.group_id, sort_in_group: data.sort_in_group + 1, expert_id: id };
+      const sql = `UPDATE market.request SET ? WHERE uid=${uid}`;
+      connection.query(sql, obj, (err, row) => {
+        if (!err) {
+          resolve(true);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  const update_request = (id) => {
+    return new Promise((resolve, reject) => {
+      // console.log("create_request:", data);
+      if (data.expert_id !== "null" && data.expert_id) {
+        data.expert_id = parseInt(data.expert_id, 10);
+      } else {
+        delete data.expert_id;
+      }
+      if (data.personal !== "null" && data.personal) {
+        data.personal = parseInt(data.personal, 10);
+      } else {
+        delete data.personal;
+      }
+
+      const obj = { ...data, sort_in_group: 0, client_id: id };
+      const sql = `UPDATE market.request SET ? WHERE uid=${uid}`;
+      // console.log(sql, obj);
+      connection.query(sql, obj, (err, row) => {
+        if (!err) {
+          resolve(row.insertId);
+        } else {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+  const give_group_id = id => {
+    return new Promise((resolve, reject) => {
+      const sql = `UPDATE market.request SET group_id = ${id} WHERE uid = ${id} `;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(true);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  const respond = () => { res.status(200).json({ success: true, id: data.personal || null, message: "글 작성을 완료하였습니다." }) };
+  const error = () => { res.status(500).json({ message: "so what?" }) };
+
+  // request
+  if (!data.group_id) {
+    update_request(req.decoded.uid)
+      .then(give_group_id)
+      .then(respond)
+      .catch(error);
+  } else {
+    update_sort()
+      .then(answer(req.decoded.uid))
+      .then(respond)
+      .catch(error);
+  }
+};
+
+exports.deleteRequest = (req, res, next) => {
+  const id = req.params.id;
+  // 그룹 테이블에서 삭제
+  const deleteRequest = (id) => {
+    //console.log("deleteGroup");
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM market.request WHERE uid = ${id}`, (err, row) => {
+        if (!err) {
+          resolve(id);
+        } else {
+          //console.log(err);
+          reject(err);
+        }
+      });
+    });
+  };
+  const success = () => {
+    res.status(200).json({
+      success: true
+    });
+  };
+
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+
+  deleteRequest(id)
+    .then(success)
+    .catch(fail);
+}

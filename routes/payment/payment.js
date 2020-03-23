@@ -1,6 +1,5 @@
 const connection = require("../../configs/connection");
 
-
 // Get Payment
 exports.GetPayment = (req, res, next) => {
     const item_id = req.params.id;
@@ -258,7 +257,9 @@ exports.RemovePayment = (req, res, next) => {
 };
 
 // Create Payment
-exports.CreatePayment = (req, res, next) => {
+exports.CreatePayment = async (req, res, next) => {
+    const { NewAlarm } = require("../../socket");
+
     const id = req.params.id === "custom" ? null : parseInt(req.params.id, 10);
     const user_id = req.decoded.uid;
     const _ = req.body;
@@ -300,30 +301,31 @@ exports.CreatePayment = (req, res, next) => {
             });
         });
     };
-    // const checkCompletedRequest = (id) => {
-    //     return new Promise((resolve, reject) => {
-    //         if (_.request_id) {
-    //             const sql = `UPDATE market.request SET expert_id=${id} WHERE uid=${_.request_id}`;
-    //             connection.query(sql, (err, row) => {
-    //                 if (!err) {
-    //                     resolve(id);
-    //                 } else {
-    //                     reject(err);
-    //                 }
-    //             });
-    //         } else {
-    //             resolve(id);
-    //         }
-    //     });
-    // };
-
+    const getExpertIdByItemId = itemid => {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT user_id FROM market.item WHERE uid=?`;
+            console.log(sql, itemid);
+            connection.query(sql, itemid, (err, row) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(row[0]["user_id"] || null);
+                }
+            });
+        });
+    };
     const success = data => { res.status(200).json({ success: true, data: data }) };
     const failure = err => { res.status(500).json({ success: false, data: err }) };
+
+    const expert_id = await getExpertIdByItemId(id);
 
     createPayment(id)
         .then(minusPoint)
         // .then(checkCompletedRequest)
         .then(success)
+        .then(NewAlarm({ type: "ITEM_PURCHASED_TO_USER", from: expert_id, to: user_id, item_id: id, })) // to buyer
+        .then(NewAlarm({ type: "ITEM_PURCHASED_TO_EXPERT", from: user_id, to: expert_id, item_id: id, })) // to seller
         .catch(failure);
 };
 
