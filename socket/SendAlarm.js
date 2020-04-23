@@ -157,9 +157,9 @@ function getTitleById(type, content_id) {
 }
 function validContentId(type, content_id) {
   let table = "opendesign.design";
- if(type === "DESIGN") table = "opendesign.design";
- if(type === "GROUP") table = "opendesign.group"
- if(type === "DESIGNER") table = "opendesign.user";
+  if (type === "DESIGN") table = "opendesign.design";
+  if (type === "GROUP") table = "opendesign.group"
+  if (type === "DESIGNER") table = "opendesign.user";
 
   return new Promise((resolve, reject) => {
     connection.query(
@@ -177,7 +177,7 @@ function validContentId(type, content_id) {
 }
 function getAlarmList(uid) {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM opendesign.alarm T WHERE T.user_id=${uid} AND T.type !="MESSAGE" ORDER BY confirm, create_time DESC`, (error, rows) => {
+    connection.query(`SELECT * FROM opendesign.alarm T WHERE T.user_id=${uid} AND T.type !="MESSAGE" ORDER BY confirm ASC, create_time DESC`, (error, rows) => {
       if (!error) {
         // console.log(rows)
         resolve(rows)
@@ -198,30 +198,80 @@ function getMsgCount(uid) {
     })
   })
 }
-function getThumbnail(type, content_id) {
+function getThumbnail(type, kinds, content_id) {
   return new Promise((resolve, reject) => {
-    const table = type === "DESIGN" ? "opendesign.design" : "opendesign.group"
-    connection.query(`SELECT T.s_img FROM opendesign.thumbnail T WHERE uid IN( SELECT D.thumbnail FROM ${table} D WHERE uid=${content_id})`, (error, rows) => {
-      if (!error) {
-        if (rows.length > 0)
-          resolve(rows[0]["s_img"])
-        else
-          resolve(null)
-      } else {
-        reject(`getThumbnail:` + error)
-      }
-    })
+    if (kinds == null) {
+      const table = type === "DESIGN" ? "opendesign.design" : "opendesign.group";
+      const sql = `SELECT T.s_img FROM opendesign.thumbnail T WHERE uid IN( SELECT D.thumbnail FROM ${table} D WHERE uid=${content_id})`;
+      connection.query(sql, (error, rows) => {
+        // console.log(sql);
+        if (!error) {
+          if (rows.length > 0)
+            resolve(rows[0]["s_img"])
+          else
+            resolve(null)
+        } else {
+          reject(`getThumbnail:` + error)
+        }
+      })
+
+    } else {
+      const table = kinds === "JOIN_withDESIGN" || kinds === "GROUP_DESIGN_OUT" ? "opendesign.design" : "opendesign.group";
+      const sql = `SELECT T.s_img FROM opendesign.thumbnail T WHERE uid IN( SELECT D.thumbnail FROM ${table} D WHERE uid=${content_id})`;
+      connection.query(sql, (error, rows) => {
+        // console.log(sql);
+        if (!error) {
+          if (rows.length > 0)
+            resolve(rows[0]["s_img"])
+          else
+            resolve(null)
+        } else {
+          reject(`getThumbnail:` + error)
+        }
+      })
+    }
   })
 }
+function getTitle(type, kinds, content_id) {
+  return new Promise((resolve, reject) => {
+    // console.log(kinds, type);
+    if (kinds == null) {
+      const table = type === "DESIGN" ? "opendesign.design" : "opendesign.group";
+      const sql = `SELECT T.title FROM ${table} T WHERE uid=${content_id}`;
+      connection.query(sql, (error, rows) => {
+        if (!error) {
+          if (rows.length > 0)
+            resolve(rows[0]["title"]);
+          else
+            resolve(null);
+        } else {
+          reject(`getTitle:` + error);
+        }
+      });
+    } else {
+      const table = kinds === "JOIN_withDESIGN" || kinds === "GROUP_DESIGN_OUT" ? "opendesign.design" : "opendesign.group";
+      const sql = `SELECT T.title FROM ${table} T WHERE uid=${content_id}`;
+      connection.query(sql, (error, rows) => {
+        if (!error) {
+          if (rows.length > 0)
+            resolve(rows[0]["title"]);
+          else
+            resolve(null);
+        } else {
+          reject(`getTitle:` + error);
+        }
+      });
+    }
+  });
+}
 function getLastComment(comment_id) {
-//const sql = `SELECT DC.comment FROM opendesign.design_comment DC WHERE design_id IN (SELECT content_id FROM alarm A WHERE user_id=${user_id} AND A.type="DESIGN" AND (A.kinds="COMMENT" OR A.kinds="COMMENT_COMMENT")) ORDER BY create_time DESC LIMIT 1;`
-//console.log(sql)
-const sql = `SELECT comment FROM opendesign.design_comment WHERE uid =${comment_id}`
+  const sql = `SELECT comment FROM opendesign.design_comment WHERE uid =${comment_id}`
   return new Promise((resolve, reject) => {
     connection.query(sql, (error, rows) => {
       if (!error) {
-        if (rows.length > 0){
-          resolve(rows[0]["comment"])}
+        if (rows.length > 0) {
+          resolve(rows[0]["comment"])
+        }
         else
           resolve(null)
       } else {
@@ -230,18 +280,17 @@ const sql = `SELECT comment FROM opendesign.design_comment WHERE uid =${comment_
     })
   })
 }
-function attachCommentToAlarm(list){
+function attachCommentToAlarm(list) {
   return new Promise(async (resolve, reject) => {
     for (let item of list) {
-	let condition =  (item.type ==="DESIGN" &&(item.kinds === "COMMENT"||item.type ==="COMMENT_COMMENT")) 
-	//console.log(condition, "codition")
-      item.reply_preview = await getLastComment(item.sub_content_id)
+      let condition = (item.type === "DESIGN" && (item.kinds === "COMMENT" || item.type === "COMMENT_COMMENT"))
+      //console.log(condition, "codition")
+      if (condition) {
+        item.reply_preview = await getLastComment(item.sub_content_id)
+        // console.log(item.reply_preview);
+      }
     }
-    
-    for (let item of list) {
-       //console.log("preview:", item.reply_preview)
-    }
-    resolve(list)
+    resolve(list);
   })
 }
 function extendAlarm(list) {
@@ -253,11 +302,18 @@ function extendAlarm(list) {
     let newlist = list.filter(item => item.is_alive > 0)
 
     for (let item of newlist) {
+      // console.log(item);
       item.from = item.from_user_id ? await getNickName(item.from_user_id) : null
       item.to = item.user_id ? await getNickName(item.user_id) : null
       item.title = item.content_id ? await getTitleById(item.type, item.content_id) : null
-      item.thumbnail = item.content_id && item.type ? await getThumbnail(item.type, item.content_id) : null
-      item.targetThumbnail = item.sub_content_id && item.type ? await getThumbnail(item.type, item.sub_content_id) : null
+      item.thumbnail = item.content_id && item.type ? await getThumbnail(item.type, null, item.content_id) : null
+      item.targetThumbnail =
+        item.sub_content_id && item.kinds ?
+          await getThumbnail(item.type, item.kinds, item.sub_content_id)
+          : null
+      item.targetTitle = item.sub_content_id && item.kinds ?
+        await getTitle(item.type, item.kinds, item.sub_content_id)
+        : null
     }
     resolve(newlist)
   })
@@ -278,9 +334,10 @@ function sendAlarmList(socketId, uid, newlist, io) {
     // Promise.all(newlist)
     // .then(() => 
     countUnconfirmAlarm(uid, newlist) // )
-      .then(count => { 
-//console.log("count.msg:", count.msg)
-io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist }) })
+      .then(count => {
+        //console.log("count.msg:", count.msg)
+        io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist })
+      })
       .catch(error => console.log(`ERR: send noti, ${error}`))
   })
 }
@@ -303,8 +360,55 @@ exports.newGetMsg = (socketId, uid, io) => {
     .then(list => io.to(`${socketId}`).emit("getMsgAlarm", list))// sendMsgAlarmList(socketId, uid, list, io))
     .catch(error => console.log(error))
 }
+
+const getUnconfirmAlarms = (user_id) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+    SELECT * FROM opendesign.alarm A 
+      WHERE 
+        A.confirm LIKE 0 
+        AND A.user_id = ? 
+        AND A.type NOT LIKE 'MESSAGE'
+      ORDER BY A.create_time DESC`;
+    connection.query(sql, user_id, (err, row) => {
+      if (err) {
+        console.error("GET UNCONFIRM ALAMRS:", err);
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+const getConfirmAlarms = (user_id, list) => {
+  // AND T.create_time >= DATE_ADD(NOW(), INTERVAL  -3 MONTH) 
+  const MAX_ALARMS = 100;
+  return new Promise((resolve, reject) => {
+    const sql = `
+    SELECT * FROM opendesign.alarm T 
+      WHERE 
+        T.user_id = ${user_id} 
+        AND T.confirm LIKE 1 
+        AND T.type NOT LIKE 'MESSAGE'
+      ORDER BY T.create_time DESC
+      LIMIT 0, ${list.length > MAX_ALARMS ? 0 : MAX_ALARMS - list.length} 
+      `;
+    connection.query(sql, (err, row) => {
+      if (err) {
+        console.error("GET CONFIRM ALARMS:", err);
+        reject(err);
+      } else {
+        const combind = [...list, ...row];
+        resolve(combind);
+      }
+    })
+  })
+};
+
 exports.newGetAlarm = (socketId, uid, io) => {
-  getAlarmList(uid)
+  // getAlarmList(uid)
+  getUnconfirmAlarms(uid)
+    .then(list => getConfirmAlarms(uid, list))
     .then(list => extendAlarm(list))
     .then(list => attachCommentToAlarm(list))
     .then(extList => sendAlarmList(socketId, uid, extList, io))
@@ -347,19 +451,25 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
   } else if (message === "JoinGroupSuccess") {
     type = "GROUP";
     kinds = "JOINSUCCESS";
-  } else if (message === "DesignOutFromGroup"){
+  } else if (message === "DesignOutFromGroup") {
     type = "GROUP"
     kinds = "GROUP_DESIGN_OUT"
   } else if (message === "JoinGroupRefuse") {
     type = "GROUP";
     kinds = "JOINREFUSE";
+  } else if (message === "GroupOutFromGroup") {
+    type = "GROUP"
+    kinds = "GROUP_GROUP_OUT"
+  } else if (message === "GroupGroupRefuse") {
+    type = "GROUP";
+    kinds = "GROUP_JOINREFUSE";
   } else if (message === "Likedesign") {
     type = "DESIGN";
     kinds = "LIKE";
   } else if (message === "LikeGroup") {
     type = "GROUP";
     kinds = "LIKE";
-  } else if (message === "LikeDesigner"){
+  } else if (message === "LikeDesigner") {
     type = "DESIGNER";
     kinds = "LIKE";
   } else if (message === "CommentDesign") {
@@ -378,8 +488,8 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
 
   function insertAlarm(uid, type, kinds, content_id, fromUserId, subContentId) {
     return new Promise((resolve, reject) => {
-      let SET = { user_id: uid, type, kinds, content_id, from_user_id: fromUserId, confirm: 0, sub_content_id:subContentId};
-      SET.sub_content_id = subContentId === null ? null : subContentId
+      let SET = { user_id: uid, type, kinds, content_id, from_user_id: fromUserId, confirm: 0, sub_content_id: subContentId };
+      // SET.sub_content_id = subContentId === null ? null : subContentId
       connection.query(
         "INSERT INTO alarm SET ?", SET,
         (err, rows) => {

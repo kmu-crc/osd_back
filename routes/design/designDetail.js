@@ -11,7 +11,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 디자인 기본 정보 가져오기
-  function getDesignInfo (id) {
+  function getDesignInfo(id) {
     const p = new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design WHERE uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
@@ -28,7 +28,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 등록자 닉네임 가져오기
-  function getName (data) {
+  function getName(data) {
     const p = new Promise((resolve, reject) => {
       if (data.user_id === null) {
         data.userName = null;
@@ -52,7 +52,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 카테고리 이름 가져오기
-  function getCategory (data) {
+  function getCategory(data) {
     const p = new Promise((resolve, reject) => {
       let cate;
       let sql;
@@ -79,7 +79,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 디자인 썸네일 가져오기 (GET)
-  function getThumnbail (data) {
+  function getThumnbail(data) {
     const p = new Promise((resolve, reject) => {
       if (data.thumbnail === null) {
         data.img = null;
@@ -106,7 +106,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 속한 멤버들의 id, 닉네임 리스트 가져오기
-  function getMemberList (data) {
+  function getMemberList(data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "SELECT D.user_id, U.nick_name FROM design_member D JOIN user U ON U.uid = D.user_id WHERE D.design_id = ? AND D.is_join = 1",
@@ -128,7 +128,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 파생된 디자인 수 가져오기
-  function getChildrenCount (data) {
+  function getChildrenCount(data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "SELECT count(*) FROM design WHERE parent_design = ?",
@@ -148,7 +148,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 내가 디자인 멤버인지 검증하기
-  function isTeam (data) {
+  function isTeam(data) {
     const p = new Promise((resolve, reject) => {
       if (loginId === null) {
         data.is_team = 0;
@@ -156,7 +156,7 @@ exports.designDetail = (req, res, next) => {
       } else {
         connection.query(
           `SELECT * FROM design_member WHERE design_id = ${
-            data.uid
+          data.uid
           } AND user_id = ${loginId} AND is_join = 1`,
           (err, result) => {
             if (!err && result.length === 0) {
@@ -177,7 +177,7 @@ exports.designDetail = (req, res, next) => {
   }
 
   // 내가 가입 신청중인 디자인인지 검증하기
-  function waiting (data) {
+  function waiting(data) {
     const p = new Promise((resolve, reject) => {
       if (loginId === null) {
         data.waitingStatus = 0;
@@ -185,7 +185,7 @@ exports.designDetail = (req, res, next) => {
       } else {
         connection.query(
           `SELECT * FROM design_member WHERE design_id = ${
-            data.uid
+          data.uid
           } AND user_id = ${loginId} AND is_join = 0`,
           (err, result) => {
             if (!err && result.length === 0) {
@@ -281,11 +281,11 @@ exports.designDetail = (req, res, next) => {
   };
 
   // 가장 최근 업데이트된 이슈 제목 가져오기
-  function getIssueTitle (data) {
+  function getIssueTitle(data) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `SELECT uid, title, update_time FROM design_issue WHERE design_id = ${
-          data.uid
+        data.uid
         } ORDER BY update_time DESC`,
         (err, result) => {
           if (!err && result.length === 0) {
@@ -303,10 +303,10 @@ exports.designDetail = (req, res, next) => {
     return p;
   }
 
-  function getIsParent(data){
+  function getIsParent(data) {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT count(*) FROM opendesign.design WHERE parent_design=${data.uid};`, (err, result) => {
-        if(!err && result[0]["count(*)"] === 0) {
+        if (!err && result[0]["count(*)"] === 0) {
           data.is_parent = false
           resolve(data)
         } else if (!err && result[0]["count(*)"] > 0) {
@@ -319,18 +319,18 @@ exports.designDetail = (req, res, next) => {
     })
   }
 
-  function getParentTitle(data){
+  function getParentTitle(data) {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT title FROM opendesign.design WHERE uid=${data.parent_design};`, (err, result) => {
-          if (!err && result.length === 0) {
-            data.parent_title = null;
-            resolve(data);
-          } else if (!err && result.length > 0) {
-            data.parent_title = result[0]["title"];
-            resolve(data);
-          } else {
-            reject(err);
-          }
+        if (!err && result.length === 0) {
+          data.parent_title = null;
+          resolve(data);
+        } else if (!err && result.length > 0) {
+          data.parent_title = result[0]["title"];
+          resolve(data);
+        } else {
+          reject(err);
+        }
       })
     })
   }
@@ -356,7 +356,7 @@ exports.designDetail = (req, res, next) => {
 exports.getCount = (req, res, next) => {
   const designId = req.params.id;
 
-  function getCount (id) {
+  function getCount(id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "SELECT * FROM design_counter WHERE design_id = ?",
@@ -382,7 +382,7 @@ exports.getCount = (req, res, next) => {
 exports.updateViewCount = (req, res, next) => {
   const designId = req.params.id;
 
-  function updateDesignView (id) {
+  function updateDesignView(id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         "UPDATE design_counter SET view_count = view_count + 1 WHERE design_id = ?",
@@ -401,7 +401,7 @@ exports.updateViewCount = (req, res, next) => {
     return p;
   }
 
-  function updateUserView (id) {
+  function updateUserView(id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user_counter C
@@ -429,7 +429,7 @@ exports.updateViewCount = (req, res, next) => {
 exports.changeToProject = (req, res, next) => {
   const id = req.params.id;
 
-  function changeToProject (id) {
+  function changeToProject(id) {
     const p = new Promise((resolve, reject) => {
       connection.query(
         `UPDATE design SET is_project = 1, update_time = now() WHERE uid = ${id}`,
@@ -447,7 +447,7 @@ exports.changeToProject = (req, res, next) => {
   }
 
   // 기존 블로그형 디자인에 컨텐츠가 없을 경우, 보드와 카드 삭제 (초기화 상태로 만듦)
-  function ifExistContent (id) {
+  function ifExistContent(id) {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM design_content C JOIN design_card D ON D.design_id = ${id} WHERE C.card_id = D.uid`, (err, row) => {
         if (!err && row.length === 0) {
@@ -465,7 +465,7 @@ exports.changeToProject = (req, res, next) => {
     return p;
   }
 
-  function clearBoardCard (result) {
+  function clearBoardCard(result) {
     const p = new Promise((resolve, reject) => {
       if (result) {
         resolve(true);
@@ -575,23 +575,23 @@ const getDesignUserId = id => {
     );
   });
 };
-const SendAlarm= async (fromId, contentId) => {
+const SendAlarm = async (fromId, contentId, sub) => {
   const { sendAlarm } = require("../../socket");
   const receiver = await getDesignUserId(contentId)
-  if(fromId === receiver) return;
+  if (fromId === receiver) return;
   await getSocketId(receiver)
     .then(socket =>
-      sendAlarm(socket.socketId, receiver, contentId, "CommentDesign", fromId)) 
+      sendAlarm(socket.socketId, receiver, contentId, "CommentDesign", fromId, sub))
 };
-const SendCommentCommentAlarm= async (toId, fromId, contentId) => {
+const SendCommentCommentAlarm = async (toId, fromId, contentId) => {
   const { sendAlarm } = require("../../socket");
-  if(toId===fromId) return;
+  if (toId === fromId) return;
   await getSocketId(toId)
     .then(socket =>
-      sendAlarm(socket.socketId, toId, contentId, "CommentComment", fromId)) 
+      sendAlarm(socket.socketId, toId, contentId, "CommentComment", fromId))
 };
-const getUserIdByName = name=>{
-    return new Promise((resolve, reject) => {
+const getUserIdByName = name => {
+  return new Promise((resolve, reject) => {
     // console.log("uid", uid);
     connection.query(
       `SELECT * FROM user WHERE nick_name LIKE '${name}'`,
@@ -614,17 +614,15 @@ exports.createDetailComment = async (req, res, next) => {
   // console.log("req.body.comment", req.body.comment);
   const _ = req.body.comment.match(/^@.*\s\s/)//[0].trim()
   let reply = null
-  if(_ !== null)
-  {
-    reply = await getUserIdByName(_[0].trim().substring(1)) 
+  if (_ !== null) {
+    reply = await getUserIdByName(_[0].trim().substring(1))
   }
   const createComment = (data) => {
     // console.log("DATA:", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO design_comment SET ?", data, (err, row) => {
         if (!err) {
-          //console.log("create", row);
-          resolve(row);
+          resolve(row.insertId);
         } else {
           //console.log(err);
           reject(err);
@@ -632,14 +630,14 @@ exports.createDetailComment = async (req, res, next) => {
       });
     });
   };
-  
+
   const updateCardCount = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query("UPDATE design_counter SET comment_count = comment_count + 1 WHERE design_id = ?", id, (err, row) => {
+      connection.query("UPDATE design_counter SET comment_count = comment_count + 1 WHERE design_id = ?", req.params.id, (err, row) => {
         if (!err) {
-          reply!==null?
+          reply !== null ?
             SendCommentCommentAlarm(reply, req.decoded.uid, req.params.id)
-            :SendAlarm(req.decoded.uid, req.params.id)
+            : SendAlarm(req.decoded.uid, req.params.id, id)
           //console.log("update", row);
           resolve(row);
         } else {
@@ -663,7 +661,7 @@ exports.createDetailComment = async (req, res, next) => {
   };
 
   createComment(req.body)
-    .then(() => updateCardCount(req.params.id))
+    .then(updateCardCount)
     .then(success)
     .catch(fail);
 };

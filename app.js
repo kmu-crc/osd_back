@@ -24,6 +24,7 @@ app.set("jwt-secret", process.env.SECRET_CODE);
 
 // uncomment after placing your favicon in /public
 // app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
+//app.use(logger("combined"));
 app.use(logger("dev"));
 app.use(bodyParser.json({ limit: "1gb" }));
 app.use(bodyParser.urlencoded({ limit: "1gb", extended: true }));

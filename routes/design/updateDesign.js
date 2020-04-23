@@ -232,6 +232,7 @@ exports.updateDesignTime = (req, res, next) => {
           if (!err) {
             res(true);
           } else {
+            console.log(err, designId);
             rej(err);
           }
         });

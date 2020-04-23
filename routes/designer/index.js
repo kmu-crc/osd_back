@@ -15,15 +15,16 @@ const { myGroup, relatedGroup, likeGroup, designersLikeDesigner } = require("./d
 router.get("/designerList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designerList, getDesignerList);
 router.get("/designerCount/:cate1?/:cate2?", getTotalCount);
 router.get("/designerDetail/:id", designerDetail);
-router.get("/designerDetail/:id/myDesign/:page", myDesignInDesigner, getDesignList);
-router.get("/designerDetail/:id/design/:page", designInDesigner, getDesignList);
-router.get("/designerDetail/:id/allDesignDesigner/:page", allDesignInDesigner, getDesignList);
-router.get("/designerDetail/:id/like/:page", likeInDesigner, getDesignList);
 
-router.get("/designerDetail/:id/myGroup/:page", myGroup, getGroupList);
-router.get("/designerDetail/:id/relatedGroup/:page", relatedGroup, getGroupList);
-router.get("/designerDetail/:id/likeGroup/:page", likeGroup, getGroupList);
-router.get("/designerDetail/:id/likeDesigner/:page", designersLikeDesigner, getDesignerList);
+router.get("/designerDetail/:id/myDesign/:page/:sort?", myDesignInDesigner, getDesignList);
+router.get("/designerDetail/:id/design/:page/:sort?", designInDesigner, getDesignList);
+router.get("/designerDetail/:id/allDesignDesigner/:page/:sort?", allDesignInDesigner, getDesignList);
+router.get("/designerDetail/:id/like/:page/:sort?", likeInDesigner, getDesignList);
+
+router.get("/designerDetail/:id/myGroup/:page/:sort?", myGroup, getGroupList);
+router.get("/designerDetail/:id/relatedGroup/:page/:sort?", relatedGroup, getGroupList);
+router.get("/designerDetail/:id/likeGroup/:page/:sort?", likeGroup, getGroupList);
+router.get("/designerDetail/:id/likeDesigner/:page/:sort?", designersLikeDesigner, getDesignerList);
 
 router.get("/getLike/:id", auth, getLikeDesigner);
 router.post("/like/:id", auth, likeDesigner);

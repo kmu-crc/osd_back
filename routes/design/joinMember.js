@@ -31,26 +31,43 @@ const getCreateDesignUser = (designId) => {
   });
 }
 
+const checkMemberExists = (obj) => {
+  return new Promise(resolve => {
+    const sql = `SELET COUNT(*) AS 'exist' FROM opendesign.design_member WHERE design_id=${obj.design_id} AND user_id=${obj.user_id}`;
+    connection.query(sql, (err, row) => {
+      if (!err) {
+        resolve(row && row['exists'] > 1 ? true : false);
+      }
+    });
+  });
+}
 const joinMemberFn = (req, flag) => {
   return new Promise((resolve, reject) => {
-    // console.log(req, flag, "+++");
+
     let arr = req.members.map(item => {
+
+      if (checkMemberExists({ design_id: req.design_id, user_id: item.uid }) === true)
+        return null;
+
       return new Promise(async (resolve, reject) => {
-        connection.query("INSERT INTO opendesign.design_member SET ?", { design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag }, async (err, rows) => {
-          if (!err) {
-            const { sendAlarm } = require("../../socket");
-            if (req.decoded.uid !== item.uid && (flag === "1" || flag === 1)) {
-              await getSocketId(rows.insertId, item.uid).then(data => sendAlarm(data.socketId, item.uid, req.design_id, (flag === "1" || flag === 1) ? "DesignInvite" : "DesignRequest", req.decoded.uid));
-            } else if (flag === "0" || flag === 0) {
-              let userId = await getCreateDesignUser(req.design_id);
-              await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, req.design_id, (flag === "1" || flag === 1) ? "DesignInvite" : "DesignRequest", req.decoded.uid));
+        connection.query(
+          `INSERT INTO opendesign.design_member SET ?`,
+          { design_id: req.design_id, user_id: item.uid, is_join: 0, invited: flag },
+          async (err, rows) => {
+            if (!err) {
+              const { sendAlarm } = require("../../socket");
+              if (req.decoded.uid !== item.uid && (flag === "1" || flag === 1)) {
+                await getSocketId(rows.insertId, item.uid).then(data => sendAlarm(data.socketId, item.uid, req.design_id, (flag === "1" || flag === 1) ? "DesignInvite" : "DesignRequest", req.decoded.uid));
+              } else if (flag === "0" || flag === 0) {
+                let userId = await getCreateDesignUser(req.design_id);
+                await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, req.design_id, (flag === "1" || flag === 1) ? "DesignInvite" : "DesignRequest", req.decoded.uid));
+              }
+              resolve(rows.insertId);
+            } else {
+              console.error("MySQL Error:", err);
+              reject(err);
             }
-            resolve(rows.insertId);
-          } else {
-            console.error("MySQL Error:", err);
-            reject(err);
-          }
-        });
+          });
       });
     });
     Promise.all(arr)

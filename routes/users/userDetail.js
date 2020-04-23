@@ -107,6 +107,7 @@ exports.insertDetail = (req, res) => {
 
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
+  console.log("careerlist:::",req.body);
   const userId = req.decoded.uid;
   // user 테이블에 들어가야 할 정보
   let userInfo = {
@@ -120,12 +121,12 @@ exports.modifyDetail = (req, res) => {
     category_level1: req.body.category_level1,
     category_level2: req.body.category_level2,
     is_designer: req.body.is_designer,
+    careerlist:req.body.careerlist,
     team: req.body.team,
     career: req.body.career,
     location: req.body.location,
     contact: req.body.contact
   };
-  //console.log(req.body);
   if (req.body.category_level1 === 0) {
     detailInfo.category_level1 = null;
   }

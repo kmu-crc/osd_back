@@ -26,11 +26,33 @@ exports.getSocketId = uid => {
   });
 };
 
+const updateSocket = (socketId, userId) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      UPDATE
+        opendesign.user
+      SET
+        ? 
+      WHERE 
+        uid = ${userId}`;
+    connection.query(
+      sql, { socket_id: socketId },
+      (err, row) => {
+        if (!err) {
+          resolve(true);
+        }
+        else {
+          console.error(err);
+          reject(err);
+        }
+      });
+  });
+}
 
 function SocketConnection() {
   // This is what the socket.io syntax is like, we will work this later
   io.on("connection", socket => {
-    //console.log("New client connected");
+    
     socket.on("INIT", (uid) => {
       //console.log("socket", uid, socket.id);
       connection.query(`UPDATE user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, rows) => {
@@ -42,6 +64,13 @@ function SocketConnection() {
         }
       });
     })
+
+    socket.on("request-notification", uid => {
+      const { sendNotification } = require("../routes/users/notification");
+      updateSocket(socket.id, uid)
+        .then(sendNotification(uid))
+        .catch(err => console.error("ERROR:", err));
+    });
 
     socket.on("live socket id", (uid) => {
       // //console.log(uid, socket.id);
@@ -55,26 +84,30 @@ function SocketConnection() {
     })
 
     socket.on("confirm", (obj) => {
-    const query = `UPDATE alarm SET ? WHERE uid=${obj.alarmId}`;
-    //console.log(url);
+      const query = `UPDATE alarm SET ? WHERE uid=${obj.alarmId}`;
+      //console.log(url);
       connection.query(query, { confirm: 1 }, (err, rows) => {
         if (!err) {
           newGetAlarm(socket.id, obj.user_id, io);
         } else {
           //console.log("2번", err);
-        }
+        } 
       })
     })
 
     socket.on("allConfirm", (obj) => {
-    const url = `UPDATE opendesign.alarm T SET T.confirm = 1 
-        WHERE (user_id=${obj.user_id}) AND NOT((T.type = "MESSAGE") OR (T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND (T.kinds = "JOIN_withDESIGN" || T.kinds = "JOIN_widthGROUP") AND T.type = "MESSAGE"))`
-//console.log("all confirm query - ", url)
+      const url = `SET SQL_SAFE_UPDATES = 0;
+      UPDATE opendesign.alarm T SET T.confirm = 1 
+        WHERE (user_id=${obj.user_id}) AND !(T.type = "DESIGN" AND T.kinds = "INVITE") AND !(T.type = "MESSAGE");SET SQL_SAFE_UPDATES = 1;`
+      // const url = `SET SQL_SAFE_UPDATES = 0;UPDATE opendesign.alarm T SET T.confirm = 1 
+      //   WHERE (user_id=${obj.user_id}) AND T.type NOT LIKE "MESSAGE" OR (T.type = "DESIGN" AND T.kinds = "INVITE");SET SQL_SAFE_UPDATES = 1;`
+      // WHERE (user_id=${obj.user_id}) AND NOT((T.type = "MESSAGE") OR (T.type = "DESIGN" AND T.kinds = "INVITE") OR (T.type = "DESIGN" AND T.kinds = "REQUEST") OR (T.type = "GROUP" AND (T.kinds = "JOIN_withDESIGN" || T.kinds = "JOIN_widthGROUP") AND T.type = "MESSAGE"))`
+      console.log("all confirm query - ", url)
       connection.query(url, (err, row) => {
-          if (!err) {
-            newGetAlarm(socket.id, obj.user_id, io)
-          }
-        })
+        if (!err) {
+          newGetAlarm(socket.id, obj.user_id, io)
+        }
+      })
     })
 
     socket.on("requestMsgAlarm", (uid) => {

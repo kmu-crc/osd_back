@@ -1,4 +1,5 @@
 const stringToNumber = (req, res, next) => {
+  console.log(req.body);
   //console.log("sTn", req.files);
   const StoN = () => {
     return new Promise((resolve, reject) => {
@@ -7,7 +8,7 @@ const stringToNumber = (req, res, next) => {
       for (let key in req.body) {
         arr.push(new Promise((resolve, reject) => {
           if (!isNaN(parseInt(req.body[key]))) {
-            if (key === "password" || key === "password2" || key === "nick_name" || key === "explanation" || key === "title" || key === "about_me") {
+            if (key === "password" || key === "password2" || key === "nick_name" || key === "explanation" || key === "title" || key === "about_me"||key === "careerlist" ){
               resolve(true);
             } else {
               req.body[key] = parseInt(req.body[key]);

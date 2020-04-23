@@ -19,7 +19,7 @@ const getDesignList = (req, res, next) => {
             resolve(result);
           });
         } else {
-          //console.log(err);
+          // console.error(err);
           reject(err);
         }
       });

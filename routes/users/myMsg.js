@@ -1,12 +1,118 @@
 var connection = require("../../configs/connection");
 
+exports.getChatRoomList = (req, res, next) => {
+  const user_id = req.decoded.uid;
+  const getRoomList = async (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+      SELECT G.uid, G.to_user_id, G.from_user_id, G.update_time, T.count FROM opendesign.message_group G
+	      LEFT JOIN (
+		      SELECT A.user_id, A.from_user_id, COUNT(*) AS 'count' FROM opendesign.alarm A 
+            WHERE A.user_id=${id} AND A.type LIKE 'MESSAGE' AND A.confirm LIKE 0 GROUP BY A.from_user_id) AS T ON T.from_user_id = G.from_user_id
+        WHERE G.to_user_id=${id} OR G.from_user_id=${id} ORDER BY count DESC,G.update_time DESC;
+      `;
+      connection.query(sql, (err, row) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+  };
+  const getThumbnail = (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT m_img FROM opendesign.thumbnail WHERE uid IN (SELECT thumbnail FROM opendesign.user WHERE uid=${id})`;
+      connection.query(sql, (err, row) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(row[0] ? row[0]["m_img"] : null);
+        }
+      });
+    });
+  };
+  const addThumbnail = async list => {
+    return new Promise((resolve, _) => {
+      Promise.all(
+        list.map(async item => {
+          item.thumbnail = await getThumbnail(item.from_user_id === user_id ? item.to_user_id : item.from_user_id);
+          return item;
+        }))
+        .then(resolve)
+    });
+  };
+  const getRecentlyMessage = (from, to) => {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT message FROM opendesign.message M WHERE M.from_user_id=${from} AND M.to_user_id=${to} ORDER BY create_time DESC LIMIT 1`;
+      connection.query(sql, (err, row) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(row[0] ? row[0]["message"] : null);
+        }
+      })
+    });
+  };
+  const addRecentlyMessage = async list => {
+    return new Promise((resolve, _) => {
+      Promise.all(
+        list.map(async item => {
+          item.recent = await getRecentlyMessage(item.from_user_id, user_id) || await getRecentlyMessage(user_id, item.to_user_id);
+          return item;
+        }))
+        .then(resolve);
+    });
+  };
+  const getNickName = (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT nick_name FROM opendesign.user U WHERE uid=${id}`;
+      connection.query(sql, (err, row) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(row[0] ? row[0]["nick_name"] : null);
+        }
+      })
+    });
+  };
+  const addNickName = async list => {
+    return new Promise((resolve, _) => {
+      Promise.all(
+        list.map(async item => {
+          item.friend_name = await getNickName(item.from_user_id === user_id ? item.to_user_id : item.from_user_id);
+          item.friend_id = item.from_user_id === user_id ? item.to_user_id : item.from_user_id;
+          return item;
+        }))
+        .then(resolve);
+    });
+  };
+  const success = rooms => { res.status(200).json({ success: true, rooms: rooms }); }
+  const error = err => { res.status(500).json({ success: false, message: err }); }
+
+  getRoomList(user_id)
+    .then(addThumbnail)
+    .then(addRecentlyMessage)
+    .then(addNickName)
+    .then(success)
+    .catch(error)
+}
+
 exports.getMyMsgList = (req, res, next) => {
   const userId = req.decoded.uid;
 
   // 내가 주고 받은 메시지 id 가져오기
-  async function getList (id) {
+  async function getList(id) {
     let rows = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM (SELECT message_group.*,M.create_time,M.message,TH.s_img FROM message_group LEFT JOIN message M ON message_group.uid = M.group_id LEFT JOIN thumbnail TH ON TH.uid IN (SELECT uid FROM thumbnail WHERE thumbnail.uid IN (SELECT opendesign.user.thumbnail FROM opendesign.user WHERE opendesign.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))WHERE create_time IN (SELECT MAX(create_time) FROM message GROUP BY group_id)) as T WHERE T.to_user_id=${id} OR T.from_user_id=${id}`, (err, row) => {
+      const sql =
+        `SELECT * FROM 
+        (SELECT message_group.*,M.create_time,M.message,TH.s_img 
+          FROM message_group LEFT JOIN message M ON message_group.uid = M.group_id LEFT JOIN thumbnail TH ON TH.uid IN (SELECT uid FROM thumbnail WHERE thumbnail.uid IN (SELECT opendesign.user.thumbnail FROM opendesign.user WHERE opendesign.user.uid = IF(message_group.to_user_id=${id},message_group.from_user_id,message_group.to_user_id)))WHERE create_time IN (SELECT MAX(create_time) FROM message GROUP BY group_id)) as T WHERE T.to_user_id=${id} OR T.from_user_id=${id}`
+      connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           //console.log("w");
           resolve(null);
@@ -39,20 +145,20 @@ exports.getMyMsgList = (req, res, next) => {
       return data;
     });
   };
-  async function getNotiNum(data){
-    return new Promise((resolve, reject)=>{
-      if(data === null){
+  async function getNotiNum(data) {
+    return new Promise((resolve, reject) => {
+      if (data === null) {
         resolve(null)
-      } else{
-	const sql = `SELECT count(confirm) 
+      } else {
+        const sql = `SELECT count(confirm) 
         from alarm where user_id = ${data.to_user_id} AND alarm.type="MESSAGE" AND alarm.confirm=0
         AND alarm.from_user_id=${data.from_user_id}`
-        connection.query(sql, (error, row)=>{
-          if(!error && row.length === 0){
+        connection.query(sql, (error, row) => {
+          if (!error && row.length === 0) {
             resolve(null)
-          } else if(!error&&row.length >0){
+          } else if (!error && row.length > 0) {
             resolve(row[0]["count(confirm)"])
-          } else{
+          } else {
             next(error)
           }
         })
@@ -60,7 +166,7 @@ exports.getMyMsgList = (req, res, next) => {
     })
   }
   // 보낸 사람 id&닉네임 가져오기
-  async function getNameFrom (data) {
+  async function getNameFrom(data) {
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
@@ -81,7 +187,7 @@ exports.getMyMsgList = (req, res, next) => {
   };
 
   // 받는 사람 id&닉네임 가져오기
-  async function getNameTo (data) {
+  async function getNameTo(data) {
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
@@ -106,7 +212,7 @@ exports.getMyMsgList = (req, res, next) => {
   };
 
   const error = err => {
-    res.status(500).json({error: err});
+    res.status(500).json({ error: err });
   };
 
   getList(userId)
@@ -121,7 +227,7 @@ exports.sendMsg = (req, res, next) => {
   req.body["to_user_id"] = toUserId;
 
   // 기존에 대화방이 있었는지 확인
-  function ifGroupExist (myUserId, toUserId) {
+  function ifGroupExist(myUserId, toUserId) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
@@ -142,7 +248,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   // 채팅방이 없으면 대화방 생성, 채팅방 id를 리턴해줌
-  function groupNotExist (myUserId, toUserId) {
+  function groupNotExist(myUserId, toUserId) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
@@ -161,7 +267,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   // 채팅방이 있으면 날짜와 유저 업데이트, 채팅방 id를 리턴해줌
-  function groupExist (id) {
+  function groupExist(id) {
     const p = new Promise((resolve, reject) => {
       if (!myUserId || !toUserId) {
         resolve(null);
@@ -180,7 +286,7 @@ exports.sendMsg = (req, res, next) => {
   };
 
   // 메시지 테이블에 새 대화내용 저장
-  function sendMsg (id) {
+  function sendMsg(id) {
     const p = new Promise((resolve, reject) => {
       if (id === null) {
         resolve(null);
@@ -206,7 +312,7 @@ exports.sendMsg = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          resolve({data, socketId: row[0].socket_id});
+          resolve({ data, socketId: row[0].socket_id });
         } else {
           //console.log(err);
           reject(err);
@@ -221,7 +327,7 @@ exports.sendMsg = (req, res, next) => {
     //console.log("socketId", data.socketId);
     try {
       sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
-      res.status(200).json({success: true, groupId: data.data});
+      res.status(200).json({ success: true, groupId: data.data });
     } catch (err) {
       next(err);
     }
@@ -229,7 +335,7 @@ exports.sendMsg = (req, res, next) => {
 
   const error = err => {
     //console.log("err", err);
-    res.status(500).json({success: false, groupId: null, error: err});
+    res.status(500).json({ success: false, groupId: null, error: err });
   };
 
   ifGroupExist(myUserId, toUserId)
@@ -249,31 +355,57 @@ exports.sendMsg = (req, res, next) => {
 exports.getMyMsgDetail = (req, res, next) => {
   const userId = req.decoded.uid;
   const groupId = req.params.id;
+  const page = req.params.page;
 
-  function getDetail (groupId) {
-    const p = new Promise((resolve, reject) => {
+  const removeOldMessage = () => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+      SET sql_safe_updates = 0;
+      DELETE FROM opendesign.message M
+        WHERE 
+          (M.from_user_id=${userId} OR M.to_user_id=${userId}) 
+            AND 
+          (M.create_time <= NOW() - INTERVAL 3 MONTH)
+      `;
+      // SET sql_safe_updates = 1
+      connection.query(sql, (err, _) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+  const getDetail = () => {
+    return new Promise((resolve, reject) => {
       if (!groupId) {
         resolve(null);
-      } else {
-        connection.query(`SELECT
-                    M.uid, M.group_id, M.from_user_id, M.to_user_id, M.message, M.create_time, U.nick_name, T.s_img
-                          FROM message M
-                          JOIN user U ON U.uid = M.from_user_id
-                          LEFT JOIN thumbnail T ON T.uid = U.thumbnail
-                          WHERE M.group_id = ${groupId}`, (err, row) => {
+      }
+      connection.query(
+        `SELECT
+          M.uid, M.group_id, M.from_user_id, M.to_user_id, M.message, M.create_time, U.nick_name, T.s_img
+        FROM opendesign.message M
+        LEFT JOIN user U ON U.uid = M.from_user_id
+        LEFT JOIN thumbnail T ON T.uid = U.thumbnail
+        WHERE 
+          (M.group_id = ${groupId})
+            AND
+          (M.create_time >= NOW()- INTERVAL 3 MONTH)
+        ORDER BY M.create_time DESC LIMIT ${page * 10}, 10`,
+        (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            //console.log(row);
             resolve(row);
+            // console.log(row);
           } else {
-            //console.log(err);
+            console.error(err);
             reject(err);
           }
         });
-      }
     });
-    return p;
   };
 
   const getSocketId = (data, uid) => {
@@ -283,7 +415,7 @@ exports.getMyMsgDetail = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
-          resolve({data, socketId: row[0].socket_id});
+          resolve({ data, socketId: row[0].socket_id });
         } else {
           //console.log(err);
           reject(err);
@@ -294,7 +426,7 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const AlarmConfirm = (uid, groupId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, {confirm: 1}, (err, row) => {
+      connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, { confirm: 1 }, (err, row) => {
         if (!err) {
           resolve(true);
         } else {
@@ -316,10 +448,12 @@ exports.getMyMsgDetail = (req, res, next) => {
   };
 
   const error = err => {
-    res.status(500).json({error: err});
+    res.status(500).json({ error: err });
   };
 
-  getDetail(groupId)
+  getDetail()
+    // removeOldMessage()
+    // .then(_ => getDetail())
     .then(respond)
     .catch(error);
 };
