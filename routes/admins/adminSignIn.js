@@ -8,10 +8,10 @@ const adminSignIn = (req, res, next) => {
     let userInfo = null;
     const verificationAdminID = (admin_id) => {
         const p = new Promise((resolve, reject) => {
-            connection.query(`SELECT * FROM opendesign.admin WHERE admin_id='${admin_id}'`, (err, rows) => {
+            connection.query(`SELECT * FROM market.admin WHERE admin_id='${admin_id}'`, (err, rows) => {
                 if (!err) {
                     if (rows.length === 0) {
-                        const errorMessage = `${admin_id}은 opendesign 관리자가 아닙니다.`;
+                        const errorMessage = `${admin_id}은 market 관리자가 아닙니다.`;
                         reject(errorMessage);
                     } else if (rows[0].admin_id === admin_id) {
                         userInfo = rows[0];
@@ -27,7 +27,7 @@ const adminSignIn = (req, res, next) => {
 
     const verificationPw = (pw) => {
         const p = new Promise((resolve, reject) => {
-            connection.query(`SELECT * FROM opendesign.admin WHERE admin_id='${admin_id}';`, (err, rows) => {
+            connection.query(`SELECT * FROM market.admin WHERE admin_id='${admin_id}';`, (err, rows) => {
                 if (!err) {
                     bcrypt.compare(pw, rows[0].admin_pw, function (err, respond) {
                         if (!err) {
@@ -58,7 +58,7 @@ const adminSignIn = (req, res, next) => {
                 process.env.SECRET_CODE,
                 {
                     expiresIn: "7d",
-                    issuer: "opendesign.com",
+                    issuer: "opendesign-market.com",
                     subject: "userInfo"
                 }, (err, token) => {
                     if (err) {

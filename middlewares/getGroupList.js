@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 
 const getGroupList = (req, res, next) => {
   const sql = req.sql;
-  //console.log(sql);
+  //// console.log(sql);
   // 그룹 리스트 가져오기 (GET)
   function getGroupList (sql) {
     const p = new Promise((resolve, reject) => {

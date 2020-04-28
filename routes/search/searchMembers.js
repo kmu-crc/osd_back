@@ -21,7 +21,7 @@ const searchMembers = (req, res) => {
 
     }
     return new Promise((resolve, reject) => {
-      //console.log(sql);
+      //// console.log(sql);
       connection.query(sql, (err, rows) => {
         if (!err) {
           //console.log(rows);

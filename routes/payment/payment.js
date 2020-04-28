@@ -290,7 +290,7 @@ exports.CreatePayment = async (req, res, next) => {
     const minusPoint = (id) => {
         return new Promise((resolve, reject) => {
             const sql = `UPDATE market.user SET point=point-${_.payment_price} WHERE uid=${user_id}`;
-            console.log(sql);
+            // console.log(sql);
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(id);
@@ -361,7 +361,7 @@ exports.ConfirmThisItemPurchased = (req, res, next) => {
     const confirm = () => {
         return new Promise((resolve, reject) => {
             const sql = `UPDATE market.payment SET confirm = 1 WHERE uid = ${id}`;
-            console.log(sql);
+            // console.log(sql);
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(id);

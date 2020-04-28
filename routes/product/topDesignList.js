@@ -37,7 +37,7 @@ exports.topDesignList = (req, res, next) => {
   sql = sql + `, T.` + sort + ` DESC `
   // for infinite scroll
   sql = sql + `LIMIT ` + (page * 0) + `, 4;`;
-  console.log(sql);
+  // console.log(sql);
   req.sql = sql;
   next();
 };

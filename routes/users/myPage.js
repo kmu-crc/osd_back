@@ -1,19 +1,44 @@
 var connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { updateThumbnailID } = require("../../middlewares/updateThumbnailID");
-exports.modifyUserDetail = (req,res,next)=>{
-  console.log("modifyUserDetial========",req.id);
-  // const thumbnail = {image:req.body.image,filename:req.body.filename};
-  // const data = {user_id:req.params.id,image:req.body.image,filename:req.body.filename};
-  // const data = {user_id:req.params.id,thumbnail_id:req}
-  createThumbnails({...req.file})
-  .then((data)=>{
-    console.log(data);
-    updateThumbnailID({thumbnail_id:data,user_id: parseInt(req.params.id,10)})})
-  // .then(updateThumbnailID)
-  .then(data => res.status(200).json(data))
-  .catch(err => res.status(500).json(err));
 
+exports.modifyUserDetail = (req, res, next) => {
+
+  const createHashPw = (pw) => {
+    const bcrypt = require("bcrypt");
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(pw, 10, function (err, hash) {
+        if (!err) {
+          resolve(hash);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  const updateUserDB = (obj) => {
+    return new Promise(async (resolve, reject) => {
+      if (obj.password) {
+        obj.password = await createHashPw(obj.password);
+      }
+      const sql = `UPDATE market.user SET ? WHERE uid=${req.decoded.uid}`;
+      connection.query(sql, obj, (err, _) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(true)
+        }
+      });
+    })
+  }
+
+  createThumbnails(req.file || null)
+    .then(data =>
+      data && updateThumbnailID({ thumbnail_id: data, user_id: parseInt(req.params.id, 10) }))
+    .then(() => updateUserDB(req.body))
+    .then(result => res.status(200).json({ success: result, }))
+    .catch(err => { console.log(err); res.status(500).json(err) });
 }
 // 내 기본 정보 가져오기
 exports.myPage = (req, res, next) => {
@@ -21,29 +46,26 @@ exports.myPage = (req, res, next) => {
   // console.log("getMyInfo", req.decoded.uid);
   // 마이페이지 내 기본 정보 가져오기 (GET)
   function getMyInfo(id) {
-
-    const p = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       update_totals(id)
-      connection.query("SELECT U.uid, U.email, U.nick_name, U.password FROM market.user U WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.email, U.nick_name, U.phone FROM market.user U WHERE U.uid=?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
           let data = row[0];
-          console.log("!err row not zero!");
           resolve(data);
         } else {
-          //console.log(err);
+          console.error(err);
           reject(err);
         }
       });
     });
-    return p;
   };
 
   const getThumbnail = data => {
     return new Promise((resolve, reject) => {
-      const sql = 
-      `SELECT K.m_img FROM 
+      const sql =
+        `SELECT K.m_img FROM 
         (SELECT * FROM market.thumbnail T WHERE T. user_id=${data.uid} AND T.uid IN (SELECT thumbnail FROM market.user U WHERE U.uid=${id}) 
           UNION SELECT * FROM market.thumbnail T WHERE T.user_id=${data.uid} AND T.uid IN (SELECT thumbnail_id FROM market.expert E WHERE E.user_id=${id})) K
       ORDER BY K.uid DESC
@@ -52,7 +74,7 @@ exports.myPage = (req, res, next) => {
         if (err) {
           reject(err);
         } else {
-          data.thumbnail = rows[0]?rows[0].m_img:null;
+          data.thumbnail = rows[0] ? rows[0].m_img : null;
           // console.log("rows",rows[0])
           resolve(data);
         }

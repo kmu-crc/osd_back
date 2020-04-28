@@ -27,7 +27,7 @@ exports.designerDetail = (req, res, next) => {
   function getThumbnail(data) {
     return new Promise ((resolve, reject)=>{
       const sql = `SELECT m_img FROM market.thumbnail WHERE uid in (SELECT thumbnail_id FROM market.expert WHERE user_id = ${id} AND type="${designer}")`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -83,7 +83,7 @@ exports.makerDetail = (req, res, next) => {
   function getThumbnail(data) {
     return new Promise ((resolve, reject)=>{
       const sql = `SELECT m_img FROM market.thumbnail WHERE uid in (SELECT thumbnail_id FROM market.expert WHERE user_id = ${id} AND type="${maker}")`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -157,7 +157,7 @@ exports.designerViewDetail = (req, res, next) => {
   function getThumbnail(data) {
     return new Promise ((resolve, reject)=>{
       const sql = `SELECT m_img FROM market.thumbnail WHERE uid in (SELECT thumbnail_id FROM market.expert WHERE user_id = ${id} AND type="${designer}")`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -262,7 +262,7 @@ exports.makerViewDetail = (req, res, next) => {
   function getThumbnail(data) {
     return new Promise ((resolve, reject)=>{
       const sql = `SELECT m_img FROM market.thumbnail WHERE uid in (SELECT thumbnail_id FROM market.expert WHERE user_id = ${id} AND type="${maker}")`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);

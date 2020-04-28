@@ -100,6 +100,9 @@ router.post("/changeToProject/:id", auth, changeToProject);
 
 // top 5개 리스트 가져오기 (메인용)
 router.get("/TopList/:page", getTopList, getDesignList);
+// router.post("/:id/insertTopGroup", auth, insertTopDesign);
+// router.post("/:id/updateTopGroup", auth, updateTopDesign);
+// router.post("/:id/deleteTopGroup", auth, deleteTopDesign);
 
 // 새로운 디자인 디테일 로직
 router.get("/designDetail/getCardSource/:card_id", getCardSource);

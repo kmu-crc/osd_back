@@ -6,8 +6,8 @@ const check = require("./check");
 const auth = require("../../middlewares/auth");
 const { FBSignIn, FBSignUp } = require("./FBRegistration");
 const { insertDetail, modifyDetail,
-    insertDesignerDetail,modifyDesignerDetail,
-    insertMakerDetail,modifyMakerDetail } = require("./userDetail");
+    insertDesignerDetail, modifyDesignerDetail,
+    insertMakerDetail, modifyMakerDetail } = require("./userDetail");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const stringToBoolean = require("../../middlewares/stringToBoolean");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
@@ -18,7 +18,7 @@ const checkFBUser = require("./checkFBUser");
 const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 const getDesignerList = require("../../middlewares/getDesignerList");
-const { modifyUserDetail,myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner, getMyInvitedList, getMyInvitingList } = require("./myPage");
+const { modifyUserDetail, myPage, myDesign, myGroup, myLikeDesign, myLikeGroup, myLikeDesigner, getMyInvitedList, getMyInvitingList } = require("./myPage");
 const { getMyMsgList, getMyMsgDetail, sendMsg, CheckOpponentConnected } = require("./myMsg");
 const { findPw } = require("./resetMail");
 
@@ -36,13 +36,13 @@ router.post("/insertDetail", auth, insertThumbnail, insertDetail);
 
 router.post("/modifyDetail", auth, /*insertThumbnail, stringToNumber, stringToBoolean,*/ modifyDetail);
 
-router.post("/insertDesignerDetail",auth,insertThumbnail,insertDesignerDetail);
+router.post("/insertDesignerDetail", auth, insertThumbnail, insertDesignerDetail);
 
-router.post("/modifyDesignerDetail",auth,insertThumbnail,modifyDesignerDetail);
+router.post("/modifyDesignerDetail", auth, insertThumbnail, modifyDesignerDetail);
 
-router.post("/insertMakerDetail",auth,insertThumbnail,insertMakerDetail);
+router.post("/insertMakerDetail", auth, insertThumbnail, insertMakerDetail);
 
-router.post("/modifyMakerDetail",auth,insertThumbnail,modifyMakerDetail);
+router.post("/modifyMakerDetail", auth, insertThumbnail, modifyMakerDetail);
 
 router.post("/deleteUser", auth, secession);
 
@@ -52,7 +52,7 @@ router.post("/checkNickName", checkNickName);
 
 router.post("/checkFBUser", checkFBUser);
 
-router.post("/modifyUserDetail/:id",auth,insertThumbnail,modifyUserDetail);
+router.post("/modifyUserDetail/:id", auth, insertThumbnail, modifyUserDetail);
 router.get("/myPage", auth, myPage);
 router.get("/myPage/design/:page", auth, myDesign, getDesignList);
 router.get("/myPage/group/:page", auth, myGroup, getGroupList);

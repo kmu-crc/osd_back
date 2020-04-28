@@ -83,7 +83,7 @@ exports.makerDetail = (req, res, next) => {
         resolve(data);
       } else {
         const sql = `SELECT m_img FROM thumbnail WHERE uid = ${data.thumbnail};`;
-        console.log(sql);
+        // console.log(sql);
         connection.query(sql, (err, row) => {
           if (!err && row.length === 0) {
             data.imgURL = null;

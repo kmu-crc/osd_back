@@ -37,7 +37,7 @@ exports.topDesignList = (req, res, next) => {
   sql = sql + `, T.` + sort + ` DESC `
   // for infinite scroll
   sql = sql + `LIMIT ` + (page * 0) + `, 4;`;
-  console.log(sql);
+  // console.log(sql);
   req.sql = sql;
   next();
 };
@@ -66,7 +66,7 @@ exports.insertTopDesign = (req, res, next) => {
   const order = req.body.order;
   const insertTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`INSERT INTO opendesign.collection_design VALUES(null,${id},${order},null)`, (err, result) => {
+      connection.query(`INSERT INTO market.top_item VALUES(null,${id},${order},null)`, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
@@ -99,7 +99,7 @@ exports.updateTopDesign = (req, res, next) => {
   const order = req.body.order;
   const updateTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.collection_design as T SET T.order=${order} WHERE design_id = ${id}`, (err, result) => {
+      connection.query(`UPDATE market.top_item as T SET T.order=${order} WHERE item_id = ${id}`, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
@@ -131,7 +131,7 @@ exports.deleteTopDesign = (req, res, next) => {
   const id = req.params.id;
   const deleteTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM opendesign.collection_design WHERE design_id = ${id}`, (err, result) => {
+      connection.query(`DELETE FROM market.top_item WHERE item_id = ${id}`, (err, result) => {
         if (!err) {
           resolve(result);
         } else {

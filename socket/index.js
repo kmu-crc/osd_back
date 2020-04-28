@@ -113,7 +113,7 @@ function SocketConnection() {
     });
     socket.on("confirm", (obj) => {
       const sql = `UPDATE market.alarm2 SET ? WHERE uid=${obj.alarmId}`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, { confirm: 1 }, (err, _) => {
         if (!err) {
           newGetAlarm(socket.id, obj.uid, io);

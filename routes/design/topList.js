@@ -14,3 +14,4 @@ exports.getTopList = (req, res, next) => {
   req.sql = sql;
   next();
 };
+

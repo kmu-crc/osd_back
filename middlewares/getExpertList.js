@@ -66,7 +66,7 @@ const getExpertList = (req, res, next) => {
       }
       connection.query(sqlCate, (err, result) => {
         if (!err) {
-          resolve(result[0].name);
+          resolve(result[0] ? result[0].name : "");
         } else {
           reject(err);
         }

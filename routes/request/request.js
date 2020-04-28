@@ -119,7 +119,7 @@ exports.GetDesignerRequest = (req, res, next) => {
         (request.sort_in_group === 0)
           ? `SELECT nick_name FROM market.user WHERE uid = ${request.client_id} `
           : `SELECT nick_name FROM market.user WHERE uid = ${request.expert_id} `;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row) {
           resolve(row[0]["nick_name"]);
@@ -204,7 +204,7 @@ exports.GetMakerRequest = (req, res, next) => {
         (request.sort_in_group === 0)
           ? `SELECT nick_name FROM market.user WHERE uid = ${request.client_id} `
           : `SELECT nick_name FROM market.user WHERE uid = ${request.expert_id} `;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row) {
           resolve(row[0]["nick_name"]);
@@ -320,7 +320,7 @@ exports.CreateRequest = (req, res, next) => {
 
       const obj = { ...data, sort_in_group: 0, client_id: id };
       const sql = `INSERT INTO market.request SET ? `;
-      // console.log(sql, obj);
+      console.log(sql, obj);
       connection.query(sql, obj, (err, row) => {
         if (!err) {
           resolve(row.insertId);
@@ -392,7 +392,7 @@ exports.GetMyDesignerRequest = (req, res, next) => {
         (request.sort_in_group === 0)
           ? `SELECT nick_name FROM market.user WHERE uid = ${request.client_id} `
           : `SELECT nick_name FROM market.user WHERE uid = ${request.expert_id} `;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row) {
           resolve(row[0]["nick_name"]);
@@ -479,7 +479,7 @@ exports.GetMyMakerRequest = (req, res, next) => {
         (request.sort_in_group === 0)
           ? `SELECT nick_name FROM market.user WHERE uid = ${request.client_id} `
           : `SELECT nick_name FROM market.user WHERE uid = ${request.expert_id} `;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err && row) {
           resolve(row[0]["nick_name"]);

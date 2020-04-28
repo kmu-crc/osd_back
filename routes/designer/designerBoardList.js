@@ -23,7 +23,7 @@ exports.designerBoardList = (req, res, next) => {
   WHERE B.type LIKE "designer"`;
   const sql = `${basic} ${category} ${search} ${order} LIMIT ${page * 10}, 10;`;
 
-  console.log(sql);
+  // console.log(sql);
   req.sql = sql;
   next();
 };

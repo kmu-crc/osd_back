@@ -37,7 +37,7 @@ exports.RemoveComment = (req, res, next) => {
   const removeComment = id => {
     return new Promise((resolve, reject) => {
       const sql = `DELETE FROM opendesign.request_comment WHERE uid=${id}`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err) {
           console.log(row);

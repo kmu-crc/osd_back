@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 
 const getItemList = (req, res, next) => {
   const sql = req.sql;
-  console.log(sql);
+  // console.log(sql);
   function getList(sql) {
     return new Promise((resolve, reject) => {
       let arr = [];

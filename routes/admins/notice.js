@@ -1,7 +1,7 @@
 const connection = require('../../configs/connection')
 
 exports.getNoticeList = (req, res, next) => {
-    let sql = `SELECT * from opendesign.notice`
+    let sql = `SELECT * from market.notice`
     const getList = () => {
         return new Promise((resolve, reject) => {
             connection.query(sql, (err, row) => {
@@ -28,7 +28,7 @@ exports.getNoticeList = (req, res, next) => {
 }
 // updateNotice, insertNotice, deleteNotice,
 exports.updateNotice = (req, res, next) => {
-    let sql = `UPDATE opendesign.notice SET ? WHERE uid=${req.body.uid}`
+    let sql = `UPDATE market.notice SET ? WHERE uid=${req.body.uid}`
     delete req.body.uid
     // console.log(sql)
     // return
@@ -60,7 +60,7 @@ exports.insertNotice = (req, res, next) => {
     const start_time = req.body.start_time
     const expiry_time = req.body.expiry_time
 
-    let sql = `INSERT INTO opendesign.notice VALUES(null, '${title}', '${type}', '${content}', NOW(), '${start_time}', '${expiry_time}')`
+    let sql = `INSERT INTO market.notice VALUES(null, '${title}', '${type}', '${content}', NOW(), '${start_time}', '${expiry_time}')`
     // console.log(sql)
     // return
     const insertNotice = () => {
@@ -88,7 +88,7 @@ exports.deleteNotice = (req, res, next) => {
     const uid = req.params.id
     const deleteNotice = () => {
         return new Promise((resolve, reject) => {
-            connection.query(`DELETE FROM opendesign.notice WHERE uid=${uid}`, (err, row) => {
+            connection.query(`DELETE FROM market.notice WHERE uid=${uid}`, (err, row) => {
                 if (!err) {
                     resolve(row)
                 } else {
