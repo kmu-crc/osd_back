@@ -6,17 +6,19 @@ var fs = require("fs");
 
 const getCardLastOrder = (boardId) => {
   return new Promise((resolve, reject) => {
-    connection.query("SELECT COUNT(*) FROM opendesign.design_card WHERE board=?", boardId, (err, row => {
+    const sql = `SELECT COUNT(*) FROM opendesign.design_card WHERE board_id = ${boardId}`
+    connection.query(sql, (err, row) => {
       if (err) {
         reject(err);
       } else {
-        resolve(row["COUNT(*)"]);
+        resolve(row ? row[0]["COUNT(*)"] : 0);
       }
-    }));
+    });
   })
 }
 const createCardFn = async req => {
-  // req.order = await getCardLastOrder(req.board_id);
+  req.order = await getCardLastOrder(req.board_id);
+
   return new Promise((resolve, reject) => {
     connection.query("INSERT INTO design_card SET ?", req, (err, rows) => {
       if (!err) {
@@ -1115,6 +1117,9 @@ exports.updateCardInfo2 = async (req, res, next) => {
   updateCardFn({ userId, cardId, data: { title: req.body.title } })
     .then(() => {
       updateCardFn({ userId, cardId, data: { content: req.body.content } })
+    })
+    .then(() => {
+      updateCardFn({ userId, cardId, data: { private: req.body.private } })
     })
     .then(async () => {
       if (thumbnail == null) return Promise.resolve(true);

@@ -510,7 +510,7 @@ exports.getDesignComment = (req, res, next) => {
 
   const getComment = (id) => {
     return new Promise((resolve, reject) => {
-      connection.query("SELECT C.uid, C.user_id, C.design_id, C.comment, C.create_time, C.update_time, C.d_flag, U.nick_name, T.s_img FROM design_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.design_id = ?", id, (err, row) => {
+      connection.query("SELECT C.uid, C.user_id, C.design_id, C.comment, C.create_time, C.update_time, C.d_flag, C.read, U.nick_name, T.s_img FROM design_comment C LEFT JOIN user U ON U.uid = C.user_id LEFT JOIN thumbnail T ON T.uid = U.thumbnail WHERE C.design_id = ?", id, (err, row) => {
         if (!err) {
           //console.log("get", row);
           resolve(row);
@@ -541,6 +541,26 @@ exports.getDesignComment = (req, res, next) => {
     .catch(fail);
 };
 
+exports.getCountDesignComment = (req, res, next)=>{
+  const id = req.params.id;
+  const getCount = id => {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'count' FROM opendesign.design_comment DC WHERE DC.design_id=${id} AND DC.read LIKE 0`;
+      connection.query(sql, (err, row) => {
+        if(!err){
+          resolve(row[0]?row[0]["count"]:0);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  const success = (data) => { res.status(200).json({success:true, data:data});};
+  const fail = (error) => { res.status(500).json({success:false, error:error});};
+  getCount(id)
+    .then(success)
+    .catch(fail);
+}
 const getSocketId = uid => {
   return new Promise((resolve, reject) => {
     // console.log("uid", uid);
@@ -620,6 +640,7 @@ exports.createDetailComment = async (req, res, next) => {
   const createComment = (data) => {
     // console.log("DATA:", data);
     return new Promise((resolve, reject) => {
+      data.read = 0;
       connection.query("INSERT INTO design_comment SET ?", data, (err, row) => {
         if (!err) {
           resolve(row.insertId);
@@ -635,9 +656,9 @@ exports.createDetailComment = async (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("UPDATE design_counter SET comment_count = comment_count + 1 WHERE design_id = ?", req.params.id, (err, row) => {
         if (!err) {
-          reply !== null ?
-            SendCommentCommentAlarm(reply, req.decoded.uid, req.params.id)
-            : SendAlarm(req.decoded.uid, req.params.id, id)
+          //reply !== null ?
+          // SendCommentCommentAlarm(reply, req.decoded.uid, req.params.id)
+          //  : SendAlarm(req.decoded.uid, req.params.id, id)
           //console.log("update", row);
           resolve(row);
         } else {
@@ -714,4 +735,26 @@ exports.deleteDetailComment = (req, res, next) => {
     .then(() => updateCardCount(designId))
     .then(success)
     .catch(fail);
+};
+
+
+exports.confirmDesignComment = (req, res, next)=>{
+  const id = req.params.id;
+
+  const confirmComments = (design_id) =>{
+    return new Promise((resolve, reject)=>{
+      const sql = `UPDATE opendesign.design_comment T SET T.read = 1 WHERE design_id=${design_id};`;
+      connection.query(sql, (err, _)=>{
+        if(!err){
+          resolve(true);
+        } else {
+          reject(err);
+        }
+      });
+  });
+  };
+
+  confirmComments(id)
+    .then(()=> res.status(200).json({success: true}))
+    .catch(()=> res.status(500).json({success: false}))
 };

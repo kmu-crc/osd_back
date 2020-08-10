@@ -1,10 +1,10 @@
 const connection = require("../../configs/connection");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
-const { insertSource } = require("../../middlewares/insertSource");
 const { createBoardDB } = require("../design/designBoard");
-const { createCard, createCardDB2, updateCardSourceClone, updateCardDB } = require("../design/designCard");
+const {/* createCard, updateCardDB,*/ createCardDB2, updateCardSourceClone, } = require("../design/designCard");
 const { joinMember, acceptLeader } = require("../design/joinMember");
 const fs = require("fs");
+// const { insertSource } = require("../../middlewares/insertSource");
 
 // 2. 생성된 디자인에 썸네일 업데이트
 const updateDesignFn = (req) => {
@@ -60,12 +60,16 @@ exports.createDesign = async (req, res, next) => {
   const userId = req.body.uid;
   let members = req.body.members;
   let contents = req.body.contents;
+  let steps = req.body.steps;
+  let type = req.body.type;
   console.log("contents", contents);
   // return;
   delete req.body.files;
   delete req.body.uid;
   delete req.body.members;
   delete req.body.contents;
+  delete req.body.steps;
+  delete req.body.type;
 
   req.body.is_members = 1;
   req.body["is_public"] = 1;
@@ -122,8 +126,8 @@ exports.createDesign = async (req, res, next) => {
 
   // 5 + 6
   const inputDataSource = () => {
-    return new Promise(async (resolve, reject) => {
-      // input data to blog-design
+    return new Promise(async (resolve) => {
+      // Input data to blog-design
       if (req.body.is_project === 0) {
         const board_id = await createBoardDB({ user_id: userId, design_id: designId, order: 0, title: req.body.title })
         const card_id = await createCardDB2({ design_id: designId, board_id: board_id, user_id: userId, title: req.body.title, content: req.body.explanation, order: 0 })
@@ -136,6 +140,18 @@ exports.createDesign = async (req, res, next) => {
       resolve(true);
     });
   };
+
+  const inputProjectDataSource = () => {
+    return new Promise(resolve => {
+      if (type === "grid") {
+        // console.log(steps);
+        steps && steps.length > 0 && steps.map(async step =>
+          await createBoardDB({ user_id: userId, design_id: designId, order: step.order, title: step.title }))
+      }
+      resolve(true);
+    });
+  };
+
 
   const respond = () => {
     res.status(200).json({ success: true, design_id: designId, message: "성공적으로 등록되었습니다." });
@@ -169,11 +185,10 @@ exports.createDesign = async (req, res, next) => {
       return acceptLeader(designId, userId);
     })
 
-    // 4. is_project가 true이면 respond 하고 false이면 createBorad 로직을 실행한다.
-    //    createBorad 가 성공적으로 완료되면 CreateCard 로직을 실행한다.
-    //    card가 성공적으로 생성되었다면 source파일을 업로드 한다.
+    // 4. blog-type datainput
     .then(inputDataSource)
-
+    // 5. project-type datainput
+    .then(inputProjectDataSource)
     // 6. design counter and user counter
     .then(insertDesignCount)
     .then(updateUserCount)

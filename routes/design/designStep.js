@@ -15,7 +15,7 @@ exports.designStep = (req, res, next) => {
           for (var i = 0, l = row.length; i < l; i++) {
             arr.push(new Promise((resolve, reject) => {
               let boardData = row[i];
-              let sql = "SELECT D.uid, D.user_id, U.nick_name, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ? ORDER BY D.order ASC";
+              let sql = "SELECT D.uid, D.private, D.user_id, U.nick_name, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ? ORDER BY D.order ASC";
               connection.query(sql, boardData.uid, (err, row) => {
                 if (!err && row.length === 0) {
                   boardData.cardData = null;

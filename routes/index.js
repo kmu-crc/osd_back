@@ -9,6 +9,8 @@ const admins = require("./admins");
 const search = require("./search");
 const common = require("./common")
 const upload = require("./fileupload");
+// const videochat = require("./vchat");
+const chat = require("./chat");
 
 /* GET home page. */
 router.use("/common", common)
@@ -19,6 +21,7 @@ router.use("/group", group);
 router.use("/designer", designer);
 router.use("/categorys", categorys);
 router.use("/search", search);
+router.use("/chat", chat);
 
 router.use("/upload", upload);
 

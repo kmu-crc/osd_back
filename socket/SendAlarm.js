@@ -336,7 +336,9 @@ function sendAlarmList(socketId, uid, newlist, io) {
     countUnconfirmAlarm(uid, newlist) // )
       .then(count => {
         //console.log("count.msg:", count.msg)
-        io.to(`${socketId}`).emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist })
+        io
+          .to(`${socketId}`)
+          .emit("getNoti", { count: count.alarm, countMsg: count.msg, list: newlist })
       })
       .catch(error => console.log(`ERR: send noti, ${error}`))
   })
@@ -344,7 +346,7 @@ function sendAlarmList(socketId, uid, newlist, io) {
 function getMsgAlarmList(uid) {
   return new Promise((resolve, reject) => {
     connection.query(`
-    SELECT distinct from_user_id, count(confirm) as 'cnt' from alarm where user_id = ${uid} AND confirm = 0 AND alarm.type = "MESSAGE" group by from_user_id`
+    SELECT distinct from_user_id, count(confirm) AS 'cnt' FROM alarm WHERE user_id = ${uid} AND confirm = 0 AND alarm.type = "MESSAGE" GROUP BY from_user_id`
       , (error, rows) => {
         if (!error) {
           resolve(rows)
@@ -357,7 +359,10 @@ function getMsgAlarmList(uid) {
 
 exports.newGetMsg = (socketId, uid, io) => {
   getMsgAlarmList(uid)
-    .then(list => io.to(`${socketId}`).emit("getMsgAlarm", list))// sendMsgAlarmList(socketId, uid, list, io))
+    .then(list =>
+      io
+        .to(`${socketId}`)
+        .emit("getMsgAlarm", list))// sendMsgAlarmList(socketId, uid, list, io))
     .catch(error => console.log(error))
 }
 
@@ -484,6 +489,9 @@ exports.SendAlarm = (socketId, uid, contentId, message, fromUserId, io, subConte
     type = "DESIGN"
     kinds = "COMMENT_COMMENT"
     sub_content_id = subContentId
+  } else if (message === "OpenedVideoChat") {
+    type = "DESIGN"
+    kinds = "LIVE_CHAT"
   }
 
   function insertAlarm(uid, type, kinds, content_id, fromUserId, subContentId) {

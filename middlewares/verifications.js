@@ -25,7 +25,7 @@ exports.isOnlyNicName = (name, userId) => {
 // email이 중복되는지 확인하는 로직
 exports.isOnlyEmail = (email) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(email) FROM user WHERE email='${email}'`, (err, rows) => {
+    connection.query(`SELECT count(email) FROM opendesign.user WHERE email='${email}'`, (err, rows) => {
       if (!err) {
         if (rows[0]["count(email)"] === 0) {
           resolve(rows);

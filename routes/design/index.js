@@ -3,7 +3,7 @@ const router = express.Router();
 const connection = require("../../configs/connection");
 
 const { designList, getTotalCount } = require("./designList");
-const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
+const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, getCountDesignComment, createDetailComment, deleteDetailComment, confirmDesignComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
 const { designStep, designCardDetail } = require("./designStep");
@@ -15,7 +15,7 @@ const insertThumbnail = require("../../middlewares/insertThumbnail");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getDesignList = require("../../middlewares/getDesignList");
 const { createDesign } = require("./createDesign");
-const { forkDesign, getForkDesignList } = require("./forkDesign")
+const { forkDesign2, forkDesign, getForkDesignList } = require("./forkDesign")
 
 const uploadDesign = require("../../middlewares/uploadDesign");
 const stringToNumber = require("../../middlewares/stringToNumber");
@@ -96,10 +96,13 @@ router.post("/designDetail/:id/createCardComment/:card_id", auth, createCardComm
 router.delete("/designDetail/:id/deleteCardComment/:card_id/:comment_id", auth, deleteCardComment);
 router.post("/designDetail/:id/issue/:issue_id/createComment", auth, createIssueComment);
 router.delete("/designDetail/:id/issue/:issue_id/deleteComment/:comment_id", auth, deleteIssueComment);
+
 // design detail comment
 router.get("/designDetail/:id/getDetailComment", getDesignComment);
+router.get("/designDetail/:id/getCountComment", getCountDesignComment);
 router.post("/designDetail/:id/createDetailComment", auth, createDetailComment);
 router.delete("/designDetail/:id/deleteDetailComment/:comment_id", auth, deleteDetailComment);
+router.get("/designDetail/:id/confirmDesignComment/", auth, confirmDesignComment);
 
 // 블로그형 디자인 프로젝트형으로 변경
 router.post("/changeToProject/:id", auth, changeToProject);
@@ -117,6 +120,7 @@ router.post("/designDetail/updateCardAllData/:card_id", auth, updateCardAllData,
 router.post("/designDetail/updateCardAllData_temp/:card_id", auth, updateCardInfo2, updateCardSource2);
 
 // fork Design
-router.get("/forkDesign/:id/:user_id", auth, forkDesign)
+// router.get("/forkDesign2/:id/:user_id", forkDesign2);
+router.get("/forkDesign/:id/:user_id", auth, forkDesign2);
 router.post("/forkDesignList/:id", getForkDesignList)
 module.exports = router;

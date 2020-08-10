@@ -58,7 +58,7 @@ exports.getBoardList = (req, res, next) => {
       let arr = [];
       list.map((item, index) => {
         arr.push(new Promise((resolve, reject) => {
-          connection.query(`SELECT D.uid, D.user_id, U.nick_name,D.content, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ${item.uid} ORDER BY D.order ASC`, (err, rows) => {
+          connection.query(`SELECT D.uid, D.private, D.user_id, U.nick_name,D.content, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ${item.uid} ORDER BY D.order ASC`, (err, rows) => {
             if (!err) {
               list[index].cards = rows;
               resolve(true);

@@ -30,7 +30,7 @@ const getDesignerList = (req, res, next) => {
     return new Promise((resolve, reject) => {
       getMyThumbnail(data).then(url => {
         data.imgURL = url;
-        return data;
+        resolve(data);
       }).then(
         getCategory
       ).then(name => {
@@ -66,7 +66,7 @@ const getDesignerList = (req, res, next) => {
       if (!data.thumbnail) {
         resolve(null);
       } else {
-        connection.query("SELECT s_img, m_img,l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        connection.query("SELECT s_img, m_img,l_img FROM opendesign.thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {

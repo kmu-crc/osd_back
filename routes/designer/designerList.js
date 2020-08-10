@@ -41,13 +41,16 @@ exports.designerList = (req, res, next) => {
 
   let sql2 = `
   SELECT 
-    U.uid, U.nick_name,
-    D.about_me, D.category_level1, D.category_level2, 
-    U.thumbnail, U.create_time, U.update_time, U.create_time,
-    C.total_design, C.total_group, C.total_like, C.total_view 
-  FROM user_detail D 
-    JOIN user U ON U.uid = D.user_id 
-    LEFT JOIN user_counter C ON C.user_id = U.uid 
+  U.uid, U.nick_name,
+  D.about_me, D.category_level1, D.category_level2, 
+  U.thumbnail, U.create_time, U.update_time, U.create_time,
+  C.total_design, C.total_group, C.total_like, C.total_view,
+  L1.name as level1_name, L2.name as level2_name
+  FROM opendesign.user_detail D 
+  JOIN opendesign.user U ON U.uid = D.user_id 
+  LEFT JOIN opendesign.user_counter C ON C.user_id = U.uid
+  LEFT JOIN opendesign.category_level1 L1 ON L1.uid=D.category_level1
+  LEFT JOIN opendesign.category_level2 L2 ON L2.uid=D.category_level2
   `
   // 0. nothing
   // 1. category2
