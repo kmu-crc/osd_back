@@ -35,7 +35,7 @@ exports.findPw = (req, res, next) => {
       connection.query(
         `SELECT password FROM user WHERE email="${email}"`,
         (err, rows) => {
-          if (!err && rows.length>0) {
+          if (!err && rows.length > 0) {
             old = rows[0]["password"]
           }
         }
@@ -60,13 +60,13 @@ exports.findPw = (req, res, next) => {
   }
 
   const randomPass = () => {
-    pw = generator.generate({length:10, numbers: true})
+    pw = generator.generate({ length: 10, numbers: true })
     return pw;
   }
 
   const createHashPw = password => {
     return new Promise((resolve, reject) => {
-      bcrypt.hash(password, 10, function(err, hash) {
+      bcrypt.hash(password, 10, function (err, hash) {
         if (!err) {
           hashPw = hash
           resolve(hashPw)
@@ -78,7 +78,7 @@ exports.findPw = (req, res, next) => {
   }
 
   const updatePW = (email, pw) => {
-    console.log("pw::",pw)
+    // console.log("pw::", pw)
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE email = "${email}"`,
@@ -95,9 +95,9 @@ exports.findPw = (req, res, next) => {
   }
 
   const sendMail = (mail, pw) => {
-    console.log("pw", pw)
+    // console.log("pw", mail, pw)
     return new Promise((resolve, reject) => {
-      //console.log("process.env.MAIL_ID", process.env.MAIL_ID);
+      // console.log("process.env.MAIL_ID", process.env.MAIL_ID, process.env.MAIL_PASSWORD);
       const smtpTransport = nodemailer.createTransport({
         service: "Gmail",
         auth: {
@@ -113,12 +113,13 @@ exports.findPw = (req, res, next) => {
       }
       smtpTransport.verify((error, success) => {
         if (error) {
+          console.error(error)
           updatePW(email, old)
         } else {
           //console.log("server is ready");
         }
       });
-      smtpTransport.sendMail(mailOptions, function(error, response) {
+      smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error) {
           //console.log("mailError", error);
           reject(error);
@@ -131,13 +132,13 @@ exports.findPw = (req, res, next) => {
   }
 
   const notFoundEmail = (err) => {
-    res.status(200).json({success:false, message:err})
+    res.status(200).json({ success: false, message: err })
   }
   const success = (msg) => {
-    res.status(200).json({ success: true, message: msg})
+    res.status(200).json({ success: true, message: msg })
   }
   isOnlyEmail(email)
-//    .then(randomPw)
+    //    .then(randomPw)
     .then(randomPass)
     .then(() => createHashPw(pw))
     .then(() => updatePW(email, hashPw))

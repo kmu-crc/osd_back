@@ -8,8 +8,8 @@ require("dotenv").config();
 
 let chatrooms = [];
 let chatRoomAndMems = [];
-let videorooms = [];
-let videoRoomAndMems = [];
+// let videorooms = [];
+// let videoRoomAndMems = [];
 
 // for DB
 const readMessage = (obj) => {
@@ -470,7 +470,7 @@ function SocketConnection() {
         readMessage({ user_id: memberId, design_id: roomNum })
           .then(data => loadMessageUnread({ design_id: roomNum }))
           .then(unread => io.of('/webrtcPeerChat').to(roomNum).emit('read', unread))
-          .catch(err=>console.error(err));
+          .catch(err => console.error(err));
         // .then(read =>
         // socket.to(roomNum).emit('read', { success: read, user_id: memberId }))
       });
@@ -504,133 +504,130 @@ function SocketConnection() {
       });
     });
 
-  let connectedPeers = new Map()
+  // let connectedPeers = new Map()
   // const peers = 
   // web에 연결된 peers에 대한 정보를 connectedPeers 정보로 저장
   // peers가 web에 connection이 되면
-  io
-    .of('/webrtcPeer')
-    .on('connection', socket => {
-      const { memberId, roomNum } = socket.handshake.query;
-
-      // console.log("video socket connected");
-      // const { roomNum, memberId } = socket.handshake.query;
-      //connectPeers에 connection된 peers의 socket 정보 추가
-      connectedPeers.set(socket.id, socket)
-      if (!videorooms.includes(roomNum)) {
-        videorooms.push(roomNum);
-        // console.log("create room No.", roomNum, "rooms:", videorooms);
-        // let fetch = require("node-fetch");
-        // console.log(url);
-        //console.log(`room create on ${roomNum},rooms: ${rooms.map(room=>room)}`);
-      }
-      const pos = videoRoomAndMems.findIndex(e => e.id === memberId && e.room === roomNum);
-      if (pos === -1) {
-        videoRoomAndMems.push({ id: memberId, room: roomNum });
-        socket.join(roomNum);
-      } else {
-        // console.log("already connected");
-        // socket.emit('banned', () => { });
-      }
-      //server상에 connection된 peer의 socket id 띄우기
-      // console.log('참여한 peer의 socket.id : ', socket.handshake.query, socket.id)
-
-      //peers에게 연결 성공 data 전송
-      socket.emit('connection-success', {
-        success: socket.id,
-        peerCount: connectedPeers.size,
-      })
-      //broadcast 정의
-      const broadcast = () => socket.broadcast.emit('joined-peers', {
-        peerCount: connectedPeers.size,
-      })
-      //connectedPeers의 크기를 통해 참석한 peers의 숫자 전송(peers에게)
-      broadcast()
-      //disconnectedPeer 정의 
-      const disconnectedPeer = (socketID) => socket.broadcast.emit('peer-disconnected', {
-        socketID: socketID
-      })
-
-      //server에서 peers의 disconnect 수신 받으면 연결해제 log띄우기  
-      //connectedPeers 변수에서 퇴장한 peer의 socket.id 삭제
-      //disconnected 된 peer 정보 전송(peer에게)
-      socket.on('disconnect', () => {
-        // console.log('client가 화상회의에서 퇴장합니다', roomNum, memberId);
-        connectedPeers.delete(socket.id);
-        disconnectedPeer(socket.id);
-        socket.leave(roomNum);
-        const pos = videoRoomAndMems.findIndex(e => e.id === memberId && e.room === roomNum);
-        pos > -1 ? videoRoomAndMems.splice(pos, 1) : null;
-      })
-      //server에서 onlinePeers에 대한 정보 수신 받으면
-      socket.on('onlinePeers', (data) => {
-        for (const [socketID, _socket] of connectedPeers.entries()) {
-          // 자기 자신(local)이 아니라면(remote peer일 떄)
-          if (socketID !== data.socketID.local && socket.request._query.roomNum === _socket.request._query.roomNum) {
-            //online peer에 대한 정보 출력
-            // if (socketID !== data.socketID.local) {
-            // console.log('online-peer', data.socketID, socketID)
-            //online peer에 대한 정보 peers에게 전송
-            socket.emit('online-peer', socketID)
-          }
-        }
-      })
-      //server에서 offer event를 수신받으면
-      socket.on('offer', (data) => {
-        //connectedPeers에 해당되는 socket의 정보가 있을때
-        for (const [socketID, socket] of connectedPeers.entries()) {
-          // 자기 자신(local)이 아니라면(remote peer일 때)      
-          // console.log(_socket.request._query.roomNum, socket.request._query.roomNum);
-          if (socketID === data.socketID.remote) {
-            //offer peer의 socket 정보 출력
-            // console.log('Offer', socketID, data.socketID, data.payload.type)
-            //offer peer의 sdp정보,socketID 전송(remote peer에게)
-            socket.emit('offer', {
-              sdp: data.payload,
-              socketID: data.socketID.local
-            }
-            )
-          }
-        }
-      })
-      //server에서 answer event를 수신받으면
-      socket.on('answer', (data) => {
-        //connectedPeers에 해당되는 socket의 정보가 있을떄
-        for (const [socketID, socket] of connectedPeers.entries()) {
-          // 자기 자신(local)이 아니라면(remote peer일 떄)
-          if (socketID === data.socketID.remote) {
-            //answer peer의 socket 정보 출력
-            // console.log('Answer', socketID, data.socketID, data.payload.type)
-            //answer peer의 sdp정보,socketID 전송(offer 요청 peer에게)
-            socket.emit('answer', {
-              sdp: data.payload,
-              socketID: data.socketID.local
-            }
-            )
-          }
-        }
-      })
-      //server에서 candidate event를 수신받으면  
-      socket.on('candidate', (data) => {
-        //connectedPeers에 해당되는 socket의 정보가 있을떄
-        for (const [socketID, _socket] of connectedPeers.entries()) {
-          // 자기 자신(local)이 아니라면(remote peer일 떄)
-          if (socketID == data.socketID.remote) {
-            const thumbnail = socket.request._query.thumbnail
-            // console.log(thumbnail);
-            setTimeout(() => { }, 1500);
-            //candidate 연결할 peer의 socket 정보 출력
-            // console.log(socketID, data.payload)
-            //candidate,sockeID 전송(offer peer와 answer peer간에 connection이 완료됨)
-            _socket.emit('candidate', {
-              candidate: data.payload,
-              socketID: data.socketID.local,
-              thumbnail: thumbnail,
-            })
-          }
-        }
-      })
-    })
+  // io
+  //   .of('/webrtcPeer')
+  //   .on('connection', socket => {
+  //     const { memberId, roomNum } = socket.handshake.query;
+  //     // console.log("video socket connected");
+  //     // const { roomNum, memberId } = socket.handshake.query;
+  //     //connectPeers에 connection된 peers의 socket 정보 추가
+  //     connectedPeers.set(socket.id, socket)
+  //     if (!videorooms.includes(roomNum)) {
+  //       videorooms.push(roomNum);
+  //       // console.log("create room No.", roomNum, "rooms:", videorooms);
+  //       // let fetch = require("node-fetch");
+  //       // console.log(url);
+  //       //console.log(`room create on ${roomNum},rooms: ${rooms.map(room=>room)}`);
+  //     }
+  //     const pos = videoRoomAndMems.findIndex(e => e.id === memberId && e.room === roomNum);
+  //     if (pos === -1) {
+  //       videoRoomAndMems.push({ id: memberId, room: roomNum });
+  //       socket.join(roomNum);
+  //     } else {
+  //       // console.log("already connected");
+  //       // socket.emit('banned', () => { });
+  //     }
+  //     //server상에 connection된 peer의 socket id 띄우기
+  //     // console.log('참여한 peer의 socket.id : ', socket.handshake.query, socket.id)
+  //     //peers에게 연결 성공 data 전송
+  //     socket.emit('connection-success', {
+  //       success: socket.id,
+  //       peerCount: connectedPeers.size,
+  //     })
+  //     //broadcast 정의
+  //     const broadcast = () => socket.broadcast.emit('joined-peers', {
+  //       peerCount: connectedPeers.size,
+  //     })
+  //     //connectedPeers의 크기를 통해 참석한 peers의 숫자 전송(peers에게)
+  //     broadcast()
+  //     //disconnectedPeer 정의 
+  //     const disconnectedPeer = (socketID) => socket.broadcast.emit('peer-disconnected', {
+  //       socketID: socketID
+  //     })
+  //     //server에서 peers의 disconnect 수신 받으면 연결해제 log띄우기  
+  //     //connectedPeers 변수에서 퇴장한 peer의 socket.id 삭제
+  //     //disconnected 된 peer 정보 전송(peer에게)
+  //     socket.on('disconnect', () => {
+  //       // console.log('client가 화상회의에서 퇴장합니다', roomNum, memberId);
+  //       connectedPeers.delete(socket.id);
+  //       disconnectedPeer(socket.id);
+  //       socket.leave(roomNum);
+  //       const pos = videoRoomAndMems.findIndex(e => e.id === memberId && e.room === roomNum);
+  //       pos > -1 ? videoRoomAndMems.splice(pos, 1) : null;
+  //     })
+  //     //server에서 onlinePeers에 대한 정보 수신 받으면
+  //     socket.on('onlinePeers', (data) => {
+  //       for (const [socketID, _socket] of connectedPeers.entries()) {
+  //         // 자기 자신(local)이 아니라면(remote peer일 떄)
+  //         if (socketID !== data.socketID.local && socket.request._query.roomNum === _socket.request._query.roomNum) {
+  //           //online peer에 대한 정보 출력
+  //           // if (socketID !== data.socketID.local) {
+  //           // console.log('online-peer', data.socketID, socketID)
+  //           //online peer에 대한 정보 peers에게 전송
+  //           socket.emit('online-peer', socketID)
+  //         }
+  //       }
+  //     })
+  //     //server에서 offer event를 수신받으면
+  //     socket.on('offer', (data) => {
+  //       //connectedPeers에 해당되는 socket의 정보가 있을때
+  //       for (const [socketID, socket] of connectedPeers.entries()) {
+  //         // 자기 자신(local)이 아니라면(remote peer일 때)      
+  //         // console.log(_socket.request._query.roomNum, socket.request._query.roomNum);
+  //         if (socketID === data.socketID.remote) {
+  //           //offer peer의 socket 정보 출력
+  //           // console.log('Offer', socketID, data.socketID, data.payload.type)
+  //           //offer peer의 sdp정보,socketID 전송(remote peer에게)
+  //           socket.emit('offer', {
+  //             sdp: data.payload,
+  //             socketID: data.socketID.local
+  //           }
+  //           )
+  //         }
+  //       }
+  //     })
+  //     //server에서 answer event를 수신받으면
+  //     socket.on('answer', (data) => {
+  //       //connectedPeers에 해당되는 socket의 정보가 있을떄
+  //       for (const [socketID, socket] of connectedPeers.entries()) {
+  //         // 자기 자신(local)이 아니라면(remote peer일 떄)
+  //         if (socketID === data.socketID.remote) {
+  //           //answer peer의 socket 정보 출력
+  //           // console.log('Answer', socketID, data.socketID, data.payload.type)
+  //           //answer peer의 sdp정보,socketID 전송(offer 요청 peer에게)
+  //           socket.emit('answer', {
+  //             sdp: data.payload,
+  //             socketID: data.socketID.local
+  //           }
+  //           )
+  //         }
+  //       }
+  //     })
+  //     //server에서 candidate event를 수신받으면  
+  //     socket.on('candidate', (data) => {
+  //       //connectedPeers에 해당되는 socket의 정보가 있을떄
+  //       for (const [socketID, _socket] of connectedPeers.entries()) {
+  //         // 자기 자신(local)이 아니라면(remote peer일 떄)
+  //         if (socketID == data.socketID.remote) {
+  //           const thumbnail = socket.request._query.thumbnail
+  //           // console.log(thumbnail);
+  //           setTimeout(() => { }, 1500);
+  //           //candidate 연결할 peer의 socket 정보 출력
+  //           // console.log(socketID, data.payload)
+  //           //candidate,sockeID 전송(offer peer와 answer peer간에 connection이 완료됨)
+  //           _socket.emit('candidate', {
+  //             candidate: data.payload,
+  //             socketID: data.socketID.local,
+  //             thumbnail: thumbnail,
+  //           })
+  //         }
+  //       }
+  // })
+  // })
 }
 
 
