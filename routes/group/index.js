@@ -19,7 +19,7 @@ const { updateGroup, createGroupIssue, deleteGroupIssue } = require("./updateGro
 const { deleteAllGroup } = require("./deleteGroup");
 const { waitingDesign, waitingGroup } = require("./waitingList");
 const { getLastestGroupNotice, getTotalCountGroupNotice, getGroupNoticeList, createGroupNotice
-  //IReadGroupNotice, getAllNoticeYourGroup, getGroupNoticeYouJoined,  
+  ,updateGroupNotice, deleteGroupNotice
 } = require("./groupNotice");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const { myDesignList, myGroupList, myExistDesignList, myExistGroupList } = require("./getMyList");
@@ -71,17 +71,12 @@ router.post("/unlike/:id", auth, unlikeGroup);
 // 그룹 count 조회
 router.get("/getCount/:id", getCount);
 
-
-
-// notice of group
-// router.get("/getNotiGroupIJoined/:group_id/:user_id", getGroupNoticeYouJoined);
-// router.get("/getAllNotiMygroup/:group_id", getAllNoticeYourGroup);
-// router.post("/IReadGroupNotice", auth, IReadGroupNotice);
-
-// redo
+//  group-notice
 router.get("/lastest-notice/:group_id", getLastestGroupNotice);
 router.get("/total-count-notice/:group_id", getTotalCountGroupNotice);
 router.get("/notice-list/:group_id/:page", getGroupNoticeList);
 router.post("/createGroupNotice", auth, createGroupNotice);
+router.post("/updateGroupNotice", auth, updateGroupNotice);
+router.delete("/deleteGroupNotice/:id", auth, deleteGroupNotice);
 
 module.exports = router;

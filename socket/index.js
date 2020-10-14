@@ -17,11 +17,11 @@ const readMessage = (obj) => {
     const deleteCount = () => {
       return new Promise((resolve, reject) => {
         const sql = `
-          DELETE FROM 
-            opendesign.design_chat_read_count 
-          WHERE 
-            user_id=${obj.user_id} 
-            AND 
+          DELETE FROM \
+            opendesign.design_chat_read_count \
+          WHERE \
+            user_id=${obj.user_id} \
+            AND \
             design_id=${obj.design_id}
         `;
 

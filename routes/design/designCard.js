@@ -649,8 +649,9 @@ exports.getCardSource = (req, res, next) => {
 
   const getSource = id => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `SELECT * FROM design_content WHERE card_id = ${id} ORDER BY design_content.order ASC`,
+      const sql = `SELECT * FROM design_content WHERE card_id = ${id} ORDER BY design_content.order ASC`
+      console.log(sql);
+      connection.query(sql,
         (err, rows) => {
           if (!err) {
             // //console.log("rows", rows);

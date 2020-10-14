@@ -1,17 +1,14 @@
 var connection = require("../../configs/connection");
 
-// redo
 exports.getLastestGroupNotice = (req, res, next) => {
   const group_id = req.params.group_id;
-
   const getNotice = () => {
     return new Promise((resolve, reject) => {
       const sql = `
         SELECT * FROM opendesign.group_notice 
           WHERE group_id LIKE ${group_id}
-          ORDER BY create_time DESC
+          ORDER BY update_time DESC
           LIMIT 1`;
-
       connection.query(sql, (err, row) => {
         if (!err) {
           resolve(row ? row[0] : "");
@@ -34,7 +31,7 @@ exports.getLastestGroupNotice = (req, res, next) => {
     .then(success)
     .catch(fail);
 
-}
+};
 exports.getTotalCountGroupNotice = (req, res, next) => {
   const group_id = req.params.group_id;
 
@@ -66,7 +63,7 @@ exports.getTotalCountGroupNotice = (req, res, next) => {
     .then(success)
     .catch(fail);
 
-}
+};
 exports.getGroupNoticeList = (req, res, next) => {
   const group_id = req.params.group_id;
   const page = req.params.page;
@@ -74,9 +71,9 @@ exports.getGroupNoticeList = (req, res, next) => {
   const getNoticeList = () => {
     return new Promise((resolve, reject) => {
       const sql = `
-        SELECT uid, title, content, create_time FROM opendesign.group_notice 
+        SELECT uid, title, content, update_time, create_time FROM opendesign.group_notice 
           WHERE group_id LIKE ${group_id}
-          ORDER BY create_time DESC
+          ORDER BY update_time DESC
           LIMIT ${page * 5}, 5`;
       connection.query(sql, (err, row) => {
         if (!err) {
@@ -99,10 +96,9 @@ exports.getGroupNoticeList = (req, res, next) => {
   getNoticeList()
     .then(success)
     .catch(fail);
-}
+};
 exports.createGroupNotice = (req, res, next) => {
   const group_id = req.body.group_id;
-
   const createNotice = () => {
     return new Promise((resolve, reject) => {
       const obj = { title: req.body.title, content: req.body.content, group_id: group_id };
@@ -117,6 +113,18 @@ exports.createGroupNotice = (req, res, next) => {
       });
     });
   }
+  const success = () => {
+    res.status(200).json({ success: true });
+  };
+  const fail = () => {
+    res.status(200).json({ success: false });
+  };
+  createNotice()
+    // .then(getMemberList)
+    // .then(createNoticeReadTotal)
+    // .then(makeAlarm)
+    .then(success)
+    .catch(fail);
   // const getMemberList = (id) => {
   //   return new Promise((resolve, reject) => {
   //     const sql =
@@ -170,124 +178,54 @@ exports.createGroupNotice = (req, res, next) => {
   //     ;
   //   });
   // }
+};
+exports.updateGroupNotice = (req, res, next) => {
+  const notice_id = req.body.notice_id;
+  const updateNotice = () => {
+    return new Promise((resolve, reject) => {
+      const obj = { title: req.body.title, content: req.body.content.replace('\'', '\\\'') };
+      const sql = `UPDATE opendesign.group_notice SET title='${obj.title}',content='${obj.content}', update_time=NOW() WHERE uid=${notice_id}`;
+      console.log(sql);
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(row.insertId);
+        } else {
+          console.error('GROUP NOTICE CREATE error:', err);
+          reject(err);
+        }
+      });
+    });
+  }
   const success = () => {
     res.status(200).json({ success: true });
   };
   const fail = () => {
     res.status(200).json({ success: false });
   };
-  createNotice()
-    // .then(getMemberList)
-    // .then(createNoticeReadTotal)
-    // .then(makeAlarm)
+  updateNotice()
     .then(success)
     .catch(fail);
 };
+exports.deleteGroupNotice = (req, res, _) => {
+  const notice_id = req.params.id;
+  const delete_group_notice = (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = `DELETE FROM opendesign.group_notice WHERE uid=${id};`;
+      connection.query(sql, (err, _) => {
+        if (err) {
+          console.error("DELETE GROUP NOTICE ERROR:", err);
+          reject(err);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  };
 
+  const success = () => { res.status(200).json({ success: true }); }
+  const error = (err) => { res.status(500).json({ success: false, message: err }); }
 
-
-
-
-
-
-// /*
-//  공지사항 입력하는 함수
-//  */
-// exports.getGroupNoticeYouJoined = (req, res, next) => {
-//   const gid = req.params.group_id; // group id
-//   const uid = req.params.user_id; // user id
-
-//   const getNotice = () => {
-//     return new Promise((resolve, reject) => {
-//       const sql =
-//         `SELECT N.title, N.content, N.create_time, R.read 
-//         FROM opendesign.group_notice_read R
-//         LEFT JOIN opendesign.group_notice N ON R.group_id = N.group_id
-//         WHERE R.user_id=${uid} AND R.group_id=${gid} AND R.notice_id = N.uid
-//         ORDER BY N.create_time DESC`;
-
-//       connection.query(sql, (err, row) => {
-//         if (!err) {
-//           resolve(row);
-//         } else {
-//           reject(err);
-//         }
-//       });
-//     });
-//   }
-
-//   const success = (data) => {
-//     res.status(200).json({ success: true, data: data });
-//   };
-//   const fail = () => {
-//     res.status(200).json({ success: false });
-//   };
-
-//   getNotice()
-//     .then(success)
-//     .catch(fail);
-// };
-// exports.getAllNoticeYourGroup = (req, res, next) => {
-//   const gid = req.params.group_id; // group id
-
-//   const getNotice = () => {
-//     return new Promise((resolve, reject) => {
-//       const sql =
-//         `SELECT * \
-//         FROM opendesign.group_notice \
-//         WHERE group_id =${gid}`;
-
-//       connection.query(sql, (err, row) => {
-//         if (!err) {
-//           resolve(row);
-//         } else {
-//           console.error(err);
-//           reject(err);
-//         }
-//       });
-//     });
-//   }
-
-//   const success = (data) => {
-//     res.status(200).json({ success: true, data: data });
-//   };
-//   const fail = () => {
-//     res.status(200).json({ success: false });
-//   };
-
-//   getNotice()
-//     .then(success)
-//     .catch(fail);
-// };
-// exports.IReadGroupNotice = (req, res, next) => {
-//   const nid = req.body.notice_id;
-
-//   const IRead = () => {
-//     return new Promise((resolve, reject) => {
-//       const sql =
-//         `UPDATE 
-//           opendesign.group_notice_read T
-//         SET
-//           T.read = 1
-//         WHERE 
-//           T.uid = ${nid};
-//         `;
-//       connection.query(sql, (err, row) => {
-//         if (!err) {
-//           resolve(true);
-//         } else {
-//           reject(err);
-//         }
-//       });
-//     });
-//   };
-//   const success = () => {
-//     res.status(200).json({ success: true });
-//   };
-//   const fail = () => {
-//     res.status(200).json({ success: false });
-//   };
-//   IRead()
-//     .then(success)
-//     .catch(fail);
-// };
+  delete_group_notice(notice_id)
+    .then(success)
+    .catch(error);
+}
