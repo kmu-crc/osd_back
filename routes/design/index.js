@@ -1,8 +1,9 @@
 const express = require("express");
+const axios = require("axios");
 const router = express.Router();
-const connection = require("../../configs/connection");
+// const connection = require("../../configs/connection");
 
-const { designList, getTotalCount } = require("./designList");
+const { designList, designList_newversion, getTotalCount, getTotalCount_newversion } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, getCountDesignComment, createDetailComment, deleteDetailComment, confirmDesignComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
@@ -31,9 +32,16 @@ const { getCardComment, createCardComment, deleteCardComment } = require("./desi
 const { getTopList } = require("./topList");
 const { updateDesignInfo, updateDesignTime } = require("./updateDesign");
 const { joinDesign, acceptMember, getoutMember, getWaitingMember, getWaitingToAcceptMember } = require("../design/joinMember");
+const { checkInvited, inviteUser, cancelInvitedUser } = require("./inviteVideoChat");
+
+// PROBLEM
+const { createSubmit, updateSubmit, getSubmit, getMySubmitList } = require("./answer");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
+router.get("/designList_newversion/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", designList_newversion, getDesignList);
+
 router.get("/designCount/:cate1?/:cate2?", getTotalCount);
+router.get("/designCount_newversion/:cate1?/:cate2?/:cate3", getTotalCount_newversion);
 router.get("/designDetail/:id", tokenDecoded, designDetail);
 router.get("/designDetail/:id/view", tokenDecoded, designView);
 router.get("/designDetail/:id/step", designStep);
@@ -61,7 +69,6 @@ router.post("/unlike/:id", auth, unlikeDesign);
 // 조회수
 router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);
-
 
 router.post("/createDesign", auth, stringToNumber, stringToBoolean, createDesign);
 router.post("/updateDesignInfo/:id/:uid", auth, insertThumbnail, stringToNumber, updateDesignInfo);
@@ -122,5 +129,57 @@ router.post("/designDetail/updateCardAllData_temp/:card_id", auth, updateCardInf
 // fork Design
 // router.get("/forkDesign2/:id/:user_id", forkDesign2);
 router.get("/forkDesign/:id/:user_id", auth, forkDesign2);
-router.post("/forkDesignList/:id", getForkDesignList)
+router.post("/forkDesignList/:id", getForkDesignList);
+
+// video
+router.get("/:id/video-chat/check-invited", auth, checkInvited);
+router.post("/:id/video-chat/invite-user", auth, inviteUser);
+router.post("/:id/video-chat/cancel-invited-user", auth, cancelInvitedUser);
+
+// PROBLEM
+router.get("/problem/list",
+async (req, res, next) => {
+  const url = "http://203.246.113.171:8080/api/v1/problem";
+  try {
+    const result= await axios({
+      url: url,
+      method: 'get',
+    });
+    res.status(200).json(result.data);
+  } catch(e) {
+    console.error(e);
+  }
+});
+
+router.get("/problem/detail/:id",
+async (req, res, next) => {
+  const uid = req.params.id;
+  const url = `http://203.246.113.171:8080/api/v1/problem/${uid}`;
+  try{
+    const result= await axios({
+      url: url,
+      method: 'get',
+    });
+    res.status(200).json(result.data);
+  }catch(e){
+    console.error(e);
+  }
+});
+
+//ANSWER
+router.post("/problem/submit", auth, createSubmit);
+
+router.put("/problem/update-submit/:id", updateSubmit);
+
+router.get("/problem/result-request/:id", getSubmit);
+
+router.get("/problem/mySubmitList/:user_id/:content_id",getMySubmitList);
+//(req, res, next)=>{
+//  const submit_id = req.params.id;
+//  console.log(req.body);
+//  // res.send(`제출번호${submit_id}의 값이 변경되었습니다.`);
+//  res.status(200).json({"message":`제출번호${submit_id}의 값이 변경되었습니다.`});
+//
+//});
+
 module.exports = router;

@@ -16,14 +16,7 @@ const readMessage = (obj) => {
   return new Promise((resolve, reject) => {
     const deleteCount = () => {
       return new Promise((resolve, reject) => {
-        const sql = `
-          DELETE FROM \
-            opendesign.design_chat_read_count \
-          WHERE \
-            user_id=${obj.user_id} \
-            AND \
-            design_id=${obj.design_id}
-        `;
+        const sql = `SET SQL_SAFE_UPDATES=0;DELETE FROM opendesign.design_chat_read_count WHERE user_id=${obj.user_id} AND design_id=${obj.design_id};SET SQL_SAFE_UPDATES=1;`;
 
         connection.query(sql, (err, _) => {
           if (err) {
@@ -39,16 +32,26 @@ const readMessage = (obj) => {
       .catch(reject);
   });
 };
+const isMore = (obj) => {
+  return new Promise((resolve, reject) => {
+    const { page, design_id } = obj;
+    const num = page * 10;
+    const sql =
+      `SELECT COUNT(*) AS 'count' FROM opendesign.design_chat DC WHERE design_id=${design_id}`;
+    connection.query(sql, (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(row[0].count, num);
+        resolve(row[0].count > num);
+      }
+    });
+  });
+};
 const loadMessage = (obj) => {
   return new Promise((resolve, reject) => {
     const { page, design_id } = obj;
-    const sql = `
-      SELECT DC.*, U.nick_name AS \`memberName\`
-        FROM opendesign.design_chat DC
-        LEFT JOIN opendesign.user U ON DC.user_id = U.uid
-          WHERE design_id=${design_id}
-            ORDER BY uid DESC LIMIT ${page * 10}, 10`;
-
+    const sql = `SELECT DC.*, U.nick_name AS \`memberName\` FROM opendesign.design_chat DC LEFT JOIN opendesign.user U ON DC.user_id = U.uid WHERE design_id=${design_id} ORDER BY uid DESC LIMIT ${page * 10}, 10`;
     connection.query(sql, (err, row) => {
       if (err) {
         console.error(err);
@@ -475,14 +478,15 @@ function SocketConnection() {
         // socket.to(roomNum).emit('read', { success: read, user_id: memberId }))
       });
       socket.on('load', data => {
-        // console.log('load', data);
+        const { page, design_id } = data
         loadMessage(data)
           .then(data =>
             appendReadCount(data))
           .then(data =>
             appendThumbnail(data))
-          .then(data =>
-            socket.emit('load', data))
+          .then(async data =>
+            socket.emit('load',
+              { messages: data, isMore: await isMore({ page: page, design_id: design_id }) }))
           .catch(err =>
             socket.emit('load', { sucess: false, detail: err }));
       });
@@ -503,6 +507,27 @@ function SocketConnection() {
         //  chatRoomAndMems);
       });
     });
+
+}
+
+
+exports.sendAlarm = (socketId, uid, contentId, message, fromUserId, subContentId) => {
+  SendAlarm(socketId, uid, contentId, message, fromUserId, io, subContentId);
+};
+
+exports.getAlarm = (socketId, uid) => {
+  newGetAlarm(socketId, uid, io);
+};
+
+exports.SocketConnection = SocketConnection;
+
+
+
+
+
+
+
+
 
   // let connectedPeers = new Map()
   // const peers = 
@@ -628,27 +653,6 @@ function SocketConnection() {
   //       }
   // })
   // })
-}
-
-
-exports.sendAlarm = (socketId, uid, contentId, message, fromUserId, subContentId) => {
-  SendAlarm(socketId, uid, contentId, message, fromUserId, io, subContentId);
-};
-
-exports.getAlarm = (socketId, uid) => {
-  newGetAlarm(socketId, uid, io);
-};
-
-exports.SocketConnection = SocketConnection;
-
-
-
-
-
-
-
-
-
 
 
 

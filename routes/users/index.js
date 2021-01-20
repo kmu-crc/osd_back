@@ -5,7 +5,7 @@ const signIn = require("./signIn");
 const check = require("./check");
 const auth = require("../../middlewares/auth");
 const { FBSignIn, FBSignUp } = require("./FBRegistration");
-const { insertDetail, modifyDetail } = require("./userDetail");
+const { insertDetail, insertDetail_newversion, modifyDetail, modifyDetail_newversion } = require("./userDetail");
 const stringToNumber = require("../../middlewares/stringToNumber");
 const stringToBoolean = require("../../middlewares/stringToBoolean");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
@@ -30,8 +30,10 @@ router.post("/FBSignUp", FBSignUp, FBSignIn);
 router.post("/FBSignIn", FBSignIn);
 
 router.post("/insertDetail", auth, insertThumbnail, stringToNumber, stringToBoolean, insertDetail);
+router.post("/insertDetail_newversion", auth, insertThumbnail, stringToNumber, stringToBoolean, insertDetail_newversion);
 
 router.post("/modifyDetail", auth, insertThumbnail, stringToNumber, stringToBoolean, modifyDetail);
+router.post("/modifyDetail_newversion", auth, insertThumbnail, stringToNumber, stringToBoolean, modifyDetail_newversion);
 
 router.post("/deleteUser", auth, secession);
 

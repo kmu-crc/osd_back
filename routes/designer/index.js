@@ -9,11 +9,15 @@ const { getLikeDesigner, likeDesigner, unlikeDesigner } = require("./likeDesigne
 const { allDesignInDesigner, myDesignInDesigner, designInDesigner, likeInDesigner } = require("./designInDesigner");
 const { getTopList } = require("./topList");
 const { designerDetail, getCount } = require("./designerDetail");
-const { designerList, getTotalCount } = require("./designerList");
+const { designerList,designerList_newversion, getTotalCount,getTotalCount_newversion} = require("./designerList");
 const { myGroup, relatedGroup, likeGroup, designersLikeDesigner } = require("./designerDetailPage");
 
 router.get("/designerList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designerList, getDesignerList);
+router.get("/designerList_newversion/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", designerList_newversion, getDesignerList);
+
 router.get("/designerCount/:cate1?/:cate2?", getTotalCount);
+router.get("/designerCount_newversion/:cate1?/:cate2?/:cate3?", getTotalCount_newversion);
+
 router.get("/designerDetail/:id", designerDetail);
 
 router.get("/designerDetail/:id/myDesign/:page/:sort?", myDesignInDesigner, getDesignList);

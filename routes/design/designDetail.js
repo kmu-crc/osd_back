@@ -59,6 +59,9 @@ exports.designDetail = (req, res, next) => {
       if (!data.category_level1 && !data.category_level2) {
         data.categoryName = null;
         resolve(data);
+      } else if (data.category_level3 && data.category_level3 !== "") {
+        cate = data.category_level3;
+        sql = "SELECT name FROM category_level3 WHERE uid = ?";
       } else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
         sql = "SELECT name FROM category_level2 WHERE uid = ?";
@@ -335,6 +338,23 @@ exports.designDetail = (req, res, next) => {
     })
   }
 
+  function getCardWires(data) {
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT * FROM opendesign.design_card_wire WHERE design_id=${data.uid};`, (err, result) => {
+        if (!err && result.length === 0) {
+          data.wires = null;
+          resolve(data);
+        } else if (!err && result.length > 0) {
+          data.wires = result;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      })
+    })
+  }
+
+
 
   getDesignInfo(designId)
     .then(getName)
@@ -347,6 +367,7 @@ exports.designDetail = (req, res, next) => {
     .then(waiting)
     // .then(getIssueTitle)
     .then(getIsParent)
+    .then(getCardWires)
     .then(data => getMembers(data, designId))
     .then(data => res.status(200).json(data))
     .catch(err => res.status(200).json(err));

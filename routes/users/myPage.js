@@ -32,7 +32,7 @@ exports.myPage = (req, res, next) => {
   function getMyInfo(id) {
     const p = new Promise((resolve, reject) => {
       update_totals(id)
-      connection.query("SELECT U.uid, U.nick_name, U.update_time, U.create_time, U.thumbnail, U.password, D.category_level1, D.category_level2, D.about_me, D.is_designer , D.team, D.location, D.career, D.contact,D.careerlist FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.update_time, U.create_time, U.thumbnail, U.password, D.category_level1, D.category_level2, D.category_level3, D.about_me, D.is_designer , D.team, D.location, D.career, D.contact,D.careerlist FROM user U JOIN user_detail D ON D.user_id = U.uid WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
@@ -97,14 +97,18 @@ exports.myPage = (req, res, next) => {
 
   // 카테고리 이름 가져오기
   function getCategory(data) {
+    console.log(data);
     const p = new Promise((resolve, reject) => {
       let cate;
       let sql;
-      if (!data.category_level1 && !data.category_level2) {
+      if (!data.category_level1 && !data.category_level2 && !data.category_level3) {
         data.categoryName = null;
         //console.log("no cate");
         resolve(data);
-      } else if (data.category_level2 && data.category_level2 !== "") {
+      }else if(data.category_level3 && data.category_level3!==""){
+        cate = data.category_level3;
+        sql = "SELECT name FROM category_level3 WHERE uid = ?";
+      }else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
         sql = "SELECT name FROM category_level2 WHERE uid = ?";
       } else {
@@ -329,7 +333,7 @@ exports.getMainMyDesignList = (req, res, next) => {
   // const sort = ...
   const sql = `
   SELECT 
-    D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time
+    D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, D.parent_design
     ,C.like_count, C.member_count, C.card_count, C.view_count 
     ,F.children_count
 
@@ -342,7 +346,7 @@ exports.getMainMyDesignList = (req, res, next) => {
                   (SELECT uid  AS 'design_id' FROM opendesign.design WHERE user_id = ${myid}
                     UNION SELECT design_id FROM opendesign.design_like WHERE user_id = ${myid}
                     UNION SELECT design_id FROM opendesign.design_member WHERE user_id = ${myid} AND is_join) AS T)
-
+  ORDER BY D.update_time DESC
   LIMIT ${page * 10}, 10`;
 
   // ORDER BY D.update_time DESC, C.like_count DESC
@@ -367,7 +371,7 @@ exports.getMainMyGroupList = (req, res, next) => {
   WHERE R.uid IN (SELECT DISTINCT * FROM
     (SELECT uid  AS 'group_id' FROM opendesign.group WHERE user_id = ${myid}
       UNION SELECT group_id FROM opendesign.group_like WHERE user_id = ${myid}) AS T)
-
+  ORDER BY R.update_time DESC
   LIMIT ${page * 10}, 10`;
 
   // ORDER BY R.create_time DESC, C.like DESC 

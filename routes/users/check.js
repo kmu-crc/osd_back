@@ -12,7 +12,7 @@ const check = (req, res, next) => {
           if (err) {
             reject(err);
           } else {
-            decoded.thumbnail = rows[0];
+            decoded.thumbnail = rows[0]==undefined?null:rows[0];
             resolve(decoded);
           }
         }
@@ -82,6 +82,7 @@ const check = (req, res, next) => {
   }
 
   const respond = data => {
+    //console.log("respond---",req.decoded);
     res.status(200).json({
       success: true,
       info: req.decoded

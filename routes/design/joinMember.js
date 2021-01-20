@@ -223,8 +223,9 @@ exports.getoutMember = (req, res, next) => {
           if (userId === req.decoded.uid) {
             userId = memberId;
           }
-          await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, designId, refuse, req.decoded.uid));
-          //}
+          if(refuse !== 'joinRefuse'){
+            await getSocketId(rows.insertId, userId).then(data => sendAlarm(data.socketId, userId, designId, refuse, req.decoded.uid));
+          }
           resolve(rows.insertId);
         } else {
           console.error(err);
@@ -233,8 +234,20 @@ exports.getoutMember = (req, res, next) => {
       });
     });
   };
-
+ const joinRefuse = async(designId)=>{
+   let userId = await getCreateDesignUser(designId);
+   const memberId = req.params.member_id;
+    return new Promise((resolve,reject)=>{
+    connection.query(`DELETE FROM opendesign.alarm WHERE user_id=${memberId} AND from_user_id=${userId} AND content_id=${designId} AND kinds="INVITE"`),async (err,row)=>{
+      if(!err)resolve(true);
+      else{
+        reject(err);
+      }
+    }
+  });
+ }
   getout(req.params.id, req.params.member_id)
+    .then(()=>{if(refuse == 'joinRefuse'){joinRefuse(req.params.id,)}})
     .then(() => getCount(req.params.id))
     .then(data => updateCount(data, req.params.id))
     .then(data => {

@@ -26,11 +26,10 @@ const connection = require("../../configs/connection");
 //    }
 //);
 
-
  // SET STORAGE
  var storage = multer.diskStorage({
      destination: function (req, file, cb) {
-         cb(null, './tmps');
+         cb(null, './uploads');
      },
      filename: function (req, file, cb) {
          cb(null, file.originalname);
@@ -41,8 +40,8 @@ const connection = require("../../configs/connection");
  router.post("/tmp",
     upload.single('source'),
      (req, res, next) => {
-         // console.log(req.files);
-         const path = `tmps/${req.files.source.md5}+${new Date().getTime()}`;
+         console.log(req.files);
+         const path = `uploads/${req.files.source.md5}${new Date().getTime()}${req.files.source.mimetype==="application/pdf"?".pdf":""}`;
          fs.writeFile(path, req.files.source.data, { encoding: "ascii" }, async err => {
              if (err) {
                  console.log(err);

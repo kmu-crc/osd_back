@@ -7,7 +7,7 @@ const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 
 const { groupList, getTotalCount } = require("./groupList");
-const { topGroupList, getTopGroupTotalCount, updateTopGroup, insertTopGroup, deleteTopGroup } = require("./topGroupList");
+const { topGroupList,getTopMainGroupList, getTopGroupTotalCount, updateTopGroup, insertTopGroup, deleteTopGroup } = require("./topGroupList");
 const { allGroupList, getAllGroupTotalCount } = require("./allGroupList");
 const { groupDetail, getCount } = require("./groupDetail");
 const { designInGroup } = require("./designInGroup");
@@ -78,5 +78,9 @@ router.get("/notice-list/:group_id/:page", getGroupNoticeList);
 router.post("/createGroupNotice", auth, createGroupNotice);
 router.post("/updateGroupNotice", auth, updateGroupNotice);
 router.delete("/deleteGroupNotice/:id", auth, deleteGroupNotice);
+
+
+// top 5개 리스트 가져오기 (메인용)
+router.get("/topMainGroupList/:page", getTopMainGroupList,getGroupList);
 
 module.exports = router;

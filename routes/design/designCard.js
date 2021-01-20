@@ -908,6 +908,9 @@ exports.updateCardSourceClone = async (data) => {
   const WriteFile = (file, filename) => {
     let originname = filename.split(".");
     let name = new Date().valueOf() + "." + originname[originname.length - 1];
+
+    // console.log("write file", name, filename);
+
     return new Promise((resolve, reject) => {
       fs.writeFile(`uploads/${name}`, file, { encoding: "base64" }, err => {
         if (err) {

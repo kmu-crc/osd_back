@@ -131,3 +131,115 @@ exports.getTotalCount = (req, res, next) => {
 };
 
 
+exports.designList_newversion = (req, res, next) => {
+  const page = req.params.page;
+  const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
+  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
+  const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate3 : null;
+  const keyword = req.params.keyword;
+  console.log("designList_Testver",category1,category2,category3);
+
+  let sort;
+  if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {
+    sort = req.params.sorting;
+  } else {
+    sort = "update";
+  }
+  let sql2 = `
+    SELECT 
+      D.uid, D.user_id, D.title, D.thumbnail, D.parent_design, D.parent_design AS test, 
+      D.category_level1, D.category_level2,D.category_level3, D.create_time, D.update_time, D.is_public, D.is_project, 
+      C.like_count, C.member_count, C.card_count, C.view_count, 
+      F.children_count, 
+      U.nick_name 
+    FROM design D 
+    LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM design DD group by DD.parent_design) F ON F.parent_design = D.uid
+    LEFT JOIN design_counter C ON C.design_id = D.uid JOIN user U ON U.uid = D.user_id
+    `
+  // 0. nothing
+  // 1. category2
+  // 2. category1
+  // 3. category2 keyword
+  // 4. category1 keyword
+  if (category3 ||category2 || category1 ||
+    (keyword && keyword !== "null" && keyword !== "undefined")) {
+    sql2 = sql2 + ` WHERE `;
+  }
+  if(category3){
+    sql2=sql2+`category_level3 = ${category3}`
+  }
+  else if (category2) {
+    sql2 = sql2 + `category_level2 = ${category2}`
+  } else if (category1) {
+    sql2 = sql2 + `category_level1 = ${category1}`
+  }
+
+  if (keyword && keyword !== "null" && keyword !== "undefined") {
+    const ary = keyword.trim().split(" ");
+    if (category3|| category2 || category1) {
+      sql2 = sql2 + ` AND `;
+    }
+    ary.length > 0 && ary.map((word, index) => {
+      if (word !== "") {
+        if (index !== 0) {
+          sql2 = sql2 + ` AND `;
+        }
+        sql2 = sql2 + `U.nick_name LIKE "%${word}%"`;
+      }
+      return word;
+    });
+    if (ary.length > 0) {
+      sql2 = sql2 + `OR `;
+    }
+    ary.length > 0 && ary.map((word, index) => {
+      if (word !== "") {
+        if (index !== 0) {
+          sql2 = sql2 + ` AND `;
+        }
+        sql2 = sql2 + `D.title LIKE "%${word}%"`;
+      }
+      return word;
+    });
+
+  }
+  sql2 = sql2 + `
+  ORDER BY ${ sort === "update" ? "D.update_time" : sort === "create" ? "D.create_time" : "C.like_count"} DESC
+  LIMIT ${ page * 10}, 10;`;
+  req.sql = sql2;
+  next();
+};
+
+
+exports.getTotalCount_newversion = (req, res, next) => {
+  const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
+  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
+  const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate3 : null;
+  let sql;
+
+  if (!category1 && !category2) { // 카테고리 파라미터가 없는 경우
+    sql = "SELECT count(*) FROM design D";
+  } else if(category3){
+    sql = "SELECT count(*) FROM design D WHERE category_level3 = " + category3;
+  } else if (category2) { // 카테고리 2가 설정된 경우 먼저 빼감
+    sql = "SELECT count(*) FROM design D WHERE category_level2 = " + category2;
+  } else if (category1) { // 카테고리 1이 설정된 경우
+    sql = "SELECT count(*) FROM design D WHERE category_level1 = " + category1;
+  } 
+
+  const getCount = () => {
+    return new Promise((resolve, reject) => {
+      connection.query(sql, (err, result) => {
+        if (!err && result.length) {
+          resolve(result[0]);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  getCount()
+    .then(num => res.status(200).json(num))
+    .catch(err => res.status(500).json(err));
+};
+
