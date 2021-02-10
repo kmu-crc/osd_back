@@ -38,6 +38,7 @@
     "serve-favicon": "~2.4.5",
     "socket.io": "^2.1.1",
     "thumbnail": "^0.1.9",
+    "unzip": "^0.1.11",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.2",
     "yarn": "^1.17.3"

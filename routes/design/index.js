@@ -1,7 +1,12 @@
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
-// const connection = require("../../configs/connection");
+const connection = require("../../configs/connection");
+
+const multer = require("multer");
+const path = require('path');
+const fs = require('fs');
+const unzip = require('unzip');
 
 const { designList, designList_newversion, getTotalCount, getTotalCount_newversion } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, getCountDesignComment, createDetailComment, deleteDetailComment, confirmDesignComment } = require("./designDetail");
@@ -35,7 +40,7 @@ const { joinDesign, acceptMember, getoutMember, getWaitingMember, getWaitingToAc
 const { checkInvited, inviteUser, cancelInvitedUser } = require("./inviteVideoChat");
 
 // PROBLEM
-const { createSubmit, updateSubmit, getSubmit, getMySubmitList } = require("./answer");
+const { createSubmit, updateSubmit, getSubmit,getSubmit2, getMySubmitList } = require("./answer");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designList_newversion/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", designList_newversion, getDesignList);
@@ -137,9 +142,11 @@ router.post("/:id/video-chat/invite-user", auth, inviteUser);
 router.post("/:id/video-chat/cancel-invited-user", auth, cancelInvitedUser);
 
 // PROBLEM
-router.get("/problem/list",
+router.get("/problem/list/:page",
 async (req, res, next) => {
-  const url = "http://203.246.113.171:8080/api/v1/problem";
+  const page = req.params.page;
+  console.log(req.params.page);
+  const url = `http://3.34.142.28:8080/api/v1/problem/?page=${page}`;
   try {
     const result= await axios({
       url: url,
@@ -154,7 +161,7 @@ async (req, res, next) => {
 router.get("/problem/detail/:id",
 async (req, res, next) => {
   const uid = req.params.id;
-  const url = `http://203.246.113.171:8080/api/v1/problem/${uid}`;
+  const url = `http://3.34.142.28:8080/api/v1/problem/${uid}`;
   try{
     const result= await axios({
       url: url,
@@ -168,18 +175,160 @@ async (req, res, next) => {
 
 //ANSWER
 router.post("/problem/submit", auth, createSubmit);
-
 router.put("/problem/update-submit/:id", updateSubmit);
-
 router.get("/problem/result-request/:id", getSubmit);
+router.get("/problem/result-request2/:id", getSubmit2);
 
-router.get("/problem/mySubmitList/:user_id/:content_id",getMySubmitList);
-//(req, res, next)=>{
-//  const submit_id = req.params.id;
-//  console.log(req.body);
-//  // res.send(`제출번호${submit_id}의 값이 변경되었습니다.`);
-//  res.status(200).json({"message":`제출번호${submit_id}의 값이 변경되었습니다.`});
-//
-//});
+
+router.get("/problem/mySubmitList/:user_id/:content_id", getMySubmitList);
+
+const checkOwner = async (req, res, next)=>{
+const { design_id, user_id } = req.body;
+
+const isProgrammingDesign = (id) => {
+	return new Promise((resolve)=>{
+		const sql = `SELECT category_level3 FROM opendesign.design WHERE uid LIKE ${id};`;
+		connection.query(sql, (err, row) => {
+		if(err){
+				resolve(false);
+			} else {
+				resolve(row && row.length > 0 ? row[0]['category_level3']: false);
+			}
+		});
+	});
+};
+const getParentGroups = (id) => {
+	return new Promise((resolve)=>{
+		const sql = `SELECT * FROM opendesign.group_join_design WHERE design_id LIKE ${id};`;
+		connection.query(sql, (err, row) => {
+			const list = [];
+			Object.values(row).map(r=>list.push(JSON.parse(JSON.stringify(r))));
+			resolve(list);
+		});
+	});
+}
+const getGroupInfo = (id) => {
+	return new Promise((resolve)=>{
+		const sql = `SELECT * FROM opendesign.group WHERE uid LIKE ${id};`;
+		connection.query(sql, (err, row) => {
+			resolve(JSON.parse(JSON.stringify(row[0])));
+		});
+	});
+};
+
+	isProgrammingDesign(design_id)
+
+		.then(async yes => {
+			if(yes === false) {
+				res.status(200).json({sucess:false, detail:"NOT PROGRAMMING DESIGN"});
+				return;
+			}
+			const groups = await getParentGroups(design_id);
+			const checks = 
+				groups && groups.length > 0 &&
+					groups.map(async group => {
+				return new Promise(async resolve => {	
+					const info = await getGroupInfo(group.parent_group_id);
+					if(info && (info.user_id == user_id)) {
+						resolve(true);
+					}
+					else
+						resolve(false);
+				});
+			});
+
+			Promise
+			.all(checks)
+			.then(owner =>{
+				let _owner = false;
+				owner.forEach(own=> {
+					_owner = own || _owner;
+				});
+				res.status(200).json({sucess:true, owner:_owner});
+			})
+		})
+
+		.catch(e=> res.status(200).json({sucess:false, detail:e}));
+};
+
+router.post("/problem/checkGroupOwner", checkOwner);
+
+/*---------------------------
+	CREATE PROBLEM
+-----------------------------*/
+var storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, './uploads');
+	},
+	filename: function (req, file, cb) {
+		cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));//originalname);
+	}
+});
+var upload = multer({storage: storage});
+router.post("/problem/create", 
+	upload.single('zip-file'), 
+		(req, res, next) => {
+	const zfile = req.files['zip-file'];
+	//{ 'zip-file':
+	//0|opendesign  |    { name: '001.zip',
+	//0|opendesign  |      data: <Buffer 50 4b 03 04 0a 00 00 00 00 00 b3 81 49 52 00 00 00 00 00 00 00 00 00 00 00 00 0f 00 1c 00 30 30 31 2d 48 65 6c 6c 6f 57 6f 72 6c 64 2f 55 54 09 00 03 ... >,
+	//0|opendesign  |      size: 894,
+	//0|opendesign  |      encoding: '7bit',
+	//0|opendesign  |      tempFilePath: '',
+	//0|opendesign  |      truncated: false,
+	//0|opendesign  |      mimetype: 'application/zip',
+	//0|opendesign  |      md5: '69779baad65c2906679b73e6cfda2c85',
+	//0|opendesign  |      mv: [Function: mv] } }
+
+
+	if(!zfile){
+		res.status(200).json({success:false,detail:"no file"});
+	}
+
+    //write zip file
+	const newfilename = `${new Date().getTime()}.zip`;
+	const originalname = zfile.name;
+	const path = `uploads/${newfilename}`;
+    fs.writeFile(
+		path,
+		zfile.data,
+		{ encoding: "ascii"},
+		async err => {
+			if(err){
+				console.error(err);
+				res.status(200).json({success:false,detail:"failed write zip-file"});
+			}
+			
+		}
+	);
+	// change permission zip file's
+	fs.chmod(path, 0777, async err => {
+		if(err){
+			console.error(err);
+			res.status(200).json({success:false,detail:"failed permission modifiy zip-file"});
+		}
+	});
+		
+	//check
+	const { exec } = require('child_process');
+//unzip -Z1 ${path}
+	exec(`unzip -Z1 ${path}`, (err, stdout, stderr) => {
+		if(err){
+			console.error(err);
+			res.status(200).json({success:false,detail:"failed to verify zip-file"});
+		}
+		if(stderr){
+			console.error(stderr);
+			res.status(200).json({success:false,detail:"failed to verify zip-file"});
+		}
+		console.log('stdout:', stdout);
+	});	
+    
+    //unzip
+	//fs.createReadStream(path).pipe(unzip.Extract({path: `uploads`}));
+
+    res.status(200).json({success:true});
+});
+
 
 module.exports = router;

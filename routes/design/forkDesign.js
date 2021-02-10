@@ -20,7 +20,7 @@ exports.forkDesign = async (req, res, next) => {
     SET @USER_ID = ${user_id};
     SET SQL_SAFE_UPDATES = 0;
     DROP TEMPORARY TABLE IF EXISTS t;
-    CREATE TEMPORARY TABLE IF NOT EXISTS t AS (SELECT NULL as uid, @USER_ID as user_id, title, explanation, thumbnail, category_level1, category_level2, is_commercial, is_public, is_modify, is_display_creater, @PARENT_DESIGN AS parent_design, NOW() AS create_time, NOW() AS update_time, is_project, is_members, d_flag FROM opendesign.design  WHERE uid = @PARENT_DESIGN);
+    CREATE TEMPORARY TABLE IF NOT EXISTS t AS (SELECT NULL as uid, @USER_ID as user_id, title, explanation, thumbnail, category_level1, category_level2, category_level3, is_commercial, is_public, is_modify, is_problem, is_display_creater, @PARENT_DESIGN AS parent_design, NOW() AS create_time, NOW() AS update_time, is_project, is_members, d_flag FROM opendesign.design  WHERE uid = @PARENT_DESIGN);
     INSERT INTO opendesign.thumbnail SELECT NULL AS uid, @USER_ID AS user_id, s_img, m_img, l_img FROM opendesign.thumbnail WHERE uid IN (SELECT thumbnail FROM t) AND s_img IS NOT NULL;
     UPDATE t SET thumbnail = (SELECT @@IDENTITY) WHERE (SELECT thumbnail from opendesign.design WHERE uid=@PARENT_DESIGN)is not null;
     UPDATE t SET title = CONCAT(@PREFIX_STRING, title);
@@ -88,8 +88,8 @@ exports.forkDesign2 = async (req, res, next) => {
   function cloneDesignDB(parent) {
     return new Promise((resolve, reject) => {
       const sql = `
-      INSERT INTO opendesign.design(user_id, title, explanation, parent_design, category_level1, category_level2, is_commercial, is_public, is_modify, is_display_creater, is_project)
-      SELECT ${user_id} AS user_id, title, explanation, ${parent} as parent_design, category_level1, category_level2, is_commercial, is_public, is_modify, is_display_creater, is_project
+      INSERT INTO opendesign.design(user_id, title, explanation, parent_design, category_level1, category_level2, category_level3, is_commercial, is_public, is_modify, is_problem, is_display_creater, is_project)
+      SELECT ${user_id} AS user_id, title, explanation, ${parent} as parent_design, category_level1, category_level2, category_level3, is_commercial, is_public, is_modify, ${false}, is_display_creater, is_project
       FROM opendesign.design
       WHERE uid = ${parent};
       `;

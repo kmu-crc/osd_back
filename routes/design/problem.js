@@ -57,7 +57,7 @@ exports.createSubmit = async (req, res, next) => {
           try{
             const result = await axios({
               method: 'post',
-              url: `http://203.246.113.171:8080/api/v1/submit/`,
+              url: `http://3.34.142.28:8080/api/v1/submit/`,
               data: {
                submit_id: submit_id,
                problem_id: problem_id,

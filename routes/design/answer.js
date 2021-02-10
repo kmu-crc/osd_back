@@ -28,9 +28,38 @@ exports.getSubmit = async (req, res, next) => {
    .catch(error);
 };
 
+// result-request
+exports.getSubmit2 = async (req, res, next) => {
+
+  const get_submit = (submit_id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM opendesign.problem_submit WHERE uid=?", submit_id,
+        (err,row)=>{
+        if(!err) {
+           console.log(row[0]);
+           resolve(row[0]);
+        } else {
+           reject(err);
+        }
+      });
+    });
+  };
+
+  const success = (data) => {res.status(200).json(data)};
+  const error = (e) => {res.status(500).json({result:null, error:e})};
+
+  get_submit(req.params.id)
+   .then(success)
+   .catch(error);
+
+};
+
+
 // All Data
 exports.createSubmit = async (req, res, next) => {
-  const { user_id, problem_id, language_id, code } = req.body;
+  // const { user_id, problem_id, language_id, code, file_name } = req.body;
+  const { user_id, language_id, answer, problem_id, content_id} = req.body;
 
       const generate_submit = (data) => {
         return new Promise((resolve, reject) => {
@@ -48,30 +77,65 @@ exports.createSubmit = async (req, res, next) => {
         });
       };
 
+      const update_problem_content = (id) => {
+      	return new Promise((resolve, reject) => {
+      	  const sql_select = `SELECT content FROM opendesign.design_content WHERE uid LIKE ${id};`;
+      	    connection.query(sql_select, (err, row) => {
+      	      if(!err) {
+console.log(JSON.parse(JSON.stringify(row[0])));
+                let obj = JSON.parse(JSON.stringify(row[0]));
+                obj.answer = answer;
+      	        // console.log(row[0]);
+                const sql_update = `UPDATE opendesign.design_content SET content='${JSON.stringify(obj)}' WHERE uid LIKE ${content_id};`;
+console.log(sql_update);
+      	     	connection.query(sql_update , (er, row) => {
+                  if(!er) {
+                    //
+                    resolve(id);
+                  }
+                  else { 
+                    reject(er);
+                  }
+                });
+      	      } else {
+      	        reject(err);
+      	      }
+      	    });
+      	});
+      };
+
+
       const submit = (submit_id) => {
         return new Promise( async (resolve, reject) => {
-          // submit_id - 플랫폼의 제출 ID,
-	  // problem_id - 문제 ID,
-	  // language_id - 사용된 언어 ID,
-	  // code - 채점할 코드
-          try{
-            const result = await axios({
-              method: 'post',
-              url: `http://203.246.113.171:8080/api/v1/submit/`,
-              data: {
-               submit_id: submit_id,
-               problem_id: problem_id,
-               language_id: language_id,
-               code: code, 
-              }
-            });
-            resolve(submit_id);
-          } catch(e){
-          console.error(e);
-          reject(false);
-          }
-        });
-      };
+        // submit_id - 플랫폼의 제출 ID,
+	// problem_id - 문제 ID,
+	// language_id - 사용된 언어 ID,
+	// code - 채점할 코드
+	const file_name = [];
+	const code = [];
+	Object.values(JSON.parse(answer))
+		.forEach(obj => {
+			file_name.push(obj.file_name);
+			code.push(obj.code);
+		});
+        try{
+	const result = await axios({
+		method: 'post',
+		url: `http://3.34.142.28:8080/api/v1/submit/`,
+		data: {
+			submit_id: submit_id,
+			problem_id: problem_id,
+			language_id: language_id,
+			file_name: file_name,
+			code: code, 
+		}});
+		resolve(submit_id);
+	} catch(e){
+		console.error(e);
+		reject(false);
+	}
+	});
+	};
        
       const success = (submit_id) => {
         res.status(200).json({
@@ -87,71 +151,57 @@ exports.createSubmit = async (req, res, next) => {
 
       generate_submit(req.body)
       .then(submit)
+      // .then(update_problem_content)
       .then(success)
       .catch(fail);
 };
-
-
-
-
-// 
 exports.updateSubmit = async (req, res, next) => {
   const id = req.params.id;
   console.log(req.body);
-      const update_submit = (data) => {
-        return new Promise((resolve, reject) => {
-          connection.query(
-            `UPDATE opendesign.problem_submit SET ? WHERE uid=${id}`, data,
-            (err, row) => {
-              if (!err) {
-		//date.uid = row.insertId;
-                resolve(data);
-              } else {
-                console.log(err);
-                reject(err);
-              }
-            });
-        });
-      };
 
-      //const submit = (data) => {
-      //  return new Promise( async (resolve, reject) => {
-      //    try{
-      //      const result = await axios({
-      //        method: 'post',
-      //        url: `http://203.246.113.171:8080/api/v1/submit/`,
-      //        data: {
-      //         submit_id: submit_id,
-      //         problem_id: problem_id,
-      //         language_id: language_id,
-      //         code: code, 
-      //        }
-      //      });
-      //      resolve(true);
-      //    } catch(e){
-      //    console.error(e);
-      //    reject(false);
-      //    }
-      //  });
-      //};
-       
-      const success = (data) => {
-        res.status(200).json({
-          success: true,
-          data: data,
+  const update_submit = (data) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `UPDATE opendesign.problem_submit SET ? WHERE uid=${id}`, data,
+        (err, row) => {
+          if (!err) {
+    	//date.uid = row.insertId;
+            resolve(data);
+          } else {
+            console.log(err);
+            reject(err);
+          }
         });
-      };
-    
-      const fail = () => {
-        res.status(500).json({
-          success: false
-        });
-      };
+    });
+  };
 
-      update_submit(req.body)
-      //.then(submit)
-      .then(success)
-      .catch(fail);
+  //const update_problem_content = (data) = > {
+  //  return new Promise((resolve, reject) => {
+  //    const sql = `UPDATE opendesign.problem_submit SET content_id=${} WHERE uid=${id}`;
+  //    connection.query(sql, (err, row) => {
+  //      if(!err) {
+  //      }
+  //    });
+  //  });
+  //};
+   
+  const success = (data) => {
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  };
+  
+  const fail = () => {
+    res.status(500).json({
+      success: false
+    });
+  };
+
+  update_submit(req.body)
+  //.then(submit)
+  .then(success)
+  .catch(fail);
 };
 
 // result-request
