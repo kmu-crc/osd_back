@@ -8,6 +8,7 @@
     "local": "HTTPS=true LOCAL=true nodemon ./bin/www.js"
   },
   "dependencies": {
+    "adm-zip": "^0.5.2",
     "aws-sdk": "^2.243.1",
     "axios": "^0.21.0",
     "bcrypt": "^1.0.3",
@@ -23,6 +24,7 @@
     "generate-password": "^1.4.1",
     "gm": "^1.23.1",
     "hashmap": "^2.4.0",
+    "iconv-lite": "^0.6.2",
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.9.20",
     "morgan": "^1.9.1",
@@ -35,10 +37,12 @@
     "passport-facebook": "^2.1.1",
     "passport-local": "^1.0.0",
     "pug": "^2.0.3",
+    "rimraf": "^3.0.2",
     "serve-favicon": "~2.4.5",
     "socket.io": "^2.1.1",
     "thumbnail": "^0.1.9",
     "unzip": "^0.1.11",
+    "unzipper": "^0.10.11",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.2",
     "yarn": "^1.17.3"

@@ -4,9 +4,6 @@ const router = express.Router();
 const connection = require("../../configs/connection");
 
 const multer = require("multer");
-const path = require('path');
-const fs = require('fs');
-const unzip = require('unzip');
 
 const { designList, designList_newversion, getTotalCount, getTotalCount_newversion } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, getCountDesignComment, createDetailComment, deleteDetailComment, confirmDesignComment } = require("./designDetail");
@@ -41,6 +38,7 @@ const { checkInvited, inviteUser, cancelInvitedUser } = require("./inviteVideoCh
 
 // PROBLEM
 const { createSubmit, updateSubmit, getSubmit,getSubmit2, getMySubmitList } = require("./answer");
+const { makeProblemZip, makeProblemDir } = require("./make_problem");
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designList_newversion/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", designList_newversion, getDesignList);
@@ -142,6 +140,38 @@ router.post("/:id/video-chat/invite-user", auth, inviteUser);
 router.post("/:id/video-chat/cancel-invited-user", auth, cancelInvitedUser);
 
 // PROBLEM
+router.get("/problem/category/:category_id",
+async (req, res, next) => {
+  const category_id = req.params.category_id;
+  const url = `http://3.34.142.28:8080/api/v1/problem/?categories=${category_id}`;
+  try {
+    const result= await axios({
+      url: url,
+      method: 'get',
+    });
+	console.log(result);
+    res.status(200).json(result.data);
+  } catch(e) {
+    console.error(e);
+  }
+});
+router.get("/problem/category",
+async (req, res, next) => {
+  const page = req.params.page;
+  console.log(req.params.page);
+  const url = `http://3.34.142.28:8080/api/v1/category`;
+  try {
+    const result= await axios({
+      url: url,
+      method: 'get',
+    });
+	console.log(result.data);
+    res.status(200).json(result.data);
+  } catch(e) {
+    console.error(e);
+  }
+});
+
 router.get("/problem/list/:page",
 async (req, res, next) => {
   const page = req.params.page;
@@ -154,7 +184,9 @@ async (req, res, next) => {
     });
     res.status(200).json(result.data);
   } catch(e) {
-    console.error(e);
+	  const detail = e.response && e.response.data.detail;
+		console.error('[ERROR]: get problem list', detail);
+		res.status(200).json({error: detail});
   }
 });
 
@@ -261,74 +293,12 @@ var storage = multer.diskStorage({
 		cb(null, './uploads');
 	},
 	filename: function (req, file, cb) {
-		cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));//originalname);
+		cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // originalname);
 	}
 });
 var upload = multer({storage: storage});
-router.post("/problem/create", 
-	upload.single('zip-file'), 
-		(req, res, next) => {
-	const zfile = req.files['zip-file'];
-	//{ 'zip-file':
-	//0|opendesign  |    { name: '001.zip',
-	//0|opendesign  |      data: <Buffer 50 4b 03 04 0a 00 00 00 00 00 b3 81 49 52 00 00 00 00 00 00 00 00 00 00 00 00 0f 00 1c 00 30 30 31 2d 48 65 6c 6c 6f 57 6f 72 6c 64 2f 55 54 09 00 03 ... >,
-	//0|opendesign  |      size: 894,
-	//0|opendesign  |      encoding: '7bit',
-	//0|opendesign  |      tempFilePath: '',
-	//0|opendesign  |      truncated: false,
-	//0|opendesign  |      mimetype: 'application/zip',
-	//0|opendesign  |      md5: '69779baad65c2906679b73e6cfda2c85',
-	//0|opendesign  |      mv: [Function: mv] } }
-
-
-	if(!zfile){
-		res.status(200).json({success:false,detail:"no file"});
-	}
-
-    //write zip file
-	const newfilename = `${new Date().getTime()}.zip`;
-	const originalname = zfile.name;
-	const path = `uploads/${newfilename}`;
-    fs.writeFile(
-		path,
-		zfile.data,
-		{ encoding: "ascii"},
-		async err => {
-			if(err){
-				console.error(err);
-				res.status(200).json({success:false,detail:"failed write zip-file"});
-			}
-			
-		}
-	);
-	// change permission zip file's
-	fs.chmod(path, 0777, async err => {
-		if(err){
-			console.error(err);
-			res.status(200).json({success:false,detail:"failed permission modifiy zip-file"});
-		}
-	});
-		
-	//check
-	const { exec } = require('child_process');
-//unzip -Z1 ${path}
-	exec(`unzip -Z1 ${path}`, (err, stdout, stderr) => {
-		if(err){
-			console.error(err);
-			res.status(200).json({success:false,detail:"failed to verify zip-file"});
-		}
-		if(stderr){
-			console.error(stderr);
-			res.status(200).json({success:false,detail:"failed to verify zip-file"});
-		}
-		console.log('stdout:', stdout);
-	});	
-    
-    //unzip
-	//fs.createReadStream(path).pipe(unzip.Extract({path: `uploads`}));
-
-    res.status(200).json({success:true});
-});
-
+router.post("/problem/create_zip", upload.single('zip-file'), makeProblemZip);
+router.post("/problem/create_dir", upload.array(), makeProblemDir);
 
 module.exports = router;
+

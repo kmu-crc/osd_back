@@ -26,6 +26,8 @@ const { myDesignList, myGroupList, myExistDesignList, myExistGroupList } = requi
 const { acceptDesign, acceptGroup, deleteDesign, deleteGroup } = require("./manageGroup");
 const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 
+const { getSubmitStatus } = require("./submit");
+
 // 그룹에 대한 정보들 가져오기
 router.get("/groupList/:page/:sorting?/:keyword?", groupList, getGroupList);
 router.get("/groupCount", getTotalCount);
@@ -79,6 +81,8 @@ router.post("/createGroupNotice", auth, createGroupNotice);
 router.post("/updateGroupNotice", auth, updateGroupNotice);
 router.delete("/deleteGroupNotice/:id", auth, deleteGroupNotice);
 
+// 제출현황가져오기
+router.get("/getSubmitStatus/:id", auth, getSubmitStatus);
 
 // top 5개 리스트 가져오기 (메인용)
 router.get("/topMainGroupList/:page", getTopMainGroupList,getGroupList);
