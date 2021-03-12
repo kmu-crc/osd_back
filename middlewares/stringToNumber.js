@@ -1,5 +1,5 @@
 const stringToNumber = (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   //console.log("sTn", req.files);
   const StoN = () => {
     return new Promise((resolve, reject) => {

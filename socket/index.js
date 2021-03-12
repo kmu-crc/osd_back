@@ -42,7 +42,7 @@ const isMore = (obj) => {
       if (err) {
         reject(err);
       } else {
-        console.log(row[0].count, num);
+        // console.log(row[0].count, num);
         resolve(row[0].count > num);
       }
     });
@@ -448,7 +448,6 @@ function SocketConnection() {
       }
       socket.on('notice', (data) => {
         // new notice message
-
       });
       socket.on('chat', (data) => {
         newChatMessage({

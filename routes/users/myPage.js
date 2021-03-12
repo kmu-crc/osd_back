@@ -21,7 +21,7 @@ exports.myAllDesign = (req, res, next) => {
     LEFT JOIN design_counter C ON C.design_id = D.uid
     WHERE M.is_join = 1 AND M.user_id = ${id} AND D.user_id != ${id} LIMIT ` + (page * 10) + `, 10`
   req.sql = sql;
-  console.log(sql);
+  // console.log(sql);
   next();
 }
 // 내 기본 정보 가져오기
@@ -97,7 +97,7 @@ exports.myPage = (req, res, next) => {
 
   // 카테고리 이름 가져오기
   function getCategory(data) {
-    console.log(data);
+    // console.log(data);
     const p = new Promise((resolve, reject) => {
       let cate;
       let sql;

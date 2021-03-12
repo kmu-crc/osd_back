@@ -4,7 +4,7 @@ const fs = require("fs");
 const { S3Thumbnail } = require("../middlewares/S3Thumbnail");
 
 exports.createThumbnails = (data) => {
-console.log("createthumbnail::=========",data);
+// console.log("createthumbnail::=========",data);
   return new Promise((resolve, reject) => {
     let filename = null;
     if (data === null || !data.image) {

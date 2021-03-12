@@ -37,7 +37,7 @@ exports.getCardComment = (req, res, next) => {
 };
 const getSocketId = uid => {
   return new Promise((resolve, reject) => {
-    console.log("uid", uid);
+    // console.log("uid", uid);
     connection.query(
       `SELECT socket_id FROM user WHERE uid = ${uid}`,
       (err, row) => {
@@ -87,7 +87,7 @@ exports.createCardComment = (req, res, next) => {
 
   const createComment = (data) => {
     return new Promise((resolve, reject) => {
-	console.log("data:", data);
+	// console.log("data:", data);
       connection.query("INSERT INTO card_comment SET ?", data, (err, row) => {
         if (!err) {
           //console.log("create", row);

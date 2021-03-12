@@ -149,7 +149,7 @@ async (req, res, next) => {
       url: url,
       method: 'get',
     });
-	console.log(result);
+	// console.log(result);
     res.status(200).json(result.data);
   } catch(e) {
     console.error(e);
@@ -158,14 +158,14 @@ async (req, res, next) => {
 router.get("/problem/category",
 async (req, res, next) => {
   const page = req.params.page;
-  console.log(req.params.page);
+//   console.log(req.params.page);
   const url = `http://3.34.142.28:8080/api/v1/category`;
   try {
     const result= await axios({
       url: url,
       method: 'get',
     });
-	console.log(result.data);
+	// console.log(result.data);
     res.status(200).json(result.data);
   } catch(e) {
     console.error(e);
@@ -175,7 +175,7 @@ async (req, res, next) => {
 router.get("/problem/list/:page",
 async (req, res, next) => {
   const page = req.params.page;
-  console.log(req.params.page);
+//   console.log(req.params.page);
   const url = `http://3.34.142.28:8080/api/v1/problem/?page=${page}`;
   try {
     const result= await axios({
@@ -252,7 +252,7 @@ const getGroupInfo = (id) => {
 
 		.then(async yes => {
 			if(yes === false) {
-				res.status(200).json({sucess:false, detail:"NOT PROGRAMMING DESIGN"});
+				res.status(200).json({success:false, detail:"NOT PROGRAMMING DESIGN"});
 				return;
 			}
 			const groups = await getParentGroups(design_id);
@@ -268,7 +268,9 @@ const getGroupInfo = (id) => {
 						resolve(false);
 				});
 			});
-
+			if(checks==null) res.status(200).json({success:true, owner: false});
+			return;
+// todo exception checks is null
 			Promise
 			.all(checks)
 			.then(owner =>{
@@ -276,11 +278,11 @@ const getGroupInfo = (id) => {
 				owner.forEach(own=> {
 					_owner = own || _owner;
 				});
-				res.status(200).json({sucess:true, owner:_owner});
+				res.status(200).json({success:true, owner:_owner});
 			})
 		})
 
-		.catch(e=> res.status(200).json({sucess:false, detail:e}));
+		.catch(e=> res.status(200).json({success:false, detail:e}));
 };
 
 router.post("/problem/checkGroupOwner", checkOwner);

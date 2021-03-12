@@ -15,7 +15,7 @@ const updateDesignFn = (req) => {
         if (rows.affectedRows) {
           resolve(rows);
         } else {
-          console.log("2번", err);
+          console.log(err);
           throw err;
         }
       } else {
@@ -62,7 +62,7 @@ exports.createDesign = async (req, res, next) => {
   let contents = req.body.contents;
   let steps = req.body.steps;
   let type = req.body.type;
-  console.log("contents", contents);
+  // console.log("contents", contents);
   // return;
   delete req.body.files;
   delete req.body.uid;
@@ -84,7 +84,7 @@ exports.createDesign = async (req, res, next) => {
           designId = rows.insertId;
           resolve();
         } else {
-          console.log("1번", err);
+          console.log(err);
           reject(err);
         }
       });
@@ -93,15 +93,15 @@ exports.createDesign = async (req, res, next) => {
 
   // 3. 디자인 count 정보 생성
   const insertDesignCount = (data) => {
-    console.log("3번", data, designId);
+    // console.log("3번", data, designId);
     return new Promise((resolve, reject) => {
       const newCount = { design_id: designId, like_count: 0, view_count: 0, card_count: 0, member_count: 1 };
       connection.query("INSERT INTO opendesign.design_counter SET ? ", newCount, (err, row) => {
         if (!err) {
-          console.log(row);
+          // console.log(row);
           resolve(designId);
         } else {
-          console.log("3", err);
+          console.log(err);
           reject(err);
         }
       });
@@ -110,14 +110,14 @@ exports.createDesign = async (req, res, next) => {
 
   // 4. 디자인 생성한 유저 count 정보 업데이트
   const updateUserCount = () => {
-    console.log("4번", userId);
+    // console.log("4번", userId);
     return new Promise((resolve, reject) => {
       connection.query(`UPDATE opendesign.user_counter SET total_design = total_design + 1 WHERE user_id = ${userId}`, (err, row) => {
         if (!err) {
-          console.log(row);
+          // console.log(row);
           resolve(designId);
         } else {
-          console.log("4", err);
+          console.log(err);
           reject(err);
         }
       });

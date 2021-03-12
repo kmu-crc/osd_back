@@ -10,7 +10,7 @@ exports.getSubmit = async (req, res, next) => {
         "SELECT * FROM opendesign.problem_submit WHERE uid=?", submit_id,
         (err,row)=>{
         if(!err) {
-           console.log(row[0]);
+          //  console.log(row[0]);
            resolve(row[0]);
         } else {
            reject(err);

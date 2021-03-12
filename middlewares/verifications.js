@@ -11,7 +11,7 @@ exports.isOnlyNicName = (name, userId) => {
             resolve(true);
           } else {
             const errorMessage = "중복된 닉네임입니다.";
-	console.log(errorMessage);
+	          console.log(errorMessage);
             reject(errorMessage);
           }
         }

@@ -40,7 +40,7 @@ const connection = require("../../configs/connection");
  router.post("/tmp",
     upload.single('source'),
      (req, res, next) => {
-         console.log(req.files);
+        //  console.log(req.files);
          const path = `uploads/${req.files.source.md5}${new Date().getTime()}${req.files.source.mimetype==="application/pdf"?".pdf":""}`;
          fs.writeFile(path, req.files.source.data, { encoding: "ascii" }, async err => {
              if (err) {
@@ -53,7 +53,7 @@ const connection = require("../../configs/connection");
                  // new_file_name = await convertToMP4(path).catch((err) => { console.log("err", err) });
                  // }
                  const s3path = await S3Upload(path, `${req.files.source.name}`) || null;
-                 console.log(s3path);
+                //  console.log(s3path);
                  res.status(200).json({ success: true, path: s3path, message: "good!" })
              }
          });

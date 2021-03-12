@@ -185,7 +185,7 @@ exports.updateGroupNotice = (req, res, next) => {
     return new Promise((resolve, reject) => {
       const obj = { title: req.body.title, content: req.body.content.replace('\'', '\\\'') };
       const sql = `UPDATE opendesign.group_notice SET title='${obj.title}',content='${obj.content}', update_time=NOW() WHERE uid=${notice_id}`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err) {
           resolve(row.insertId);

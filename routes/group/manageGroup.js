@@ -107,7 +107,7 @@ exports.acceptDesign = (req, res, next) => {
   function acceptDesign(id, designId) {
     const p = new Promise((resolve, reject) => {
       const sql = `UPDATE group_join_design SET is_join=1 WHERE parent_group_id=${id} AND design_id=${designId}`;
-      console.log(sql);
+      // console.log(sql);
       connection.query(
         sql,
         (err, row) => {
@@ -142,8 +142,8 @@ exports.acceptDesign = (req, res, next) => {
 
   function confirmAlarm(group, designId) {
     return new Promise((resolve, reject) => {
-      const sql = `UPDATE opendesign.alarm A SET A.confirm = 1 WHERE A.type="GROUP" AND A.kinds="JOIN_withDESIGN" AND A.sub_content_id=${designId} AND A.content_id=${group}`;
-      console.log(sql);
+      const sql = `SET SQL_SAFE_UPDATES = 0;UPDATE opendesign.alarm A SET A.confirm = 1 WHERE A.type="GROUP" AND A.kinds="JOIN_withDESIGN" AND A.sub_content_id=${designId} AND A.content_id=${group};SET SQL_SAFE_UPDATES = 1`;
+      // console.log(sql);
       connection.query(sql, (err, row) => {
         if (!err) {
           const { getAlarm } = require("../../socket")
@@ -221,8 +221,8 @@ exports.deleteDesign = (req, res, next) => {
 
   function confirmAlarm(group, designId) {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
-      WHERE  A.type="GROUP" AND A.kinds="JOIN_withDESIGN" AND A.sub_content_id=${designId} AND A.content_id=${group}`, (err, row) => {
+      connection.query(`SET SQL_SAFE_UPDATES = 0;UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withDESIGN" AND A.sub_content_id=${designId} AND A.content_id=${group};SET SQL_SAFE_UPDATES = 1;`, (err, row) => {
         if (!err) {
           const { getAlarm } = require("../../socket")
           getSocketGroup(group)
@@ -293,8 +293,8 @@ exports.acceptGroup = (req, res, next) => {
   }
   function confirmAlarm(group, groupId) {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
-      WHERE  A.type="GROUP" AND A.kinds="JOIN_withGROUP" AND A.sub_content_id=${groupId} AND A.content_id=${group}`, (err, row) => {
+      connection.query(`SET SQL_SAFE_UPDATES = 0;UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withGROUP" AND A.sub_content_id=${groupId} AND A.content_id=${group};SET SQL_SAFE_UPDATES = 1;`, (err, row) => {
         if (!err) {
           const { getAlarm } = require("../../socket")
           getSocketGroup(group)
@@ -369,8 +369,8 @@ exports.deleteGroup = (req, res, next) => {
 
   function confirmAlarm(group, groupId) {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE opendesign.alarm A SET A.confirm = 1 
-      WHERE  A.type="GROUP" AND A.kinds="JOIN_withGROUP" AND A.sub_content_id=${groupId} AND A.content_id=${group}`, (err, row) => {
+      connection.query(`SET SQL_SAFE_UPDATES = 0;UPDATE opendesign.alarm A SET A.confirm = 1 
+      WHERE  A.type="GROUP" AND A.kinds="JOIN_withGROUP" AND A.sub_content_id=${groupId} AND A.content_id=${group};SET SQL_SAFE_UPDATES = 1;`, (err, row) => {
         if (!err) {
           const { getAlarm } = require("../../socket")
           getSocketGroup(group)

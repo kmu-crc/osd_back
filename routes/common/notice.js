@@ -6,7 +6,7 @@ exports.getNotification = (req, res, next) => {
       if (!err) {
         res.status(200).json(row)
       } else {
-        console.log("getNotifi:", err)
+        console.log(err)
         res.status(200).json(err)
       }
     })

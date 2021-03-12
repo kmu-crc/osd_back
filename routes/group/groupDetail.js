@@ -1,11 +1,35 @@
 var connection = require("../../configs/connection");
 
+
+
+// get "group-member"
+exports.groupMember = (req, res, next) => {
+	const id = req.params.id;
+	const getUserInfoInGroup = (id) => {
+		return new Promise((resolve, reject) => {
+			const sql = `SELECT V.uid AS user_id, V.nick_name, V.email, T.s_img, T.m_img, T.l_img FROM (SELECT uid, email, nick_name, thumbnail FROM opendesign.user WHERE uid IN (SELECT DISTINCT user_id FROM opendesign.design WHERE uid IN (SELECT design_id FROM opendesign.group_join_design WHERE parent_group_id LIKE ${id}) UNION SELECT DISTINCT user_id FROM opendesign.group WHERE uid IN (SELECT group_id FROM opendesign.group_join_group WHERE parent_group_id LIKE ${id}))) V LEFT JOIN opendesign.thumbnail T On T.uid LIKE V.thumbnail;`;
+			connection.query(sql, (err, row) => {
+				if(!err){
+					resolve(row);
+				}else{
+					reject(err);
+				}
+			});
+		});
+	};
+	const respond = (data) => {	res.status(200).json(data)};
+	const error = (e) => { res.status(200).json(e)};
+	getUserInfoInGroup(id)
+		.then(respond)
+		.catch(error);
+};
+
+// 그룹 정보 가져오기 (GET)
 exports.groupDetail = (req, res, next) => {
   const id = req.params.id;
-
-  // 그룹 정보 가져오기 (GET)
+  //console.log("*groupDetail");
   function getGroupUpdateTime(data) {
-    console.log("log");
+    //console.log("log");
     const p = ()=>{
       return new Promise((resolve,reject)=>{
         connection.query(`SELECT update_time FROM opendesign.group WHERE uid=${id}`,
@@ -14,7 +38,7 @@ exports.groupDetail = (req, res, next) => {
             resolve(row);
           }
           else{
-            console.log(err);
+            console.error(err);
             reject(err);
           }
         })
@@ -37,7 +61,7 @@ exports.groupDetail = (req, res, next) => {
           // console.log(row);
           if(row.length<=0){
             const timevalue =await p();
-            console.log(timevalue);
+            //console.log(timevalue);
             data.update_time = timevalue[0].update_time;
           }
           else{
@@ -45,7 +69,7 @@ exports.groupDetail = (req, res, next) => {
           }
           resolve(data);
         } else {
-          console.log(err);
+          console.error(err);
           reject(err);
         }
       })
@@ -94,6 +118,7 @@ exports.groupDetail = (req, res, next) => {
 
   // 그룹장 닉네임 가져오기 (GET)
   function getName(data) {
+
     const p = new Promise((resolve, reject) => {
       if (data.user_id === null) {
         data.userName = null;
@@ -191,7 +216,7 @@ exports.groupDetail = (req, res, next) => {
         } else if (!err && row.length > 0) {
           data.parent_group = row[0].parent_group;
           data.parent_title = row[0].parent_title;
-          console.log(data.parent_group, data.parent_title)
+          //console.log(data.parent_group, data.parent_title)
           resolve(data);
         } else {
           reject(err);
@@ -224,10 +249,15 @@ exports.groupDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT GC.like, GC.design, GC.group FROM group_counter GC WHERE group_id = ${data.uid}`, (err, row) => {
         if (!err) {
-          data.like = row[0]["like"];
-          data.design = row[0]["design"];
-          data.group = row[0]["group"];
-          resolve(data);
+          if(row.length==0){
+            resolve(data);
+          }else{
+            //console.log(data);
+            data.like = row[0]["like"];
+            data.design = row[0]["design"];
+            data.group = row[0]["group"];
+            resolve(data);  
+          }
         } else {
           //console.log(err);
           reject(err);
@@ -323,6 +353,7 @@ exports.getCount = (req, res, next) => {
   };
   // 그룹 포함된 디자인 조회수 가져오기
   function getViewCount(id) {
+
     const sql = `SELECT sum(T.view) AS 'view' FROM (SELECT SUM(view_count) AS 'view' FROM opendesign.design_counter WHERE design_id IN (SELECT design_id FROM opendesign.group_join_design G WHERE G.parent_group_id = ${id}) UNION SELECT SUM(view_count) AS 'view' FROM opendesign.design_counter WHERE design_id IN (SELECT design_id FROM opendesign.group_join_design WHERE parent_group_id IN (SELECT G.group_id FROM opendesign.group_join_group G WHERE G.parent_group_id = ${id}))) AS T
 `
     const p = new Promise((resolve, reject) => {
@@ -359,9 +390,12 @@ exports.getCount = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT * FROM group_counter WHERE group_id = ${id}`, (err, row) => {
         if (!err) {
-          row[0].view = view;
-          console.log(row[0]);
-          res.status(200).json(row[0]);
+          if(row.length==0){
+    				res.status(200).json(row[0]);        
+          }else{
+            row[0].view = view;
+            res.status(200).json(row[0]);  
+          }
         } else {
           //console.log(err);
           res.status(500).json(err);

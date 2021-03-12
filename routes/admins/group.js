@@ -109,7 +109,7 @@ exports.GroupListCount = (req, res, next) => {
                 ? `AND G.create_time BETWEEN '${start}' AND '${end}'`
                 : `AND G.update_time BETWEEN '${start}' AND '${end}'`}
         `;
-    console.log(sql);
+    // console.log(sql);
 
     const getCount = () => {
         return new Promise((resolve, reject) => {

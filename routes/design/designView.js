@@ -12,7 +12,7 @@ exports.designView = (req, res, next) => {
 
   // 완료된 카드 id 가져오기
   function getViewCard(id) {
-    console.log("getViewCard");
+    // console.log("getViewCard");
     return new Promise((resolve, reject) => {
       connection.query("SELECT * FROM design_card WHERE design_id = ?", id, (err, row) => {
         if (!err && row.length === 0) {
@@ -29,7 +29,7 @@ exports.designView = (req, res, next) => {
 
   // 이미지 정보 가져오기
   function getImage(data) {
-    console.log("getImage");
+    // console.log("getImage");
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve(null);
@@ -51,7 +51,7 @@ exports.designView = (req, res, next) => {
 
   // 첨부 파일 정보 가져오기
   function getSource(data) {
-    console.log("getSource");
+    // console.log("getSource");
     return new Promise((resolve, reject) => {
       if (data === null) {
         resolve({});
@@ -73,7 +73,7 @@ exports.designView = (req, res, next) => {
 
   // 내가 멤버인지 (수정 권한이 있는지) 검증하기
   function isTeam(data) {
-    console.log("isTeam");
+    // console.log("isTeam");
     return new Promise((resolve, reject) => {
       if (loginId === null) {
         data.is_team = 0;

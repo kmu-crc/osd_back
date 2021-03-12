@@ -38,7 +38,7 @@ exports.insertDetail = (req, res) => {
   };
 
   const insertDetailDB = data => {
-    console.log("22", data);
+    // console.log("22", data);
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO user_detail SET ?", data, (err, rows) => {
         if (!err) {
@@ -107,7 +107,7 @@ exports.insertDetail = (req, res) => {
 
 // 유저 정보 수정
 exports.modifyDetail = (req, res) => {
-  console.log("careerlist:::",req.body);
+  // console.log("careerlist:::",req.body);
   const userId = req.decoded.uid;
   // user 테이블에 들어가야 할 정보
   let userInfo = {
@@ -381,7 +381,7 @@ exports.insertDetail_newversion = (req, res) => {
 
 // 유저 정보 수정
 exports.modifyDetail_newversion = (req, res) => {
-  console.log("careerlist:::",req.body);
+  // console.log("careerlist:::",req.body);
   const userId = req.decoded.uid;
   // user 테이블에 들어가야 할 정보
   let userInfo = {
@@ -540,7 +540,7 @@ exports.modifyDetail_newversion = (req, res) => {
       if (req.file == null) {
         return Promise.resolve(null);
       } else {
-      	console.log("createThumbnail?",req.file);
+      	// console.log("createThumbnail?",req.file);
 	  return createThumbnails(req.file);
       }
     })

@@ -1,10 +1,9 @@
 const connection = require("../../configs/connection");
 
-
 // 
 exports.checkInvited = (req, res, next) => {
   const userId = req.decoded.uid;
-  const designId = req.params.id;
+  const groupId = req.params.id;
 
   const success = (result) => {
     res.status(200).json({ success: true, result: result });
@@ -12,9 +11,10 @@ exports.checkInvited = (req, res, next) => {
   const fail = (error) => {
     res.status(200).json({ success: false, error: error });
   };
+
   const check = () => {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT COUNT(*) AS 'count' FROM opendesign.videochat_invited WHERE design_id=${designId} AND to_user_id=${userId};`;
+      const sql = `SELECT COUNT(*) AS 'count' FROM opendesign.videochat_invited WHERE design_id=${groupId*-1} AND to_user_id=${userId};`;
       connection.query(sql, (err, row) => {
         if (err) {
           reject(err);
@@ -29,14 +29,10 @@ exports.checkInvited = (req, res, next) => {
   check().then(success).catch(fail);
 };
 
-const SendAlarm = async (fromId, contentId) => {
-
-};
-// 
 exports.inviteUser = (req, res, next) => {
   const fromUserId = req.decoded.uid;
   const toUserId = req.body.to_user_id;
-  const designId = req.params.id;
+  const groupId = req.params.id;
 
   const success = (result) => {
     res.status(200).json({ success: true, result: result });
@@ -46,7 +42,8 @@ exports.inviteUser = (req, res, next) => {
   };
   const invite = () => {
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO opendesign.videochat_invited(design_id, from_user_id, to_user_id) VALUES(${designId}, ${fromUserId}, ${toUserId});`;
+      const sql = `INSERT INTO opendesign.videochat_invited(design_id, from_user_id, to_user_id) VALUES(${groupId*-1}, ${fromUserId}, ${toUserId});`;
+			// console.log(sql);
       connection.query(sql, async (err, row) => {
         if (err) {
           reject(err);
@@ -73,11 +70,9 @@ exports.inviteUser = (req, res, next) => {
 // 
 exports.cancelInvitedUser = (req, res, next) => {
   // const fromUserId = req.decoded.uid;
-  const designId = req.params.id;
+  const groupId = req.params.id;
   // const toUserId = req.params.user_id;
 
-  // console.log("cancelInvitedUser");
-  
   const success = (result) => {
     res.status(200).json({ success: true, result: result });
   };
@@ -86,7 +81,7 @@ exports.cancelInvitedUser = (req, res, next) => {
   };
   const cancel = () => {
     return new Promise((resolve, reject) => {
-      const sql = `SET SQL_SAFE_UPDATES=0;DELECT FROM opendesign.videochat_invited WHERE design_id=${designId};`;
+      const sql = `SET SQL_SAFE_UPDATES=0;DELECT FROM opendesign.videochat_invited WHERE design_id=${groupId*-1};`;
       // console.log(sql);
       connection.query(sql, (err, _) => {
         if (err) {

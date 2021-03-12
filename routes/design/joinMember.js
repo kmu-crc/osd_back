@@ -133,19 +133,19 @@ const acceptMember = (designId, memberId, isLeader) => {
         let userId = memberId;
         let designerId = await getCreateDesignUser(designId);
         if (!isLeader) {
-          console.log("accept design:", 3);
+          // console.log("accept design:", 3);
           let invited = await whatIsAccept(designId, memberId);
-          console.log("invited", invited, typeof invited);
+          // console.log("invited", invited, typeof invited);
           const { sendAlarm, getSocketId } = require("../../socket");
           await getSocketId(invited ? designerId : userId)
             .then(socket =>
               sendAlarm(socket.socketId, invited ? designerId : userId, designId, invited === 0 ? "DesignRequestTrue" : "DesignInvitedTrue", invited ? userId : designerId));
         }
-        console.log("accept design:", rows.insertId);
+        // console.log("accept design:", rows.insertId);
         resolve(rows.insertId);
       } else {
         console.error(err);
-        console.log("accept design:", 5);
+        // console.log("accept design:", 5);
         reject(err);
       }
     });
@@ -186,14 +186,14 @@ exports.acceptMember = (req, res, next) => {
     .then(() => getCount(req.params.id))
     .then(data => updateCount(data, req.params.id))
     .then(data => {
-      console.log("!!!");
+      // console.log("!!!");
       res.status(200).json({
         design_id: req.params.id,
         success: true
       });
     })
     .catch(err => {
-      console.log("????");
+      // console.log("????");
       res.status(500).json({
         design_id: req.params.id,
         success: false,

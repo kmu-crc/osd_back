@@ -137,7 +137,7 @@ exports.designList_newversion = (req, res, next) => {
   const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
   const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate3 : null;
   const keyword = req.params.keyword;
-  console.log("designList_Testver",category1,category2,category3);
+  // console.log("designList_Testver",category1,category2,category3);
 
   let sort;
   if (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") {

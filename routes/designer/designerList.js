@@ -123,7 +123,7 @@ exports.getTotalCount = (req, res, next) => {
 
 
 exports.designerList_newversion = (req, res, next) => {
-  console.log("?");
+  // console.log("?");
   const page = req.params.page;
   const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
   const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;

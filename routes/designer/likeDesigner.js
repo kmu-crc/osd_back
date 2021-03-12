@@ -2,7 +2,7 @@ var connection = require("../../configs/connection");
 
 const SendSuccessAlarm = async (fromId, designerId) => {
   const { sendAlarm, getSocketId } = require ("../../socket")
-  console.log("SendSuccessAlarm:", getSocketId(designerId).socketId, designerId, null, "LikeDesigner", fromId, null);
+  // console.log("SendSuccessAlarm:", getSocketId(designerId).socketId, designerId, null, "LikeDesigner", fromId, null);
   await getSocketId(designerId)
     .then(socket=> sendAlarm(socket.socketId, designerId, designerId, "LikeDesigner", fromId, null));
 };

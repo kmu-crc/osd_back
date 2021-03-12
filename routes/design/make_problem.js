@@ -27,7 +27,7 @@ const LOG = (str) => {
 	CREATE PROBLEM
 -----------------------------*/
 exports.makeProblemDir = async (req, res, next) => {
-	console.log(req.files);
+	// console.log(req.files);
 	res.status(200).json({data:req});
 	return;
 	const pDir = req.files['problem-directory'];

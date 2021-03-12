@@ -22,7 +22,7 @@ const createCardFn = async req => {
   return new Promise((resolve, reject) => {
     connection.query("INSERT INTO design_card SET ?", req, (err, rows) => {
       if (!err) {
-        console.log("createCard", rows.insertId);
+        // console.log("createCard", rows.insertId);
         resolve(rows.insertId);
       } else {
         console.error("MySQL Error:", err);
@@ -93,11 +93,11 @@ exports.createCardDB2 = req => {
     await createCardFn(req)
       .then(id => {
         cardid = id;
-        console.log(id, id, id);
+        // console.log(id, id, id);
         createCount(id);
       })
       .then(() => updateDesignCount(req.design_id))
-    console.log("cardid", cardid);
+    // console.log("cardid", cardid);
     resolve(cardid);
   });
 }
@@ -650,7 +650,7 @@ exports.getCardSource = (req, res, next) => {
   const getSource = id => {
     return new Promise((resolve, reject) => {
       const sql = `SELECT * FROM design_content WHERE card_id = ${id} ORDER BY design_content.order ASC`
-      console.log(sql);
+      // console.log(sql);
       connection.query(sql,
         (err, rows) => {
           if (!err) {
@@ -692,15 +692,15 @@ exports.updateCardSource = async (req, res, next) => {
       const new_file_name = encoded_filename.replace(ext, "_.mp4")
       const args = ['-y', '-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
       var proc = spawn('ffmpeg', args)
-      console.log('Spawning ffmpeg ' + args.join(' '))
+      // console.log('Spawning ffmpeg ' + args.join(' '))
       proc.on('exit', code => {
         if (code === 0) {
-          console.log('successful!')
+          // console.log('successful!')
           fs.unlink(encoded_filename, err => { if (err) console.log(err) })
           resolve(new_file_name)
         }
         else {
-          console.log("why come here?ahm")
+          // console.log("why come here?ahm")
           reject(false)
         }
       })
@@ -890,15 +890,15 @@ exports.updateCardSourceClone = async (data) => {
       const new_file_name = encoded_filename.replace(ext, "_.mp4")
       const args = ['-y', '-i', `${encoded_filename}`, '-strict', '-2', '-c:a', 'aac', '-c:v', 'libx264', '-f', 'mp4', `${new_file_name}`]
       var proc = spawn('ffmpeg', args)
-      console.log('Spawning ffmpeg ' + args.join(' '))
+      // console.log('Spawning ffmpeg ' + args.join(' '))
       proc.on('exit', code => {
         if (code === 0) {
-          console.log('successful!')
+          // console.log('successful!')
           fs.unlink(encoded_filename, err => { if (err) console.log(err) })
           resolve(new_file_name)
         }
         else {
-          console.log("why come here?ahm")
+          // console.log("why come here?ahm")
           reject(false)
         }
       })
@@ -1066,7 +1066,7 @@ exports.updateCardAllData = async (req, res, next) => {
       await upLoadFile(userId, thumbnail)
     })
     .then(_thumbnail => {
-      console.log("22222", _thumbnail, thumbnail, userId, cardId);
+      // console.log("22222", _thumbnail, thumbnail, userId, cardId);
       if (thumbnail)
         updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
       return Promise.resolve(true)
@@ -1130,7 +1130,7 @@ exports.updateCardInfo2 = async (req, res, next) => {
       await upLoadFile(userId, thumbnail);
     })
     .then(_thumbnail => {
-      console.log("design-card thumbnail:", _thumbnail, thumbnail, userId, cardId);
+      // console.log("design-card thumbnail:", _thumbnail, thumbnail, userId, cardId);
       if (thumbnail)
         updateCardFn({ userId, cardId, data: { first_img: thumbnail } })
       return Promise.resolve(true);
@@ -1143,7 +1143,7 @@ exports.updateCardInfo2 = async (req, res, next) => {
   // // console.log("updateCardAllData", req.body.data.newContent);
 };
 exports.updateCardSource2 = async (req, res, next) => {
-  console.log("UPDATE CARD SOURCE", req.body);
+  // console.log("UPDATE CARD SOURCE", req.body);
   const cardId = req.params.card_id;
   const userId = req.decoded.uid;
 
@@ -1175,7 +1175,7 @@ exports.updateCardSource2 = async (req, res, next) => {
   const insertDB = async arr => {
     return new Promise(async (resolve, reject) => {
       let pArr = [];
-      console.log("insertDBarr", arr);
+      // console.log("insertDBarr", arr);
       if (arr.length === 0) resolve(true);
       for (let item of arr) {
         let obj = {

@@ -4,7 +4,7 @@ const createBoardFn = (req) => {
   return new Promise((resolve, reject) => {
     connection.query("INSERT INTO opendesign.design_board SET ?", req, (err, rows) => {
       if (!err) {
-        console.log("board:",rows.insertId);
+        // console.log("board:",rows.insertId);
         resolve(rows.insertId);
       } else {
         console.error("MySQL Error:", err);
@@ -19,11 +19,11 @@ exports.createBoardDB = (req) => {
 };
 
 exports.createBoard = (req, res, next) => {
-  console.log("[0] createBoard:", req.body);
+  // console.log("[0] createBoard:", req.body);
   let data = req.body;
   data.design_id = req.params.id;
   data.user_id = req.decoded.uid;
-  console.log("[1] createBoard:", req.body);
+  // console.log("[1] createBoard:", req.body);
 
   const respond = () => {
     res.status(200).json({
