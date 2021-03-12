@@ -10,7 +10,7 @@ exports.getSubmit = async (req, res, next) => {
         "SELECT * FROM opendesign.problem_submit WHERE uid=?", submit_id,
         (err,row)=>{
         if(!err) {
-           console.log(row[0]);
+          //  console.log(row[0]);
            resolve(row[0]);
         } else {
            reject(err);
@@ -37,7 +37,7 @@ exports.getSubmit2 = async (req, res, next) => {
         "SELECT * FROM opendesign.problem_submit WHERE uid=?", submit_id,
         (err,row)=>{
         if(!err) {
-           console.log(row[0]);
+          //  console.log(row[0]);
            resolve(row[0]);
         } else {
            reject(err);
@@ -82,12 +82,12 @@ exports.createSubmit = async (req, res, next) => {
       	  const sql_select = `SELECT content FROM opendesign.design_content WHERE uid LIKE ${id};`;
       	    connection.query(sql_select, (err, row) => {
       	      if(!err) {
-console.log(JSON.parse(JSON.stringify(row[0])));
+                // console.log(JSON.parse(JSON.stringify(row[0])));
                 let obj = JSON.parse(JSON.stringify(row[0]));
                 obj.answer = answer;
       	        // console.log(row[0]);
                 const sql_update = `UPDATE opendesign.design_content SET content='${JSON.stringify(obj)}' WHERE uid LIKE ${content_id};`;
-console.log(sql_update);
+                // console.log(sql_update);
       	     	connection.query(sql_update , (er, row) => {
                   if(!er) {
                     //
@@ -157,7 +157,7 @@ console.log(sql_update);
 };
 exports.updateSubmit = async (req, res, next) => {
   const id = req.params.id;
-  console.log(req.body);
+  // console.log(req.body);
 
   const update_submit = (data) => {
     return new Promise((resolve, reject) => {
