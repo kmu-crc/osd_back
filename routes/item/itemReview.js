@@ -10,11 +10,12 @@ exports.GetReview = (req, res, next) => {
         return new Promise((resolve, reject) => {
             const sql =
                 `SELECT 
-                    Q.uid, Q.group_id, Q.sort_in_group, Q.user_id, Q.item_id, Q.comment, Q.score, Q.create_time,
-                    U.nick_name, T.m_img
+                    Q.*,
+                    U.nick_name, T.m_img,I.title
                 FROM market.review Q
                     LEFT JOIN market.user U ON U.uid = Q.user_id 
                     LEFT JOIN market.thumbnail T ON T.uid IN (SELECT thumbnail_id FROM market.item WHERE uid=Q.item_id)
+                    LEFT JOIN market.item I ON Q.item_id=I.uid
                 WHERE Q.item_id=${id}
                 ORDER BY group_id DESC, sort_in_group ASC
                 LIMIT ${page * 10}, 10`;
@@ -100,10 +101,12 @@ exports.RemoveReview = (req, res, next) => {
 
 // Create Reviews
 exports.CreateReview = (req, res, next) => {
+    const { NewAlarm } = require("../../socket");
+
     const id = parseInt(req.params.id, 10);
     const user_id = req.decoded.uid;
     const _ = req.body;
-
+    console.log("-----",_);
     const updateSortForDESC = id => {
         // 1.UPDATE BOARD SET SORTS = SORTS + 1 
         // WHERE BGROUP =  (원글의 BGROUP)  AND SORTS >(원글의 SORTS)
@@ -138,7 +141,10 @@ exports.CreateReview = (req, res, next) => {
     };
     const createReview = id => {
         return new Promise((resolve, reject) => {
-            const data = { score: _.score, group_id: _.group_id, sort_in_group: 0, user_id: user_id, item_id: id, comment: _.comment };
+            console.log(_.thumbnail);
+            const data = { score: _.score, group_id: _.group_id, sort_in_group: 0
+                , user_id: user_id, item_id: id, comment: _.comment,
+                thumbnail:_.thumbnail};
             const sql = `INSERT INTO market.review SET ?`;
             connection.query(sql, data, (err, row) => {
                 if (!err) {
@@ -173,6 +179,22 @@ exports.CreateReview = (req, res, next) => {
             });
         });
     }
+
+    const getOwner = () => {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT user_id AS owner FROM market.item WHERE uid=${id}`;
+            connection.query(sql, (err, row) => {
+                if (!err) {
+                    console.log("question!!!!!",user_id,row[0].owner,id)
+
+                    resolve(row[0]);
+                } else {
+                    reject(err);
+                }
+            });
+        });
+    };
+
     const success = data => { res.status(200).json({ success: true, data: data }) };
     const failure = err => { res.status(500).json({ success: false, data: err }) };
 
@@ -189,6 +211,8 @@ exports.CreateReview = (req, res, next) => {
             .then(giveGroupId)
             .then(giveReviewIdToPayment)
             .then(success)
+            .then(getOwner)
+            .then(data=>NewAlarm({ type: "ITEM_REVIEW_TO_OWNER", from: user_id, to: data.owner, item_id: id, })) // to buyer
             .catch(failure);
     }
 };

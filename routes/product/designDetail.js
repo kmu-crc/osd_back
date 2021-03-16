@@ -356,7 +356,31 @@ WHERE product_id = ${data.uid};`;
     .catch(err => res.status(200).json(err));
 };
 
+// 구매여부
+exports.getDidyouBuyit = (req, res, next) => {
+  const item_id = req.params.item;
+  const user_id = req.params.id; 
 
+  function getBuyit() {
+    const p = new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT COUNT(*) AS count FROM market.payment WHERE user_id=${user_id} AND item_id=${item_id};`
+        ,
+        (err, row) => {
+          if (!err) {
+            res.status(200).json(row[0].count);
+          } else {
+            //console.log(err);
+            res.status(500).json(err);
+          }
+        }
+      );
+    });
+    return p;
+  }
+
+  getBuyit();
+};
 // 좋아요 수, 조회수, 멤버수, 카드수 정보 가져오기
 exports.getCount = (req, res, next) => {
   const designId = req.params.id;

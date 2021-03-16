@@ -20,6 +20,7 @@ const point = require("./point");
 const payment = require("./payment");
 
 const gallery = require("./gallery");
+const upload = require("./fileupload");
 
 /* GET home page. */
 router.use("/common", common);
@@ -39,7 +40,7 @@ router.use("/item", item);
 router.use("/point", point);
 router.use("/payment", payment);
 router.use("/gallery", gallery);
-
+router.use("/upload", upload);
 
 // v0205
 // const category = require('./category');

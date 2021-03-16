@@ -43,6 +43,22 @@ const check = (req, res, next) => {
       );
     });
   };
+  function getDesignerID(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT uid as designer_id FROM market.expert WHERE user_id=${user_id} AND type="designer"`, (err, row) => {
+        if (!err && row.length === 0) {
+          data.designer_id = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.designer_id = row[0].designer_id;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
 
   function isDesigner(data) {
     const p = new Promise((resolve, reject) => {
@@ -52,6 +68,22 @@ const check = (req, res, next) => {
           resolve(data);
         } else if (!err && row.length > 0) {
           data.isDesigner = row[0].isDesigner;
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  }
+  function getMakerID(data) {
+    const p = new Promise((resolve, reject) => {
+      connection.query(`SELECT uid as maker_id FROM market.expert WHERE user_id=${user_id} AND type="maker"`, (err, row) => {
+        if (!err && row.length === 0) {
+          data.maker_id = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.maker_id = row[0].maker_id;
           resolve(data);
         } else {
           reject(err);
@@ -95,7 +127,9 @@ const check = (req, res, next) => {
       return req.decoded;
     })
     .then(isDesigner)
+    .then(getDesignerID)
     .then(isMaker)
+    .then(getMakerID)
     .then(respond)
     .catch(next);
 };

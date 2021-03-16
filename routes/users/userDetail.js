@@ -122,7 +122,7 @@ exports.modifyDetail = (req, res) => {
   // user 테이블에 들어가야 할 정보
   let userInfo = {
     password: req.body.password || null,
-    nick_name: req.body.nick_name, 
+    nick_name: req.body.nick_name,
     update_time: new Date()
   };
 
@@ -191,7 +191,7 @@ exports.modifyDetail = (req, res) => {
     if (id !== null) {
       info.thumbnail = id;
     }
-    if(info.password === null) delete info.password
+    if (info.password === null) delete info.password
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE user SET ? WHERE uid = ${req.decoded.uid}`,
@@ -241,7 +241,7 @@ exports.modifyDetail = (req, res) => {
 };
 
 // 디자이너 정보 등록
-exports.insertDesignerDetail = async (req,res)=>{
+exports.insertDesignerDetail = async (req, res) => {
   // console.log("===========",req.body);
 
   req.body["user_id"] = req.decoded.uid;
@@ -267,22 +267,22 @@ exports.insertDesignerDetail = async (req,res)=>{
       error: err,
     });
   };
-  const insertDesigner = (thumbnail_id)=>{
-    console.log("thumbnail_id",thumbnail_id);
+  const insertDesigner = (thumbnail_id) => {
+    console.log("thumbnail_id", thumbnail_id);
     //저장데이터 정리
     const data = req.body;
     const dbData = {
-      user_id:data.user_id,
-      thumbnail_id:thumbnail_id,
-      type:data.type,
-      description:data.description,
-      location:data.location,
-      category_level1:data.category_level1,
-      category_level2:data.category_level2,
-      tag:data.tag,
-      experience:data.experience,
+      user_id: data.user_id,
+      thumbnail_id: thumbnail_id,
+      type: data.type,
+      description: data.description,
+      location: data.location,
+      category_level1: data.category_level1,
+      category_level2: data.category_level2,
+      tag: data.tag,
+      experience: data.experience,
     }
-    console.log("insertDesigner",dbData);
+    console.log("insertDesigner", dbData);
     const p = new Promise((resolve, reject) => {
       connection.query("INSERT INTO market.expert SET ?", dbData, (err, rows, fields) => {
         if (!err) {
@@ -298,15 +298,15 @@ exports.insertDesignerDetail = async (req,res)=>{
     });
     return p;
   }
-  createThumbnails({...req.file})
-  .then(insertDesigner)
-  .then(updateThumbnailID)
-  .then(respond)
-  .catch(error);
+  createThumbnails({ ...req.file })
+    .then(insertDesigner)
+    .then(updateThumbnailID)
+    .then(respond)
+    .catch(error);
 }
 
 // 디자이너 정보 수정
-exports.modifyDesignerDetail = async (req,res)=>{
+exports.modifyDesignerDetail = async (req, res) => {
   // console.log(req.body);
 
   req.body["user_id"] = req.decoded.uid;
@@ -332,15 +332,15 @@ exports.modifyDesignerDetail = async (req,res)=>{
       error: err,
     });
   };
-  const modifyDesigner = (thumbnail_id)=>{
-    const data = thumbnail_id==null?{
+  const modifyDesigner = (thumbnail_id) => {
+    const data = thumbnail_id == null ? {
       ...req.body,
-    }:
-    {
-      ...req.body,
-      thumbnail_id:thumbnail_id
-    };
-    
+    } :
+      {
+        ...req.body,
+        thumbnail_id: thumbnail_id
+      };
+
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE market.expert SET ? WHERE user_id=${data.user_id} AND type="designer"`,
@@ -361,16 +361,16 @@ exports.modifyDesignerDetail = async (req,res)=>{
       );
     });
   }
-  createThumbnails({...req.file})
-  .then(modifyDesigner)
-  .then(updateThumbnailID)
-  .then(respond)
-  .catch(error);
+  createThumbnails({ ...req.file })
+    .then(modifyDesigner)
+    .then(updateThumbnailID)
+    .then(respond)
+    .catch(error);
 }
 
 
 // 메이커 정보 등록
-exports.insertMakerDetail = async (req,res)=>{
+exports.insertMakerDetail = async (req, res) => {
 
   console.log("insertMakerDetail");
   req.body["user_id"] = req.decoded.uid;
@@ -397,13 +397,13 @@ exports.insertMakerDetail = async (req,res)=>{
       error: err,
     });
   };
-  const insertMaker = (thumbnail_id)=>{
-    console.log("insertMaker");
+  const insertMaker = (thumbnail_id) => {
 
     const data = {
       ...req.body,
-      thumbnail_id:thumbnail_id,
+      thumbnail_id: thumbnail_id,
     };
+    console.log("insertMaker", data);
     const p = new Promise((resolve, reject) => {
       connection.query("INSERT INTO market.expert SET ?", data, (err, rows, fields) => {
         if (!err) {
@@ -415,15 +415,15 @@ exports.insertMakerDetail = async (req,res)=>{
     });
     return p;
   }
-  createThumbnails({...req.file})
-  .then(insertMaker)
-  .then(updateThumbnailID)
-  .then(respond)
-  .catch(error);
+  createThumbnails({ ...req.file })
+    .then(insertMaker)
+    .then(updateThumbnailID)
+    .then(respond)
+    .catch(error);
 }
 
 // 메이커 정보 수정
-exports.modifyMakerDetail = async (req,res)=>{
+exports.modifyMakerDetail = async (req, res) => {
 
   req.body["user_id"] = req.decoded.uid;
   if (req.body.category_level1 === 0) {
@@ -448,14 +448,14 @@ exports.modifyMakerDetail = async (req,res)=>{
       error: err,
     });
   };
-  const modifyMaker = (thumbnail_id)=>{
-    const data = thumbnail_id==null?{
+  const modifyMaker = (thumbnail_id) => {
+    const data = thumbnail_id == null ? {
       ...req.body,
-    }:
-    {
-      ...req.body,
-      thumbnail_id:thumbnail_id
-    };
+    } :
+      {
+        ...req.body,
+        thumbnail_id: thumbnail_id
+      };
     return new Promise((resolve, reject) => {
       connection.query(
         `UPDATE market.expert SET ? WHERE user_id=${data.user_id} AND type="maker"`,
@@ -476,9 +476,9 @@ exports.modifyMakerDetail = async (req,res)=>{
       );
     });
   }
-  createThumbnails({...req.file})
-  .then(modifyMaker)
-  .then(updateThumbnailID)
-  .then(respond)
-  .catch(error);
+  createThumbnails({ ...req.file })
+    .then(modifyMaker)
+    .then(updateThumbnailID)
+    .then(respond)
+    .catch(error);
 }

@@ -7,10 +7,8 @@ exports.DesignerList = (req, res, next) => {
     let options = [];
     // cates
     if (parseInt(cate1, 10) !== 0) {
-        if (parseInt(cate2, 10) === 0) {
-            options.push(`E.category_level1 LIKE ${cate1}`);
-        }
-        else {
+        options.push(`E.category_level1 LIKE ${cate1}`);
+        if (parseInt(cate2, 10) !== 0) {
             options.push(`E.category_level2 LIKE ${cate2}`);
         }
     }
@@ -58,7 +56,7 @@ exports.DesignerList = (req, res, next) => {
             ${desc === "desc" ? "DESC" : "ASC"}
         LIMIT ${max * page}, ${max};
     `;
-    // console.log(sql);
+    console.log(sql);
     req.sql = sql;
     next();
 }

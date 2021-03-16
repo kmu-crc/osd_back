@@ -5,7 +5,7 @@ const connection = require("../../configs/connection");
 const { addOrder, getOrderList } = require("./order");
 const { addCart, getCartList,deleteSelectCart,deleteAllCart, } = require("./cart");
 const { designList, getTotalCount } = require("./designList");
-const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
+const { designDetail, getCount,getDidyouBuyit, updateViewCount, changeToProject, getDesignComment, createDetailComment, deleteDetailComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 // const { likeItem, unlikeItem, getLikeItem,likeInItem} = require("./like");
 
@@ -74,7 +74,8 @@ router.post("/unlike/:id", auth, unlikeDesign);
 // router.post("/unlikeItem/:id", auth, unlikeItem);
 // router.get("/getLikeItem/:id", auth, getLikeItem);
 // router.get("/itemDetail/:id/like/:page", likeInItem, getItemList);
-
+// 구매확인
+router.get("/getBuyit/:item/:id",getDidyouBuyit);
 // 조회수
 router.get("/getCount/:id", getCount);
 router.post("/updateViewCount/:id", updateViewCount);

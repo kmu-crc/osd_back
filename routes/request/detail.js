@@ -42,13 +42,18 @@ exports.RequestDetail = (req, res, next) => {
     return new Promise((resolve, reject) => {
       const sql = data.sort_in_group === 0 ?
         `SELECT nick_name FROM market.user WHERE uid=${data.client_id};` :
-        `SELECT nick_name FROM market.user WHERE uid=${data.expert_id};`;
+        `SELECT U.nick_name,D.nick_name as 'client_name' FROM market.user U
+        INNER JOIN market.user D ON D.uid = ${data.client_id}
+        WHERE U.uid=${data.expert_id};`;
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           data.nick_name = null;
           resolve(data);
         } else if (!err && row.length > 0) {
           data.nick_name = row[0]["nick_name"];
+          if(data.sort_in_group!=0){
+            data.client_name = row[0]["client_name"]
+          }
           resolve(data);
         } else {
           reject(err);

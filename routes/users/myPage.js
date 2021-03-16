@@ -47,7 +47,7 @@ exports.myPage = (req, res, next) => {
   // 마이페이지 내 기본 정보 가져오기 (GET)
   function getMyInfo(id) {
     return new Promise((resolve, reject) => {
-      update_totals(id)
+      // update_totals(id)
       connection.query("SELECT U.uid, U.email, U.nick_name, U.phone FROM market.user U WHERE U.uid=?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -122,22 +122,6 @@ exports.myPage = (req, res, next) => {
     return p;
   }
   // 나의 count 정보 가져오기 (GET)
-  function getMyCount(data) {
-    const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT total_like, total_design, total_group, total_view FROM user_counter WHERE user_id =${data.uid}`, data.uid, (err, row) => {
-        if (!err && row.length === 0) {
-          data.count = null;
-          resolve(data);
-        } else if (!err && row.length > 0) {
-          data.count = row[0];
-          resolve(data);
-        } else {
-          reject(err);
-        }
-      });
-    });
-    return p;
-  };
   function getMyLike(data) {
     return new Promise((resolve, reject) => {
       const sql = `SELECT COUNT(*) AS 'count' FROM market.like L WHERE (L.type LIKE 'DESIGNER' OR L.type LIKE 'MAKER') AND L.to_id=${id}`;
@@ -164,24 +148,126 @@ exports.myPage = (req, res, next) => {
       });
     });
   };
-  // 카테고리 이름 가져오기
-  function getCategory(data) {
-    // console.log("getCategory",data);
+
+  function getPaymentsCount(data) {
     return new Promise((resolve, reject) => {
-      let cate;
-      let sqlCate;
-      console.log("category_level", data.category_level1, data.category_level2);
-      if (!data.category_level1 && !data.category_level2) {
-        resolve(null);
-      } else if (data.category_level2 && data.category_level2 !== "") {
-        sqlCate = `SELECT name FROM market.category_level2 where parents_id=${data.category_level1} LIMIT ${data.category_level2 - 1},1`
-      } else {
-        sqlCate = `SELECT name FROM market.category_level1 WHERE uid = ${data.category_level1}`;
-      }
-      connection.query(sqlCate, (err, result) => {
+      const sql = `SELECT COUNT(*) AS 'payment_count' FROM market.payment L WHERE L.user_id=${id}`;
+      connection.query(sql, (err, row) => {
         if (!err) {
-          console.log("result[0]=================", result[0]);
-          resolve(result[0].name);
+          data.allCount = row[0];
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getSaleItemCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'saleItem_count' FROM market.payment P LEFT JOIN market.item I ON I.uid=P.item_id WHERE I.user_id=${id}`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,saleItem_count:row[0].saleItem_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getRequestCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'itemRequest_count' FROM market.payment Q
+      LEFT JOIN market.user U ON U.uid = Q.user_id
+      WHERE Q.user_id=${id} AND Q.item_id IS NULL;`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,itemRequest_count:row[0].itemRequest_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getRegisterItemCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'registerItem_count' FROM market.item I
+      WHERE I.user_id=${id};`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,registerItem_count:row[0].registerItem_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getLikeItemCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'likeItem_count' FROM market.like L
+      WHERE L.type='item' AND L.user_id=${id};`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,likeItem_count:row[0].likeItem_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getLikeDesigner(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'likeDesigner_count' FROM market.like L
+      WHERE L.type='designer' AND L.user_id=${id};`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,likeDesigner_count:row[0].likeDesigner_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getLikeMaker(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'likeMaker_count' FROM market.like L
+      WHERE L.type='maker' AND L.user_id=${id};`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,likeMaker_count:row[0].likeMaker_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getRequestDesignerCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'requestDesigner_count' FROM market.request R
+      WHERE R.type='designer' AND R.client_id=${id};`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,requestDesigner_count:row[0].requestDesigner_count};
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  function getRequestMakerCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `SELECT COUNT(*) AS 'requestMaker_count' FROM market.request R
+      WHERE R.type='maker' AND R.client_id=${id};`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,requestMaker_count:row[0].requestMaker_count};
+          resolve(data);
         } else {
           reject(err);
         }
@@ -195,7 +281,15 @@ exports.myPage = (req, res, next) => {
     .then(getMyItemCount)
     .then(isDesigner)
     .then(isMaker)
-    // .then(getCategory)
+    .then(getPaymentsCount)
+    .then(getSaleItemCount)
+    .then(getRequestCount)
+    .then(getLikeItemCount)
+    .then(getLikeDesigner)
+    .then(getLikeMaker)
+    .then(getRequestDesignerCount)
+    .then(getRequestMakerCount)
+    .then(getRegisterItemCount)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));
 };

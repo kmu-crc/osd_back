@@ -11,13 +11,16 @@ const searchMembers = (req, res) => {
       // WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
       // AND U.uid NOT IN (SELECT U.uid FROM user U WHERE U.uid = ${req.decoded.uid})
       // AND NOT EXISTS (SELECT M.user_id FROM design_member M WHERE M.design_id = ${designId} AND U.uid = M.user_id)`;
-      sql = `SELECT U.email, U.uid, U.nick_name FROM market.user U
+      sql = `SELECT U.email, U.uid, U.nick_name, T.s_img FROM market.user U
+      LEFT JOIN market.thumbnail T ON T.uid = U.thumbnail
       WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
       AND U.uid NOT IN (SELECT U.uid FROM market.user U WHERE U.uid = ${req.decoded.uid})
       `;
     } else {
       // sql = `SELECT email, uid, nick_name FROM user WHERE (email regexp '${data.key}' OR nick_name regexp '${data.key}') AND uid NOT IN (${req.decoded.uid})`;
-      sql = `SELECT email, uid, nick_name FROM market.user WHERE (email regexp '${data.key}' OR nick_name regexp '${data.key}') AND uid NOT IN (${req.decoded.uid})`;
+      sql = `SELECT U.email, U.uid, U.nick_name, T.s_img FROM market.user U
+      LEFT JOIN market.thumbnail T ON T.uid = U.thumbnail
+      WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}') AND U.uid NOT IN (${req.decoded.uid})`;
 
     }
     return new Promise((resolve, reject) => {

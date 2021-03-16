@@ -131,13 +131,15 @@ exports.itemDetail = (req, res, next) => {
     })
   }
   // get member
-  function getMemberList(id) {
+  function getMemberList(itemId,userId) {
     return new Promise((resolve, reject) => {
       connection.query(`
-          SELECT U.uid, U.nick_name
+          SELECT U.uid, U.nick_name,T.s_img
             FROM market.member M
           LEFT JOIN market.user U ON U.uid = M.user_id
-            WHERE item_id=${id}`, (err, rows) => {
+          LEFT JOIN market.thumbnail T ON T.uid=U.thumbnail
+            WHERE item_id=${itemId}
+            AND NOT U.uid=${userId}`, (err, rows) => {
         if (!err) {
           resolve(rows || null);
         } else {
@@ -247,7 +249,7 @@ exports.itemDetail = (req, res, next) => {
     })
     .then(bought => {
       data = { ...data, bought: bought };
-      return getMemberList(itemId);
+      return getMemberList(itemId,data.user_id);
     })
     .then(members => {
       data = { ...data, members: members };
@@ -278,7 +280,8 @@ exports.itemStep = (req, res, next) => {
                 C.list_id, C.order, 
                 T.m_img AS 'thumbnail', 
                 C.title, C.description, 
-                C.create_time, C.update_time
+                C.create_time, C.update_time,
+                C.private
               FROM market.card C
                 LEFT JOIN market.user U ON U.uid = C.user_id
                 LEFT JOIN market.thumbnail T ON T.uid = C.thumbnail
@@ -500,7 +503,7 @@ exports.updateCardSource = async (req, res, next) => {
           data_type: item.data_type,
           private: item.private,
         };
-        await connection.query(
+         connection.query(
           "INSERT INTO market.content SET ?",
           obj,
           (err, rows) => {
@@ -570,7 +573,7 @@ exports.updateCardSource = async (req, res, next) => {
 };
 
 const updateCardFn = req => {
-  // console.log("fn", req);
+  console.log("fn", req.data);
   return new Promise((resolve, reject) => {
     connection.query(
       `UPDATE market.card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
@@ -596,8 +599,8 @@ exports.updateCardInfo = async (req, res, next) => {
   const cardId = req.params.card_id;
   const userId = req.decoded.uid;
   const file = req.file;
-
-  updateCardFn({ userId, cardId, data: { title: req.body.title, description: req.body.description } })
+  console.log("==========",req.body);
+  updateCardFn({ userId, cardId, data: { title: req.body.title, description: req.body.description, private:req.body.private } })
     .then(async () => {
       const id = await createThumbnails(file);
       return id;

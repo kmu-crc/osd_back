@@ -33,8 +33,8 @@ exports.designList = (req, res, next) => {
   
   if (sort === "update") {
     sql = sql + " ORDER BY D.update_time DESC LIMIT " + (page * 10) + ", 10";
-  } else if (sort === "create") {
-    sql = sql + " ORDER BY D.create_time DESC LIMIT " + (page * 10) + ", 10";
+  } else if (sort === "name") {
+    sql = sql + " ORDER BY D.title ASC LIMIT " + (page * 10) + ", 10";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.like_count DESC LIMIT " + (page * 10) + ", 10";
   }

@@ -39,7 +39,7 @@ exports.deleteItem = async (req, res, next) => {
 
 exports.updateItem = async (req, res, next) => {
   const itemId = req.params.id;
-
+  console.log(req.body);
   const basic = {
     title: req.body.title,
     tag: (typeof req.body.tag === "string") ? req.body.tag : req.body.tag.join(",") || "",
@@ -192,7 +192,7 @@ exports.createItem = async (req, res, next) => {
       (\`item-id\`, \`type\`, \`description\`, \`price\`,
         \`public\`, \`contact-type\`, \`selling-type\`, \`list-id\`) 
       VALUES(
-        ${data.itemId}, ${data.type}, '${data.description}', ${parseInt(data.price, 10)}, 
+        ${data.itemId}, ${data.type}, "${data.description}", ${parseInt(data.price, 10)}, 
         ${data.public ? data.public === '예' ? '\'yes\'' : '\'no\'' : null},
         ${data.contactType ? data.contactType === '온라인' ? '\'on\'' : '\'off\'' : null},
         ${data.sellingType ? data.sellingType === '양도' ? '\'assginment\'' : data.sellingType === '독점 사용권' ? '\'monopoly\'' : '\'normal\'' : null},

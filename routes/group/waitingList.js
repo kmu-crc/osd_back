@@ -17,8 +17,8 @@ exports.waitingDesign = (req, res, next) => {
   }
   if (sort === "update") {
     sql = sql + " ORDER BY D.update_time DESC";
-  } else if (sort === "create") {
-    sql = sql + " ORDER BY D.create_time DESC";
+  } else if (sort === "name") {
+    sql = sql + " ORDER BY D.title ASC";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.like_count DESC";
   }
@@ -43,8 +43,8 @@ exports.waitingGroup = (req, res, next) => {
   }
   if (sort === "update") {
     sql = sql + " ORDER BY R.child_update_time DESC";
-  } else if (sort === "create") {
-    sql = sql + " ORDER BY R.create_time DESC";
+  } else if (sort === "name") {
+    sql = sql + " ORDER BY R.title ASC";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.like_count DESC";
   }

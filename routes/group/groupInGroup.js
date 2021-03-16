@@ -22,8 +22,8 @@ exports.groupInGroup = (req, res, next) => {
             WHERE G.parent_group_id = ${id} AND G.is_join = 1`;
   if (sort === "update") {
     sql = sql + " ORDER BY R.child_update_time DESC ";
-  } else if (sort === "create") {
-    sql = sql + " ORDER BY R.create_time DESC ";
+  } else if (sort === "name") {
+    sql = sql + " ORDER BY R.title ASC ";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.like DESC ";
   }

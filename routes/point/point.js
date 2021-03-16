@@ -20,9 +20,12 @@ exports.GetPoint = (req, res, next) => {
 };
 exports.GetHistory = (req, res, next) => {
     const id = req.decoded.uid;
+    const page = req.params.page;
     function getHistory(total, id) {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM market.point_history H WHERE user_id=${id} ORDER BY H.uid DESC`;
+            const sql = `SELECT * FROM market.point_history H WHERE user_id=${id} ORDER BY H.uid DESC LIMIT ${page*5},5`;
+            console.log(sql);
+
             connection.query(sql, (err, rows) => {
                 if (err)
                     reject(err);

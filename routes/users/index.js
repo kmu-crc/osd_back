@@ -12,6 +12,7 @@ const stringToNumber = require("../../middlewares/stringToNumber");
 const stringToBoolean = require("../../middlewares/stringToBoolean");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const secession = require("./secession");
+const checkPayUser = require("./checkPayUser");
 const checkEmail = require("./checkEmail");
 const checkNickName = require("./checkNickName");
 const checkFBUser = require("./checkFBUser");
@@ -47,6 +48,8 @@ router.post("/modifyMakerDetail", auth, insertThumbnail, modifyMakerDetail);
 router.post("/deleteUser", auth, secession);
 
 router.post("/checkEmail", checkEmail);
+
+router.get("/checkPayUser/:id", checkPayUser);
 
 router.post("/checkNickName", checkNickName);
 

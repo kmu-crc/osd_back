@@ -56,6 +56,102 @@ exports.GetPayment = (req, res, next) => {
         .catch(failure);
 };
 
+//get seles
+exports.GetMySales = (req, res, next) => {
+    const user_id = req.decoded.uid;
+    const page = req.params.page;
+
+    console.log("this!!!");
+    const getPayment = () => {
+        return new Promise((resolve, reject) => {
+            const sql =
+                `SELECT P.uid, P.user_id AS \`buy_id\`,P.item_id,P.payment_detail,P.payment_title,
+                P.payment_price AS \`price\`, P.create_time,U.nick_name,T.s_img 
+                FROM market.payment P
+                LEFT JOIN market.item I ON I.uid = P.item_id
+                LEFT JOIN market.user U ON U.uid = P.user_id
+                LEFT JOIN market.thumbnail T ON T.uid = U.thumbnail
+                WHERE I.user_id=${user_id}
+                ORDER BY P.create_time DESC
+                LIMIT ${page * 10}, 10`;
+            connection.query(sql, (err, row) => {
+                if (!err) {
+                    console.log(row);
+                    resolve(row);
+                } else {
+                    reject(err);
+                }
+            });
+        });
+    };
+
+
+    // const getItemInfo = payment => {
+    //     return new Promise((resolve, reject) => {
+    //         const sql =
+    //             `SELECT I.*, T.m_img as "thumbnail" FROM market.item I 
+    //             LEFT JOIN market.user U ON U.uid = I.user_id 
+    //             LEFT JOIN market.thumbnail T ON U.thumbnail = T.uid
+    //             WHERE I.uid = ${payment.item_id}`;
+    //         connection.query(sql, (err, row) => {
+    //             if (!err) {
+    //                 resolve(row[0]);
+    //             } else {
+    //                 reject(err);
+    //             }
+    //         });
+    //     })
+    // };
+    // const getAllItemInfo = payments => {
+    //     return new Promise((resolve, reject) => {
+    //         Promise.all(
+    //             payments.map(async item => {
+    //                 item = { ...item, ...await getItemInfo(item) };
+    //                 item.title = item.title || item.payment_title || "의뢰상품";
+    //                 return item;
+    //             })
+    //         )
+    //             .then(list => resolve(list))
+    //             .catch(err => reject(err));
+    //     })
+    // };
+    const getTotalCount = () => {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT COUNT(*)
+            FROM market.payment P
+            LEFT JOIN market.item I ON I.uid = P.item_id
+            LEFT JOIN market.user U ON U.uid = P.user_id
+            LEFT JOIN market.thumbnail T ON T.uid = U.thumbnail
+            WHERE I.user_id=${user_id}
+            ORDER BY P.create_time DESC`;
+            connection.query(sql, (err, row) => {
+                if (!err) {
+                    resolve(row[0]["total"]);
+                } else {
+                    console.log(err);
+                    reject(err);
+                }
+            });
+        });
+    };
+
+    const success = data => { res.status(200).json({ success: true, data: data }) };
+    const failure = err => { res.status(500).json({ success: false, data: err }) };
+
+    let data = null;
+    getPayment()
+        .then(payments => {
+            data = { payments: payments };
+            return getTotalCount();
+        })
+        .then(total => {
+            data = { ...data, total: total };
+            return data;
+        })
+        .then(success)
+        .catch(failure);
+
+};
 // Get My Payment
 exports.GetMyPayment = (req, res, next) => {
     const user_id = req.decoded.uid;
@@ -66,12 +162,13 @@ exports.GetMyPayment = (req, res, next) => {
             const sql =
                 `SELECT 
                     Q.uid AS 'payment_id', Q.user_id, Q.item_id, Q.payment_detail, Q.payment_title, Q.payment_price AS 'price', Q.create_time,
-                    U.nick_name
+                    U.nick_name,D.type
                 FROM market.payment Q
                     LEFT JOIN market.user U ON U.uid = Q.user_id 
-                WHERE Q.user_id = ${user_id} AND Q.review_id IS NULL AND Q.item_id
+                    LEFT JOIN market.\`item-detail\` D ON Q.\`item_id\`=D.\`item-id\`
+                WHERE Q.user_id = ${user_id} AND Q.item_id
                 ORDER BY create_time DESC
-                LIMIT ${page * 10}, 10`;
+                LIMIT ${page * 10}, 10`;//AND Q.review_id IS NULL 
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(row);
@@ -303,14 +400,14 @@ exports.CreatePayment = async (req, res, next) => {
     };
     const getExpertIdByItemId = itemid => {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT user_id FROM market.item WHERE uid=?`;
-            console.log(sql, itemid);
+            const sql = `SELECT user_id FROM market.item WHERE uid=${itemid}`;
+            // console.log(sql, itemid);
             connection.query(sql, itemid, (err, row) => {
                 if (err) {
                     console.error(err);
                     reject(err);
                 } else {
-                    resolve(row[0]["user_id"] || null);
+                    resolve((row[0] && row[0]["user_id"]) || null);
                 }
             });
         });

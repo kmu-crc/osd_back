@@ -72,11 +72,19 @@ exports.ItemList = (req, res, next) => {
                 ? `AND I.create_time BETWEEN '${start}' AND '${end}'`
                 : `AND I.update_time BETWEEN '${start}' AND '${end}'`}
 
-        ${parseInt(cate1, 10) === 0
-            ? ``
-            : parseInt(cate2, 10) === 0
-                ? `AND I.category_level1 LIKE ${cate1}`
-                : `AND I.category_level2 LIKE ${cate2}`
+        ${
+            // parseInt(cate1, 10) === 0
+            // ? ``
+            // : parseInt(cate2, 10) === 0
+            //     ? `AND I.category_level1 LIKE ${cate1}`
+            //     : `AND I.category_level2 LIKE ${cate2}`
+            parseInt(cate1,10)===0?
+            ``:`AND I.category_level1 LIKE ${cate1}`
+        }
+
+        ${
+            parseInt(cate2, 10) === 0?
+            ``:`AND I.category_level2 LIKE ${cate2}`
         }
 
         ORDER BY 

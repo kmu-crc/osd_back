@@ -32,7 +32,7 @@ exports.getMakerReview = (req, res, next) => {
     return new Promise((resolve, reject) => {
       const sql = `
         SELECT 
-          R.item_id, R.sort_in_group, R.user_id, R.payment_id, R.comment, R.score, 
+          R.item_id, R.sort_in_group, R.user_id, R.payment_id, R.comment, R.score,R.create_time,
           T.m_img, U.nick_name
         FROM market.review R
           LEFT JOIN market.item I ON I.uid = R.item_id

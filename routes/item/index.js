@@ -3,16 +3,20 @@ const router = express.Router();
 const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getItemList = require("../../middlewares/getItemList");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
-const { itemList, getTotalCount, getTopList, getUploadItemList, getMyProjectItemList, updateItemList, deleteItemList, createItemList } = require("./list");
+const { itemList, getTotalCount, getItemCount, getTopList, getUploadItemList, getMyProjectItemList, updateItemList, deleteItemList, createItemList } = require("./list");
 const { itemDetail, itemCard, itemStep, HaveInItem, updateCardInfo, updateCardSource, createItemCard } = require("./detail");
 const { createItem, updateItem, deleteItem } = require("./create");
 const { updateItemContent, deleteItemCard } = require("./itemCard");
 const { GetQuestion, RemoveQuestion, CreateQuestion } = require("./itemQuestion");
+const { GetPaymentMessage, RemovePaymentMessage, CreatePaymentMessage } = require("./itemPaymentMessage");
+
 const { GetReview, RemoveReview, CreateReview } = require("./itemReview");
 const auth = require("../../middlewares/auth");
 const { likeItem, unlikeItem, getLikeItem, likeInItem } = require("./like");
 
 router.get("/list/:page/:sorting?/:cate1?/:cate2?/:keyword?", itemList, getItemList);
+router.get("/getItemCount/:sorting?/:cate1?/:cate2?/:keyword?", getItemCount);
+
 router.get("/list-count/:cate1?/:cate2?", getTotalCount);
 router.get("/detail/:id", tokenDecoded, itemDetail);
 // router.get("/item-count/:id", getCount);
@@ -29,6 +33,12 @@ router.delete("/delete/:id", auth, deleteItem);
 router.get("/detail/:id/question/:page", tokenDecoded, GetQuestion);
 router.post("/detail/:id/create-question", auth, CreateQuestion);
 router.delete("/detail/:id/delete-question/:target_id", auth, RemoveQuestion);
+
+// payment
+router.get("/detail/:id/paymentMessage/:page", tokenDecoded, GetPaymentMessage);
+router.post("/detail/:id/paymentMessage",auth,CreatePaymentMessage);
+router.delete("/detail/:id/deletePaymentMessage/:target_id", auth, RemovePaymentMessage);
+// router.post("/detail/:id/paymentMessage", auth, CreatePaymentMessage);
 
 // review
 router.get("/detail/:id/review/:page", tokenDecoded, GetReview);
@@ -135,7 +145,7 @@ module.exports = router;
 // router.get("/designDetail/getCardSource/:card_id", getCardSource);
 // router.post("/designDetail/updateCardSource/:card_id", auth, updateCardSource);
 // // 카드의 모든 정보 업데이트
-// router.post("/designDetail/updateCardAllData/:card_id", auth, updateCardAllData, updateCardSource);
+// router.post("/designDetail//:card_id", auth, updateCardAllData, updateCardSource);
 // // fork Design
 // router.get("/forkDesign/:id/:user_id", auth, forkDesign)
 // router.post("/forkDesignList/:id", getForkDesignList)

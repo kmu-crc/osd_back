@@ -24,7 +24,9 @@ exports.isOnlyNicName = (name, userId) => {
 // email이 중복되는지 확인하는 로직
 exports.isOnlyEmail = (email) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(email) FROM market.user WHERE email='${email}'`, (err, rows) => {
+    const sql = `SELECT count(email) FROM market.user WHERE email='${email}'`
+    console.log(sql);
+    connection.query(sql, (err, rows) => {
       if (!err) {
 
         if (rows[0]["count(email)"] === 0) {

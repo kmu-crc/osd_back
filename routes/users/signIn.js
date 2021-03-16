@@ -9,7 +9,9 @@ const signIn = (req, res, next) => {
   let userInfo = null;
   const verificationEmail = (email) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM market.user WHERE email='${email}'`, (err, rows) => {
+      const sql = `SELECT * FROM market.user WHERE email='${email}'`
+      console.log(sql);
+      connection.query(sql, (err, rows) => {
         if (!err) {
           if (rows.length === 0) {
             const errorMessage = `${email}은 opendesign market 회원이 아닙니다.`;

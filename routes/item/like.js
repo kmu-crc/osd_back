@@ -29,6 +29,9 @@ exports.getLikeItem = (req, res, next) => {
   };
 
 exports.likeItem = (req, res, next) => {
+
+  const { NewAlarm } = require("../../socket");
+
     const userId = req.decoded.uid;
     const itemId = req.params.id;
   
@@ -50,7 +53,23 @@ exports.likeItem = (req, res, next) => {
         });
       });
     };
-    updateItemLike();
+    const getOwner = () => {
+      return new Promise((resolve, reject) => {
+          const sql = `SELECT user_id AS owner FROM market.item WHERE uid=${itemId}`;
+          connection.query(sql, (err, row) => {
+              if (!err) {
+                  resolve(row[0]);
+              } else {
+                  reject(err);
+              }
+          });
+      });
+  };
+
+    updateItemLike()
+    .then(getOwner)
+    .then(data=>NewAlarm({ type: "ITEM_LIKE_TO_OWNER", from: userId, to: data.owner,item_id:itemId })) // 
+
 }
 
 exports.unlikeItem = (req, res, next) => {
@@ -80,10 +99,11 @@ exports.unlikeItem = (req, res, next) => {
     const page = req.params.page
     let sql =`
     SELECT I.uid, U.nick_name, I.thumbnail_id, I.user_id, I.title,I.category_level1, I.category_level2,
-    I.create_time, I.update_time ,T.m_img FROM market.item I
+    I.create_time, I.update_time ,T.m_img,D.type FROM market.item I
     JOIN market.like L ON I.uid = L.to_id
     LEFT JOIN market.thumbnail T ON T.uid = I.thumbnail_id
     LEFT JOIN market.user U ON U.uid = I.user_id
+    LEFT JOIN market.\`item-detail\` D ON I.uid=D.\`item-id\`
     WHERE L.user_id=${id} AND L.type="item" 
     LIMIT ` + (page * 10) + `, 10`;
     req.sql = sql;

@@ -128,12 +128,13 @@ const getDesignerList = (req, res, next) => {
       if (!data.category_level1 && !data.category_level2) {
         resolve(null);
       }
-      // console.log("data.category_level1:::::",data.category_level1,data.category_level2);
-      const sql = data.category_level2 && data.category_level2 !== "undefined"
+      console.log("data.category_level1:::::",data.category_level1,data.category_level2);
+      const sql = data.category_level2 !=null && data.category_level2>0
         ? `SELECT name FROM market.category_level2 WHERE parents_id=${data.category_level1} AND value=${data.category_level2}`
         : `SELECT name FROM market.category_level1 WHERE uid=${data.category_level1}`;
       connection.query(sql, (err, row) => {
         if (!err) {
+          console.log("data.category_level1:::::",sql,data.category_level2 ,(data.category_level2 != null ,data.category_level2 != "undefined",data.category_level2!==-1));
           resolve(row[0] ? row[0]["name"] : null);
         } else {
           reject(err);

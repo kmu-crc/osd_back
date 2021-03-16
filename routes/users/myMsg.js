@@ -2,7 +2,9 @@ var connection = require("../../configs/connection");
 const socketIO = require("socket.io");
 const { WServer } = require("../../bin/www");
 
-const io = socketIO(WServer);
+const io = socketIO(WServer, {
+  pingTimeout: 5000,
+});
 let isConnection = true;
 
 exports.getMyMsgList = (req, res, next) => {
@@ -132,7 +134,7 @@ exports.sendMsg = (req, res, next) => {
   const toUserId = req.params.id;
   req.body["from_user_id"] = myUserId;
   req.body["to_user_id"] = toUserId;
-  console.log("sendMsg:::::",myUserId,toUserId);
+  console.log("sendMsg:::::", myUserId, toUserId);
   // 기존에 대화방이 있었는지 확인
   function ifGroupExist(myUserId, toUserId) {
     const p = new Promise((resolve, reject) => {
@@ -230,18 +232,18 @@ exports.sendMsg = (req, res, next) => {
   };
 
   const respond = (data) => {
-    const { sendMessage, checkOpponentConnected ,sendAlarm} = require("../../socket");
+    const { sendMessage, checkOpponentConnected, sendAlarm } = require("../../socket");
     try {
-        ifGroupExist(myUserId, toUserId).then(groupId => {
+      ifGroupExist(myUserId, toUserId).then(groupId => {
         sendMessage(data.socketId, myUserId, groupId);
       });
 
-      checkOpponentConnected(data.socketId, toUserId, myUserId).then(()=>{
+      checkOpponentConnected(data.socketId, toUserId, myUserId).then(() => {
         console.log("check" + isConnection)
-        if(!isConnection){
+        if (!isConnection) {
           sendAlarm(data.socketId, toUserId, data.data, "ReceiveMsg", myUserId);
         }
-      })      
+      })
       res.status(200).json({ success: true, groupId: data.data });
       //getNewMsg(data.socketId, toUserId, req, res, next);
     } catch (err) {
@@ -314,7 +316,7 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const AlarmConfirm = (uid, groupId) => {
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE alarm SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, { confirm: 1 }, (err, row) => {
+      connection.query(`UPDATE market.alarm2 SET ? WHERE user_id = ${uid} AND content_id = ${groupId}`, { confirm: 1 }, (err, row) => {
         if (!err) {
           resolve(true);
         } else {
@@ -327,7 +329,7 @@ exports.getMyMsgDetail = (req, res, next) => {
 
   const respond = async data => {
     const { getAlarm } = require("../../socket");
-    await AlarmConfirm(userId, groupId);
+    // await AlarmConfirm(userId, groupId);
     getSocketId(data, userId).then(data => {
       // getAlarm(data.socketId, userId);
       res.status(200).json(data.data);
@@ -343,17 +345,17 @@ exports.getMyMsgDetail = (req, res, next) => {
     .then(data => respond(data))
     .catch(error);
 };
-exports.CheckOpponentConnected = (req, res, next)=>{
-    //isConnection이 프론트에서 보낸 checkData이다. 상대방이 접속해있는지 아닌지 판별한다. 
-    //접속해있다면 true가 돼야하고 아니라면 false가 돼야 한다. 
-    //그런데 현재 동기 처리가 되지 않아서 알람을 만들게 되는 부분에서는 isConnection의 값이 예상이 되지 않는다. 로직 대로라면 342라인이 호출 된 후 229라인이 호출 되어야 하는데 그러지 않는다. 
-    //접속해있다는 말은 채팅을 받은 사람의 selectId(client)와 보낸 사람의 uid가 일치할 때다. 
-    //접속의 여부를 판단하는 부분은 229라인에 적힌 메소드다. 
-    isConnection = req.body.checkData;
-    
-    // if(req.body.count === 2){
-    //   isConnection = !isConnection;
-    // }
+exports.CheckOpponentConnected = (req, res, next) => {
+  //isConnection이 프론트에서 보낸 checkData이다. 상대방이 접속해있는지 아닌지 판별한다. 
+  //접속해있다면 true가 돼야하고 아니라면 false가 돼야 한다. 
+  //그런데 현재 동기 처리가 되지 않아서 알람을 만들게 되는 부분에서는 isConnection의 값이 예상이 되지 않는다. 로직 대로라면 342라인이 호출 된 후 229라인이 호출 되어야 하는데 그러지 않는다. 
+  //접속해있다는 말은 채팅을 받은 사람의 selectId(client)와 보낸 사람의 uid가 일치할 때다. 
+  //접속의 여부를 판단하는 부분은 229라인에 적힌 메소드다. 
+  isConnection = req.body.checkData;
 
-    console.log("checkcheck" + isConnection)
+  // if(req.body.count === 2){
+  //   isConnection = !isConnection;
+  // }
+
+  console.log("checkcheck" + isConnection)
 };

@@ -26,12 +26,24 @@ const getExpertList = (req, res, next) => {
         return data;
       }).then(
         getCategory
-      ).then(name => {
-        data.categoryName = name;
-        resolve(data);
-      }).catch(err => {
-        reject(err);
-      });
+        )
+        .then(name => {
+          data.categoryName = name;
+          return data;
+        }).then(getLikeCount)
+        .then(count => {
+          data.likeCount = count;
+          // console.log("likecount ========== ",data);
+          return data;
+        }).then(getItemCount)
+        .then(count => {
+          data.itemCount = count;
+          // console.log("likecount ========== ",data);
+          resolve(data);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   };
   const getMyThumbnail = (data) => {
@@ -39,7 +51,7 @@ const getExpertList = (req, res, next) => {
       if (!data.thumbnail) {
         resolve(null);
       } else {
-        connection.query("SELECT m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        connection.query("SELECT m_img FROM market.thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
@@ -73,7 +85,34 @@ const getExpertList = (req, res, next) => {
       });
     });
   };
-
+  const getItemCount = (data) => {
+    const type_id = data.user_id;
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT count(*) as "count" FROM market.item WHERE user_id=${type_id};`, (err, result) => {
+        if (!err) {
+          // console.log("getCount == ", result[0]);
+          resolve(result[0].count);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+  const getLikeCount = (data) => {
+    const type = data.type;
+    const type_id = data.user_id;
+    // console.log("designerId:", designerId);
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT count(*) as "count" FROM market.like WHERE to_id=${type_id} AND type="${type}";`, (err, result) => {
+        if (!err) {
+          // console.log("getCount == ", result[0]);
+          resolve(result[0].count);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
   getExpertList(sql)
     .then(data => res.status(200).json(data))
     .catch(err => res.status(500).json(err));

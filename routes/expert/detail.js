@@ -138,7 +138,7 @@ exports.designerViewDetail = (req, res, next) => {
   function getDesignerInfo() {
     const p = new Promise((resolve, reject) => {
       connection.query(`SELECT E.uid, E.user_id, E.description, E.location, E.category_level1, E.category_level2, 
-      E.tag, E.experience, E.score FROM market.expert E
+      E.tag, E.experience, E.score, E.create_time,E.update_time FROM market.expert E
       WHERE E.type="${designer}" AND E.user_id = ${id}`, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -243,7 +243,7 @@ exports.makerViewDetail = (req, res, next) => {
     const p = new Promise((resolve, reject) => {
       console.log("query play");
       connection.query(`SELECT E.uid, E.user_id, E.description, E.location, E.category_level1, E.category_level2, 
-                        E.tag, E.experience, E.maker_equipment, E.maker_technique, E.score FROM market.expert E
+                        E.tag, E.experience, E.maker_equipment, E.maker_technique, E.score, E.create_time,E.update_time FROM market.expert E
                         WHERE E.type="${maker}" AND E.user_id = ${id}`, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);

@@ -4,17 +4,19 @@ exports.TopExpertList = (req, res, next) => {
 
   const sql = `
   SELECT 
-    T.expert_id AS \`uid\`, T.order, T.type,
+    T.expert_id AS \`uid\`, T.order, T.type,E.user_id,
     E.category_level1, E.category_level2,
     U.nick_name, U.create_time, U.update_time,
     THM.m_img
   FROM 
-    (SELECT expert_id, \`order\`, "designer" AS \`type\` FROM market.top_designer UNION SELECT expert_id, \`order\`, "maker" AS \`type\` FROM market.top_maker) AS T
+    (SELECT expert_id, \`order\`, "designer" AS \`type\` FROM market.top_designer 
+    UNION SELECT expert_id, \`order\`, "maker" AS \`type\` FROM market.top_maker) AS T
     LEFT JOIN market.expert E ON T.expert_id = E.uid
     LEFT JOIN market.user U ON U.uid = E.user_id
     LEFT JOIN market.thumbnail THM ON THM.uid = E.thumbnail_id
   ORDER BY \`order\` ASC;`;
 
+  console.log(sql);
   req.sql = sql;
   next();
 };

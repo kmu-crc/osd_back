@@ -24,8 +24,8 @@ exports.designInGroup = (req, res, next) => {
             WHERE G.parent_group_id = ${id} AND G.is_join = 1`;
   if (sort === "update") {
     sql = sql + " ORDER BY D.update_time DESC ";
-  } else if (sort === "create") {
-    sql = sql + " ORDER BY D.create_time DESC ";
+  } else if (sort === "name") {
+    sql = sql + " ORDER BY D.title ASC ";
   } else if (sort === "like") {
     sql = sql + " ORDER BY C.like_count DESC ";
   }

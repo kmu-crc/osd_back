@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../../middlewares/auth");
 const tokenDecoded = require("../../middlewares/tokenDecoded");
-const { GetPayment, GetMyPayment, GetMyRequestItem, RemovePayment, ConfirmThisItemPurchased, GetThisItemPurchased, CreatePayment } = require("./payment");
+const { GetPayment, GetMyPayment,GetMySales, GetMyRequestItem, RemovePayment, ConfirmThisItemPurchased, GetThisItemPurchased, CreatePayment } = require("./payment");
 
 // payment
 router.get("/get/:id/:page", auth, GetPayment);
 router.get("/getmine/:page", auth, GetMyPayment);
+router.get("/getsales/:page", auth, GetMySales);
+
 router.get("/getmine-request-item/:page", auth, GetMyRequestItem);
 router.post("/create/:id", auth, CreatePayment);
 

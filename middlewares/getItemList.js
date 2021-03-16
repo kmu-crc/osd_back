@@ -2,7 +2,6 @@ const connection = require("../configs/connection");
 
 const getItemList = (req, res, next) => {
   const sql = req.sql;
-  // console.log(sql);
   function getList(sql) {
     return new Promise((resolve, reject) => {
       let arr = [];
@@ -10,6 +9,7 @@ const getItemList = (req, res, next) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {
+          // console.log(row);
           row.map(data => {
             arr.push(newData(data));
           });
@@ -45,7 +45,12 @@ const getItemList = (req, res, next) => {
       }).then(async data => {
         data.score = await getScore(data.uid);
         return data;
-      }).then(async data => {
+      })
+      .then(async data => {
+        data.avg = await getAvgCount(data.uid);
+        return data;
+      })
+      .then(async data => {
         data.members = await getMemberList(data.uid);
         resolve(data);
       }).catch(err => {
@@ -116,6 +121,21 @@ const getItemList = (req, res, next) => {
       );
     })
   }
+    // get score
+    function getAvgCount(id) {
+      return new Promise((resolve, reject) => {
+        connection.query(`
+        SELECT COUNT(*) as "avg" FROM market.review R
+        WHERE item_id=${id}`, (err, rows) => {
+          if (!err) {
+            resolve(rows[0]["avg"] || 0);
+          } else {
+            reject(err);
+          }
+        }
+        );
+      })
+    }
   // get review
   function getReviews(id) {
     return new Promise((resolve, reject) => {

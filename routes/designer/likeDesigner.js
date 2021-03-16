@@ -1,6 +1,8 @@
 var connection = require("../../configs/connection");
 
 exports.getLikeDesigner = (req, res, next) => {
+
+
   const userId = req.decoded.uid;
   const designerId = req.params.id;
 
@@ -13,9 +15,11 @@ exports.getLikeDesigner = (req, res, next) => {
           res.status(200).json({like: false});
         } else if (!err && result.length > 0) {
           res.status(200).json({like: true});
+          resolve(true);
         } else {
           //console.log(err);
           res.status(500).json({like: false});
+          reject(err);
         }
       });
     });

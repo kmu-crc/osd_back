@@ -2,7 +2,6 @@ var connection = require("../../configs/connection");
 
 exports.galleryDetail = (req, res, next) => {
     const id = req.params.id;
-    console.log(req.params.id);
     // 그룹 정보 가져오기 (GET)
     function getGroupInfo(id) {
       const p = new Promise((resolve, reject) => {
@@ -17,6 +16,7 @@ exports.galleryDetail = (req, res, next) => {
             resolve(null);
           } else if (!err && row.length > 0) {
             let data = row[0];
+            // console.log("getGroupInfo",data);
             resolve(data);
           } else {
             reject(err);
@@ -34,7 +34,10 @@ exports.galleryDetail = (req, res, next) => {
             WHERE G.gallery_id=${data.uid}`
             , (err, row) => {
           if (!err && row.length === 0) {
-            resolve(null);
+            // resolve(null);
+            let number=0;
+            data.itemList = [];
+            resolve(data);
           } else if (!err && row.length > 0) {
             let number=0;
             data.itemList = row.map((item,index)=>{
@@ -50,6 +53,6 @@ exports.galleryDetail = (req, res, next) => {
     };
     getGroupInfo(id)
       .then(getGroupItem)
-      .then(result => res.status(200).json(result))
+      .then(result => {console.log("gallerydetail===",result);res.status(200).json(result)})
       .catch(err => res.status(500).json(err));
   };

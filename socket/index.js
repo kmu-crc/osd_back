@@ -6,7 +6,9 @@ const { SendMsg, CheckOpponentConnected } = require("./Chatting");
 
 const { WServer } = require("../bin/www");
 
-const io = socketIO(WServer);
+const io = socketIO(WServer, {
+  pingTimeout: 5000,
+});
 let sockets = [];
 
 function SocketConnection() {

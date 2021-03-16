@@ -59,6 +59,8 @@ exports.getLikeDesigner = (req, res, next) => {
 // };
 
 exports.likeDesigner = (req, res, next) => {
+  const { NewAlarm } = require("../../socket");
+
   const userId = req.decoded.uid;
   const designerId = req.params.id;
 
@@ -95,7 +97,8 @@ exports.likeDesigner = (req, res, next) => {
   //   });
   // };
 
-  updateDesignerLike();
+  updateDesignerLike()
+  .then(NewAlarm({ type: "ITEM_LIKE_TO_DESIGNER", from: userId, to: designerId, })) // 
     // .then(updateDesignerCount);
 };
 
@@ -181,6 +184,8 @@ exports.getLikeMaker = (req, res, next) => {
 };
 
 exports.likeMaker = (req, res, next) => {
+  const { NewAlarm } = require("../../socket");
+
   const userId = req.decoded.uid;
   const makerId = req.params.id;
 
@@ -217,7 +222,9 @@ exports.likeMaker = (req, res, next) => {
   //   });
   // };
 
-  updateMakerLike();
+  updateMakerLike()
+  .then(NewAlarm({ type: "ITEM_LIKE_TO_MAKER", from: userId, to: makerId, })) // 
+
     // .then(updateDesignerCount);
 };
 

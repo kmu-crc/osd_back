@@ -85,9 +85,12 @@ exports.RemoveQuestion = (req, res, next) => {
 
 // Create Questions
 exports.CreateQuestion = (req, res, next) => {
+    const { NewAlarm } = require("../../socket");
+
     const id = parseInt(req.params.id, 10);
     const user_id = req.decoded.uid;
     const _ = req.body;
+    let owner=-1;
 
     const updateSortForDESC = id => {
         // 1.UPDATE BOARD SET SORTS = SORTS + 1 
@@ -146,6 +149,20 @@ exports.CreateQuestion = (req, res, next) => {
             });
         });
     };
+    const getOwner = () => {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT user_id AS owner FROM market.item WHERE uid=${id}`;
+            connection.query(sql, (err, row) => {
+                if (!err) {
+                    console.log("question!!!!!",user_id,row[0].owner,id)
+
+                    resolve(row[0]);
+                } else {
+                    reject(err);
+                }
+            });
+        });
+    };
     const success = data => { res.status(200).json({ success: true, data: data }) };
     const failure = err => { res.status(500).json({ success: false, data: err }) };
 
@@ -161,6 +178,8 @@ exports.CreateQuestion = (req, res, next) => {
             createQuestion(id)
             .then(giveGroupId)
             .then(success)
+            .then(getOwner)
+            .then(data=>NewAlarm({ type: "ITEM_QUESTION_TO_OWNER", from: user_id, to: data.owner, item_id: id, })) // to buyer
             .catch(failure);
     }
 };

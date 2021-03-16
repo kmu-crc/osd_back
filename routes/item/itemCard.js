@@ -133,8 +133,7 @@ exports.createCardDB = data => {
 };
 
 exports.updateItemContent = (req, res, next) => {
-  console.log(req.body);
-
+  console.log("here:", req.body)
   const editContent = data => {
     return new Promise((resolve, reject) => {
       const obj = {
@@ -142,7 +141,8 @@ exports.updateItemContent = (req, res, next) => {
         order: data.order,
         private: data.private,
       };
-      const sql = `UPDATE market.content SET ? WHERE uid=${data.uid}`;
+      const sql = `UPDATE market.content SET market.content.content="${data.content}", market.content.order=${data.order}, market.content.private=${data.private} WHERE market.content.uid=${data.uid}`;
+      console.log("EDIT-SQL", sql);
       connection.query(sql, obj, (err, row) => {
         if (!err) {
           resolve(true);
