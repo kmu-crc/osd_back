@@ -37,6 +37,24 @@ const connection = require("../../configs/connection");
  });
  var upload = multer({ storage: storage })
 
+router.post("/detect-encoding",
+    upload.single('source'),
+     (req, res, next) => {
+         const path = `uploads/${req.files.source.md5}${new Date().getTime()}`;
+         fs.writeFile(path, req.files.source.data, { encoding: "ascii" }, async err => {
+             if (err) {
+                 console.log(err);
+                 res.status(500).json({ success: false, message: "file write failed" });
+             } else {
+						 		const fs = require("fs");
+								const detectCharacterEncoding = require("detect-character-encoding");
+								const fb = fs.readFileSync(path);
+								const charset = detectCharacterEncoding(fb);
+                 res.status(200).json({ success: true, charset: charset });
+             }
+         });
+     }
+ );
  router.post("/tmp",
     upload.single('source'),
      (req, res, next) => {

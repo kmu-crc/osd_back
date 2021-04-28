@@ -32,7 +32,7 @@ const {
 const { deleteDesign } = require("./deleteDesign");
 const { getCardComment, createCardComment, deleteCardComment } = require("./designCardCmt");
 const { getTopList } = require("./topList");
-const { updateDesignInfo, updateDesignTime } = require("./updateDesign");
+const { updateDesignInfo, updateDesignTime, updateDesignCardTime } = require("./updateDesign");
 const { joinDesign, acceptMember, getoutMember, getWaitingMember, getWaitingToAcceptMember } = require("../design/joinMember");
 const { checkInvited, inviteUser, cancelInvitedUser } = require("./inviteVideoChat");
 
@@ -80,6 +80,8 @@ router.post("/updateDesignTime/:id", /*auth,*/
 // (req, res) => {
 // connection.query("UPDATE design SET update_time = NOW() WHERE uid = ?", req.params.id);
 // });
+router.post("/updateDesignCardTime/:id", auth, updateDesignCardTime);
+
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
 router.post("/designDetail/updateBoard/:board_id", auth, updateBoard);
@@ -207,6 +209,9 @@ async (req, res, next) => {
 
 //ANSWER
 router.post("/problem/submit", auth, createSubmit);
+//router.post("/problem/submit", auth, (req, res,next)=>{
+//	res.status(200).json({success:false, message:"채점서버를 점검하고 있습니다."});
+//});
 router.put("/problem/update-submit/:id", updateSubmit);
 router.get("/problem/result-request/:id", getSubmit);
 router.get("/problem/result-request2/:id", getSubmit2);
@@ -268,9 +273,11 @@ const getGroupInfo = (id) => {
 						resolve(false);
 				});
 			});
-			if(checks==null) res.status(200).json({success:true, owner: false});
-			return;
-// todo exception checks is null
+			if(checks==null || checks == false) 
+			{
+				res.status(200).json({success:true, owner: false});
+				return;
+			}
 			Promise
 			.all(checks)
 			.then(owner =>{

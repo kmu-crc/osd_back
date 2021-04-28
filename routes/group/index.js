@@ -26,7 +26,8 @@ const { myDesignList, myGroupList, myExistDesignList, myExistGroupList } = requi
 const { acceptDesign, acceptGroup, deleteDesign, deleteGroup } = require("./manageGroup");
 const { getLikeGroup, likeGroup, unlikeGroup } = require("./likeGroup");
 
-const { getSubmitStatus, checkHasProgrammingDesign } = require("./submit");
+const { getSubmitStatus, checkHasProgrammingDesign, getHaveGroupInDesign } = require("./submit");
+const { getProblemContentList } = require("./duedate");
 
 const { getCouldJoinVChat2 } = require("./chat");
 const { checkInvited, inviteUser, cancelInvitedUser } = require("./inviteVideoChat");
@@ -92,6 +93,7 @@ router.delete("/deleteGroupNotice/:id", auth, deleteGroupNotice);
 // programming design
 router.get("/getSubmitStatus/:id", auth, getSubmitStatus);
 router.get("/check-has-programming-design/:id", auth, checkHasProgrammingDesign);
+router.get("/:id/problemcontents", auth, getProblemContentList);
 
 router.get("/:id/check-could-join-vchat/", auth, getCouldJoinVChat2);
 
@@ -114,6 +116,9 @@ router.post("/:group_id/board/:board_id/comment", auth, createGroupBoardComment)
 router.get("/:id/board/:board_id/comment", getGroupBoardCommentList);
 router.patch("/:id/board/:board_id/comment/:comment_id", auth, updateGroupBoardComment);
 router.delete("/:id/board/:board_id/comment/:comment_id", auth, removeGroupBoardComment);
+
+//new
+router.get("/getHaveGroupInDesign/:id" , getHaveGroupInDesign);
 
 module.exports = router;
 

@@ -43,8 +43,11 @@ exports.checkHasProgrammingDesign = (req, res, next) => {
 exports.getSubmitStatus = (req, res, next) => {
   const group_id = req.params.id;
 	
+  console.log("getSubmitStatus");
 
 	const getDesignInGroup = id => {
+		console.log("1");
+
 		return new Promise((resolve, reject) => {
 			const sql = "SELECT design_id FROM opendesign.group_join_design WHERE parent_group_id LIKE ?";
 			connection.query(sql, id, (err, row) => {
@@ -57,7 +60,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			});
 		});
 	}
-	const getProblemContent = design_id => {
+	const getProblemContent = design_id => {		console.log("2");
+
 		return new Promise((resolve, reject) => {
 			const sql =  
 			`SELECT uid AS content_id, user_id, card_id, content, \`order\` AS content_order, create_time AS content_create_time, ${design_id} AS design_id  FROM opendesign.design_content WHERE \`type\` LIKE "PROBLEM" AND card_id IN (SELECT uid FROM opendesign.design_card WHERE design_id LIKE ${design_id});`;
@@ -70,7 +74,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			});
 		});
 	};
-	const getProblemContentWrapper = (list) => {
+	const getProblemContentWrapper = (list) => {		console.log("3");
+
 		return new Promise((resolve, reject) => {
 			Promise.all(
 				list.map(design => {
@@ -84,12 +89,14 @@ exports.getSubmitStatus = (req, res, next) => {
 			.catch(e => reject(e));
 		});
 	};
-	const removeEmptyElement = list => {
+	const removeEmptyElement = list => {		console.log("4");
+
 		return new Promise((resolve) => {
 			resolve(list.filter(element=>element.length > 0));	
 		});
 	};
-	const makeOneList = list => {
+	const makeOneList = list => {		console.log("5");
+
 		return new Promise((resolve) => {
 			const newlist = [];
 			list.map(design => {
@@ -100,7 +107,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			resolve(newlist);
 		});
 	};
-	const getDesignNameWrapper = list => {
+	const getDesignNameWrapper = list => { 		console.log("6");
+
 		return new Promise((resolve, reject) => {
 		Promise.all(
 				list.map(content => {
@@ -115,7 +123,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			.catch(e => reject(e));
 		});
 	};
-	const getDesignName = design_id => {
+	const getDesignName = design_id => { 		console.log("7");
+
 			return new Promise((resolve, reject) => {
 				const sql = `SELECT title FROM opendesign.design WHERE uid LIKE ${design_id}`;
 				connection.query(sql, (err, row) => {
@@ -127,7 +136,8 @@ exports.getSubmitStatus = (req, res, next) => {
 				});
 			});
 		};
-	const getBoardNameWrapper = list => {
+	const getBoardNameWrapper = list => { 		console.log("8");
+
 		return new Promise((resolve, reject) => {
 			Promise.all(
 				list.map(content => {
@@ -144,7 +154,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			.catch(e => reject(e));
 		});
 	};
-	const getBoardName = card_id => {
+	const getBoardName = card_id => { 		console.log("9");
+
 		return new Promise((resolve, reject) => {
 			const sql = `SELECT title, uid, \`order\` FROM opendesign.design_board WHERE uid IN (SELECT board_id FROM opendesign.design_card WHERE uid LIKE ${card_id});`;
 			connection.query(sql, (err, row) => {
@@ -156,7 +167,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			});
 		});
 	};
-	const getCardInfoWrapper = list => {
+	const getCardInfoWrapper = list => { 		console.log("10");
+
 		return new Promise((resolve, reject) => {
 			Promise.all(
 				list.map(content => {
@@ -172,7 +184,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			.catch(e => reject(e));
 		});
 	};
-	const getCardInfo = card_id => {
+	const getCardInfo = card_id => { 		console.log("11");
+
 		return new Promise((resolve, reject) => {
 			const sql = `SELECT title, \`order\` FROM opendesign.design_card WHERE uid LIKE ${card_id};`;
 			connection.query(sql, (err, row) => {
@@ -184,7 +197,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			});
 		});
 	};
-	const getUserInfoWrapper = list => {
+	const getUserInfoWrapper = list => {		console.log("12");
+
 		return new Promise((resolve, reject) => {
 			Promise.all(
 				list.map(content => {
@@ -199,7 +213,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			.catch(e => reject(e));
 		});
 	};
-	const getUserInfo = user_id => {
+	const getUserInfo = user_id => {		console.log("13");
+
 		return new Promise((resolve, reject) => {
 			const sql = `SELECT * FROM opendesign.user WHERE uid LIKE ${user_id}`;
 			connection.query(sql, (err, row) => {
@@ -212,7 +227,8 @@ exports.getSubmitStatus = (req, res, next) => {
 		});
 	};
 	//get submit result
-	const getSubmitResultWrapper = list => {
+	const getSubmitResultWrapper = list => {		console.log("14");
+
 		return new Promise((resolve, reject) => {
 			Promise.all(
 				list.map(content => {
@@ -227,7 +243,8 @@ exports.getSubmitStatus = (req, res, next) => {
 			.catch(e => reject(e));
 		});
 	};
-	const getSubmitResult = content_id => {
+	const getSubmitResult = content_id => {		console.log("15");
+
 		return new Promise((resolve, reject) => {
 			const sql = `SELECT * FROM opendesign.problem_submit WHERE content_id LIKE ${content_id} AND result LIKE 'S' ORDER BY create_date DESC LIMIT 1;`;
 			connection.query(sql, (err, row) => {
@@ -255,67 +272,116 @@ exports.getSubmitStatus = (req, res, next) => {
 			res.status(200).json({ error: issue.length > 0 ? issue: er }) });
 };
 
-/*
- const getDesignInGroup = (id) => {
-		return new Promise((resolve, reject)=>{
-			const sql = "SELECT design_id FROM opendesign.group_join_design WHERE parent_group_id LIKE ? AND is_join LIKE 1";
-			connection.query(sql, id, (err, rows) => {
-				if(err) {
-				  ERROR('getdesigningroup - '+err);
+exports.getHaveGroupInDesign = (req, res, next) => {
+	const group_id = req.params.id;
+	const getDesignInGroup = id => {
+		return new Promise((resolve, reject) => {
+			const sql = "SELECT design_id FROM opendesign.group_join_design WHERE parent_group_id LIKE ?";
+			connection.query(sql, id, (err, row) => {
+				if(err){
 					reject(err);
+				}else {
+				  const list = row.map(r=> r["design_id"]);
+					resolve(list);
 				}
-				resolve(JSON.parse(JSON.stringify(rows)));
 			});
 		});
 	}
-	
-	const getDesignBoard = (designs) => {
-		return new Promise((resolve, reject) => {
-			Promise.all(
-			designs.map(design => {
-				return new Promise((_resolve, _reject) => {
-					const sql = "SELECT * FROM opendesign.design_board WHERE design_id LIKE ?";
-					connection.query(sql, design.design_id, (err, rows) => {
-						if(err) {
-						  ERROR(err);
-							_reject(err);
-						} else {
-							_resolve(JSON.parse(JSON.stringify(rows)));
-						}
-					});
+
+	const getProblemContent = design_id => {
+
+	return new Promise((resolve, reject) => {
+		const sql =  
+		`
+		SELECT T.uid,V.title as "design_title",U.nick_name,D.title as "card_title",T.content,B.title as "board_title" FROM opendesign.design_card D 
+		LEFT JOIN opendesign.design_content T ON T.card_id = D.uid 
+		LEFT JOIN opendesign.design V ON V.uid = ${design_id}
+		LEFT JOIN opendesign.user U ON U.uid = D.user_id
+		LEFT JOIN opendesign.design_board B ON B.uid = D.board_id
+		WHERE D.design_id = ${design_id} AND T.type="PROBLEM"
+		ORDER BY B.order,D.order,T.order;`;
+		connection.query(sql, (err, row) => {
+			if(err){
+				reject(err);
+			} else {
+				resolve(row);
+			}
+		});
+	});
+};
+const getProblemContentWrapper = (list) => {
+
+	return new Promise((resolve, reject) => {
+		Promise.all(
+			list.map(design => {
+				return new Promise(async(_resolve) => {
+					const contents = await getProblemContent(design);	
+					_resolve(contents);
 				});
-			}))
-			.then(rst=>{resolve(rst);}).catch(reject);
+			})
+		)
+		.then(result => {
+			resolve(result)
+		})
+		.catch(e => reject(e));
+	});
+};
+const makeOneList = list => {	
+
+return new Promise((resolve) => {
+	const newlist = [];
+	list.map(design => {
+		design.map(content =>{
+			newlist.push(content)
+			})
+	});
+	resolve(newlist);
+});
+};
+const getProblemResult = content_id => {
+	return new Promise((resolve, reject) => {
+		const sql =  
+		`
+		SELECT result,create_date FROM opendesign.problem_submit 
+		WHERE content_id = ${content_id} ORDER BY create_date DESC limit 1
+		`;
+		connection.query(sql, (err, row) => {
+			if(err){
+				reject(err);
+			} else {
+				resolve(row[0]);
+			}
 		});
-	};
-	const getDesignCard = (board) => {
-		return new Promise((resolve, reject) => {
-			Promise.all(board.map(a_board => {
-				return new Promise((_resolve, _reject) => {
-				  const sql = "SELECT * FROM opendesign.design_card WHERE design_id LIKE ?";
-					connection.query(sql, a_board.design_id, (err, rows) => {
-						if(err) {
-							ERROR(err);
-							_reject(err);
-						} else {
-							_resolve(JSON.parse(JSON.stringify(rows)));
-						}
-					});
-					})
-		}))
-		.then(rst => { resolve(rst) })
-		.catch(e => { ERROR(e); reject(e); });
-		});
-	};
+	});
+};
+const getProblemResultWrapper = (list) => {
+
+	return new Promise((resolve, reject) => {
+		Promise.all(
+			list.map(content => {
+				return new Promise(async(_resolve) => {
+					const result = await getProblemResult(content.uid);
+					content.submit_result = result==null?"미제출":result.result=="S"?"성공":"실패";	
+					content.submit_date = result==null?"미제출":result.create_date;
+					_resolve(content);
+				});
+			})
+		)
+		.then(result => {
+			resolve(result)
+		})
+		.catch(e => reject(e));
+	});
+};
 
 	getDesignInGroup(group_id)
-		.then(getDesignBoard)
-		.then(getDesignCard)
-		.then(result => {
-			res.status(200).json({ data: result });
-		})
-		.catch(err => {
-			res.status(200).json({ error: issue.length > 0 ? issue: err });
-		});
-
-*/
+	.then(getProblemContentWrapper)
+	.then(makeOneList)
+	.then(getProblemResultWrapper)
+	.then(rst => { 
+		res.status(200).json({ data: rst }) })
+	.catch(er => { 
+		res.status(200).json({ error: issue.length > 0 ? issue: er }) });
+	// .then(data => res.status(200).json({data:data}))
+	// .catch(error => res.status(200).json(error))
+};

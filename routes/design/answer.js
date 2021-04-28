@@ -60,6 +60,7 @@ exports.getSubmit2 = async (req, res, next) => {
 exports.createSubmit = async (req, res, next) => {
   // const { user_id, problem_id, language_id, code, file_name } = req.body;
   const { user_id, language_id, answer, problem_id, content_id} = req.body;
+	// console.log(answer);
 
       const generate_submit = (data) => {
         return new Promise((resolve, reject) => {
@@ -67,7 +68,7 @@ exports.createSubmit = async (req, res, next) => {
             "INSERT INTO opendesign.problem_submit SET ?", data,
             (err, row) => {
               if (!err) {
-		//date.uid = row.insertId;
+		            //date.uid = row.insertId;
                 resolve(row.insertId);
               } else {
                 console.log(err);
@@ -161,6 +162,10 @@ exports.updateSubmit = async (req, res, next) => {
 
   const update_submit = (data) => {
     return new Promise((resolve, reject) => {
+		//console.log('debug ; ', data);
+		if(data.message) {
+			data.message = JSON.stringify(data.message);
+		}
       connection.query(
         `UPDATE opendesign.problem_submit SET ? WHERE uid=${id}`, data,
         (err, row) => {
@@ -175,15 +180,46 @@ exports.updateSubmit = async (req, res, next) => {
     });
   };
 
-  //const update_problem_content = (data) = > {
-  //  return new Promise((resolve, reject) => {
-  //    const sql = `UPDATE opendesign.problem_submit SET content_id=${} WHERE uid=${id}`;
-  //    connection.query(sql, (err, row) => {
-  //      if(!err) {
-  //      }
-  //    });
-  //  });
-  //};
+	//const get_card_and_design_id = () => {
+	//	return new Promise((resolve, reject) => {
+	//		const sql = `SELECT uid AS 'card_id', design_id FROM opendesign.design_card WHERE uid IN (SELECT card_id FROM opendesign.design_content WHERE uid IN (SELECT content_id FROM opendesign.problem_submit WHERE uid = id));`
+	//		connection.query(sql, (err, row) => {
+	//			if (!err) {
+	//				console.log(row[0]);
+	//				resolve(row[0]);
+	//			} else {
+	//				reject(err);
+	//			}
+	//		});
+	//		);
+	//	});
+	//};
+
+	//const updatetime_design = obj => {
+	//	return new Promise((resolve, reject) => {
+	//		const sql = `UPDATE opendesign.design SET update_time = NOW() WHERE uid = ${obj.design_id};`;
+	//		connection.query(sql, (err, row) => {
+	//			if (!err) {
+	//				resolve(obj);
+	//			} else {
+	//				reject(err);
+	//			}
+	//		});
+	//	});
+	//};
+
+	//const updatetime_card = obj => {
+	//	return new Promise((resolve, reject) => {
+	//		const sql = `UPDATE opendesign.deign_card SET update_time = NOW() WHERE uid = ${obj.card_id};`;
+	//		connection.query(sql, (err, row) => {
+	//			if (!err) {
+	//				resolve(obj);
+	//			} else {
+	//				reject(err);
+	//			}
+	//		});
+	//	});
+	//};
    
   const success = (data) => {
     res.status(200).json({
@@ -199,7 +235,7 @@ exports.updateSubmit = async (req, res, next) => {
   };
 
   update_submit(req.body)
-  //.then(submit)
+	//.then(get_card_and_design_id = (
   .then(success)
   .catch(fail);
 };

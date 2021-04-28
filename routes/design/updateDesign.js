@@ -243,3 +243,23 @@ exports.updateDesignTime = (req, res, next) => {
     .catch(fail);
 };
 
+exports.updateDesignCardTime = (req, res, next) => {
+	const content_id = req.params.id;
+	
+	const updateTime = (id) => {
+		return new Promise((resolve, reject) =>{
+			const sql = `UPDATE opendesign.design_card SET update_time = NOW() WHERE uid IN (SELECT card_id FROM opendesign.design_content WHERE uid = ${content_id});`;
+			connection.query(sql, (err, _) => {
+				if (!err) {
+					resolve(true);	
+				} else {
+					reject(err);	
+				}
+			});
+		});
+	};
+
+	updateTime()
+		.then(data => res.status(200).json({ success:true, detail:data })) 
+		.catch(data => res.status(200).json({ success:false, detail:data }));
+};
