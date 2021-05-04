@@ -70,6 +70,7 @@ const updateCardFn = req => {
       (err, rows) => {
         if (!err) {
           if (rows.affectedRows) {
+						connection.query("UPDATE design_card SET update_time = NOW() WHERE uid = ?", req.cardId, (e, r)=> {});
             resolve(rows);
           } else {
             const err = "작성자 본인이 아닙니다.";

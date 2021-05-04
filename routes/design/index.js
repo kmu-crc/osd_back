@@ -81,6 +81,41 @@ router.post("/updateDesignTime/:id", /*auth,*/
 // connection.query("UPDATE design SET update_time = NOW() WHERE uid = ?", req.params.id);
 // });
 router.post("/updateDesignCardTime/:id", auth, updateDesignCardTime);
+router.post("/updateDesignCardTimeByContent/:id", auth, (req, res, next) => {
+	const { id } = req.params;
+
+	const getCardId = content_id => {
+		return new Promise((resolve, reject) => {
+			const sql = `SELECT uid FROM opendesign.design_card WHERE uid IN (SELECT card_id FROM opendesign.design_content WHERE uid = ${content_id});`
+			connection.query(sql, (err, row) => {
+				if(err){
+					console.error(err);
+					reject(err);
+				} else {
+					resolve(row[0]);
+				}
+			});
+		});
+	};
+	const updateCard = card_id => {
+		return new Promise((resolve, reject) => {
+			const sql = `UPDATE opendesign.design_card SET update_time = NOW() WHERE uid = ${card_id.uid};`;
+			connection.query(sql, (err, row) => {
+				if(err){
+					console.error(err);
+					reject(err);
+				} else {
+					resolve(true);
+				}
+			});
+		});
+	};
+
+	getCardId(id)
+		.then(updateCard)
+		.then(result=>res.status(200).json({success:result}))
+		.catch(e=>res.status(500).json({success:false,detail:e}));
+});
 
 router.delete("/deleteDesign/:id", auth, deleteDesign);
 router.post("/designDetail/:id/createBoard", auth, stringToNumber, createBoard);
