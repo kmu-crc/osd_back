@@ -55,7 +55,6 @@ exports.GetPayment = (req, res, next) => {
         .then(success)
         .catch(failure);
 };
-
 //get seles
 exports.GetMySales = (req, res, next) => {
     const user_id = req.decoded.uid;
@@ -158,6 +157,7 @@ exports.GetMyPayment = (req, res, next) => {
     const page = req.params.page;
 
     const getPayment = () => {
+        console.log("?");
         return new Promise((resolve, reject) => {
             const sql =
                 `SELECT 
@@ -165,10 +165,10 @@ exports.GetMyPayment = (req, res, next) => {
                     U.nick_name,D.type
                 FROM market.payment Q
                     LEFT JOIN market.user U ON U.uid = Q.user_id 
-                    LEFT JOIN market.\`item-detail\` D ON Q.\`item_id\`=D.\`item-id\`
+                    LEFT JOIN market.item_detail D ON Q.\`item_id\`=D.\`item-id\`
                 WHERE Q.user_id = ${user_id} AND Q.item_id
                 ORDER BY create_time DESC
-                LIMIT ${page * 10}, 10`;//AND Q.review_id IS NULL 
+                LIMIT ${page * 6}, 6`;//AND Q.review_id IS NULL 
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(row);
@@ -240,7 +240,6 @@ exports.GetMyPayment = (req, res, next) => {
         .catch(failure);
 
 };
-
 // Get My requested and purchased Item by me
 exports.GetMyRequestItem = (req, res, next) => {
     const user_id = req.decoded.uid;
@@ -256,7 +255,7 @@ exports.GetMyRequestItem = (req, res, next) => {
                     LEFT JOIN market.user U ON U.uid = Q.user_id 
                 WHERE Q.user_id=${user_id} AND Q.item_id IS NULL 
                 ORDER BY create_time DESC
-                LIMIT ${page * 10}, 10`;
+                LIMIT ${page * 6}, 6`;
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(row);
@@ -361,6 +360,101 @@ exports.CreatePayment = async (req, res, next) => {
     const user_id = req.decoded.uid;
     const _ = req.body;
 
+    const copyItemList = (payment_id) => {
+		return new Promise((resolve, reject) => {
+// mysql executor
+const conversion = raw => JSON.parse(JSON.stringify(raw));
+const executor = sql => new Promise((resolve, reject) => connection.query(sql, (E, R) => E ? reject(E) : resolve(conversion(R))));
+const executor2 = (sql, obj) => new Promise((resolve, reject) => connection.query(sql, obj, (E, R) => E ? reject(E) : resolve(conversion(R))));
+	// get list header
+	const getList = () =>
+		new Promise(async (resolve, reject) => {
+	
+			const headers = await executor(`SELECT * FROM market.list_header H WHERE H.type="practice" AND H.content_id = ${id};`);
+			const lists = await executor(`SELECT * FROM market.list WHERE list_header_id IN (${headers.length > 0 ? headers.map(head => head.uid).join(","):"null"});`);
+			const cards = await executor(`SELECT * FROM market.card WHERE list_id IN (${lists.length > 0 ? lists.map(list => list.uid).join(",") : "null"});`);
+			const contents = await executor(`SELECT * FROM market.content WHERE card_id IN (${cards.length > 0 ? cards.map(card => card.uid).join(","):"null"});`);
+			resolve({ headers, lists, cards, contents });
+		});
+
+const copyList = (rows) =>
+    new Promise((resolve, reject) => {
+        const { headers, lists, cards, contents } = rows;
+
+        const copyHeader = headers.map(head => 
+			new Promise(async (resolve) => {
+				const newobj = { 
+					"name": head.name, 
+					"type": "copied", 
+					"content_id": payment_id, 
+					"editor_type": head.editor_type 
+				}; 
+				const r = await executor2("INSERT INTO market.list_header SET ?;", newobj); 
+				resolve({ "origin": head.uid, "new": r.insertId });
+			}));
+
+	Promise.all(copyHeader)
+		.then(mHeader => {
+			const copyList = lists.map(list => 
+				new Promise(async (resolve) => { 
+					const newobj = { 
+						"list_header_id": mHeader.filter(head => head.origin === list.list_header_id)[0].new, 
+						"type": list.type, 
+						"user_id": user_id, 
+						"content_id": payment_id, 
+						"title": list.title, 
+						"order": list.order, 
+					}; 
+					const r = await executor2("INSERT INTO market.list SET ?;", newobj); 
+					resolve({ "origin": list.uid, "new": r.insertId });
+            })
+        );
+
+	Promise.all(copyList)
+		.then(mList => {
+        	const copyCard = cards.map(card => 
+				new Promise(async (resolve) => { 
+					const newobj = { 
+						"user_id": user_id,
+						"list_id": mList.filter(list => list.origin === card.list_id)[0].new, 
+						"order": card.order, 
+						"thumbnail": card.thumnail,
+						"title": card.title,
+						"description": card.description,
+						"private": card.private,
+					};
+					const r = await executor2("INSERT INTO market.card SET ?;", newobj);
+					resolve({ "origin": card.uid, "new": r.insertId });
+            })
+        );
+
+	Promise.all(copyCard)
+		.then(mCard => {
+        	contents.map(async content => { 
+				const newobj = { 
+					"user_id": user_id,
+					 "card_id": mCard.filter(card => card.origin === content.card_id)[0].new, 
+					"content": content.content, 
+					"content_type": content.content_type,
+					"data_type": content.data_type,
+					"extension": content.extension,
+					"order": content.order,
+					"file_name": content.file_name,
+					"private": content.private, 
+				}; 
+				await executor2("INSERT INTO market.content SET ?;", newobj); })
+                });
+            });
+        });
+        resolve(true);
+    });
+
+		getList()
+			.then(rows => rows.headers.length > 0 ? copyList(rows) : null)
+			.then(()   => resolve(payment_id))
+		});
+    }
+
     const createPayment = id => {
         return new Promise((resolve, reject) => {
             let data = {
@@ -376,6 +470,7 @@ exports.CreatePayment = async (req, res, next) => {
             const sql = `INSERT INTO market.payment SET ?`;
             connection.query(sql, data, (err, row) => {
                 if (!err) {
+					console.log("create payment :",row.insertId);
                     resolve(row.insertId);
                 } else {
                     console.error(err);
@@ -390,6 +485,7 @@ exports.CreatePayment = async (req, res, next) => {
             // console.log(sql);
             connection.query(sql, (err, row) => {
                 if (!err) {
+					console.log("minus point");
                     resolve(id);
                 } else {
                     console.error(err);
@@ -420,13 +516,12 @@ exports.CreatePayment = async (req, res, next) => {
     createPayment(id)
         .then(minusPoint)
         // .then(checkCompletedRequest)
+        .then(copyItemList)
         .then(success)
-        .then(NewAlarm({ type: "ITEM_PURCHASED_TO_USER", from: expert_id, to: user_id, item_id: id, })) // to buyer
-        .then(NewAlarm({ type: "ITEM_PURCHASED_TO_EXPERT", from: user_id, to: expert_id, item_id: id, })) // to seller
+        //.then(NewAlarm({ type: "ITEM_PURCHASED_TO_USER", from: expert_id, to: user_id, item_id: id, })) // to buyer
+        //.then(NewAlarm({ type: "ITEM_PURCHASED_TO_EXPERT", from: user_id, to: expert_id, item_id: id, })) // to seller
         .catch(failure);
 };
-
-
 exports.GetThisItemPurchased = (req, res, next) => {
     const request_id = req.params.id;
 

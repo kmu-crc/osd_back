@@ -7,7 +7,7 @@ var fs = require("fs");
 const createCardFn = req => {
   return new Promise((resolve, reject) => {
     //console.log("createCard", req);
-    connection.query("INSERT INTO design_card SET ?", req, (err, rows) => {
+    connection.query("INSERT INTO market.card SET ?", req, (err, rows) => {
       if (!err) {
         resolve(rows.insertId);
       } else {
@@ -56,7 +56,7 @@ const updateCardFn = req => {
   //console.log("fn", req);
   return new Promise((resolve, reject) => {
     connection.query(
-      `UPDATE design_card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
+      `UPDATE market.card SET update_time = NOW(), ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
       (err, rows) => {
         if (!err) {
           if (rows.affectedRows) {
@@ -75,8 +75,8 @@ const updateCardFn = req => {
 
 exports.createCardDB = req => {
   return createCardFn(req)
-    .then(createCount)
-    .then(() => updateDesignCount(req.design_id));
+    //.then(createCount)
+    //.then(() => updateDesignCount(req.design_id));
 };
 
 exports.updateCardDB = req => {
@@ -147,7 +147,7 @@ exports.getCardList = (req, res, next) => {
   const getList = (design_id, board_id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM design_card WHERE design_id = ${design_id} AND board_id = ${board_id} ORDER BY design_card.order ASC`,
+        `SELECT * FROM market.card WHERE design_id = ${design_id} AND board_id = ${board_id} ORDER BY market.card.order ASC`,
         (err, rows) => {
           if (!err) {
             resolve(rows);
@@ -182,7 +182,7 @@ exports.getCardDetail = (req, res, next) => {
   const getCard = id => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM design_card WHERE uid = ${id}`,
+        `SELECT * FROM market.card WHERE uid = ${id}`,
         (err, rows) => {
           if (!err) {
             resolve(rows[0]);
@@ -259,7 +259,7 @@ exports.updateTitle = (req, res, next) => {
   const titleUpdate = data => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_card SET ? WHERE uid = ${cardId}`,
+        `UPDATE market.card SET ? WHERE uid = ${cardId}`,
         data,
         (err, rows) => {
           if (!err) {
@@ -292,7 +292,7 @@ exports.updateContent = (req, res, next) => {
   const ContentUpdate = data => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_card SET ? WHERE uid = ${cardId}`,
+        `UPDATE market.card SET ? WHERE uid = ${cardId}`,
         data,
         (err, rows) => {
           if (!err) {
@@ -527,7 +527,7 @@ exports.deleteCard = (req, res, next) => {
   const updateDesignCount = () => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `UPDATE design_counter SET card_count = card_count - 1 WHERE design_id = (SELECT design_id FROM design_card WHERE uid = ${card_id})`,
+        `UPDATE design_counter SET card_count = card_count - 1 WHERE design_id = (SELECT design_id FROM market.card WHERE uid = ${card_id})`,
         (err, rows) => {
           if (!err) {
             resolve(rows);
@@ -543,7 +543,7 @@ exports.deleteCard = (req, res, next) => {
   const deleteCardDB = id => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `DELETE FROM design_card WHERE uid = ${id}`,
+        `DELETE FROM market.card WHERE uid = ${id}`,
         (err, rows) => {
           if (!err) {
             resolve(rows);
@@ -559,7 +559,7 @@ exports.deleteCard = (req, res, next) => {
   const getList = id => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT d.uid, d.order FROM design_card d WHERE d.board_id=${id}`,
+        `SELECT d.uid, d.order FROM market.card d WHERE d.board_id=${id}`,
         (err, rows) => {
           if (!err) {
             resolve(rows);
@@ -579,7 +579,7 @@ exports.deleteCard = (req, res, next) => {
         arr.push(
           new Promise((resolve, reject) => {
             connection.query(
-              `UPDATE design_card SET ? WHERE uid=${item.uid}`,
+              `UPDATE market.card SET ? WHERE uid=${item.uid}`,
               { order: index },
               (err, rows) => {
                 if (!err) {
@@ -625,7 +625,7 @@ exports.getCardSource = (req, res, next) => {
   const getSource = id => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM design_content WHERE card_id = ${id} ORDER BY design_content.order ASC`,
+        `SELECT * FROM market.content WHERE card_id = ${id} ORDER BY market.content.order ASC`,
         (err, rows) => {
           if (!err) {
             // //console.log("rows", rows);
@@ -741,7 +741,7 @@ exports.updateCardSource = async (req, res, next) => {
       if (content.length === 0) resolve(true);
       for (let item of content) {
         await connection.query(
-          `DELETE FROM design_content WHERE uid = ${item.uid}`,
+          `DELETE FROM market.content WHERE uid = ${item.uid}`,
           (err, rows) => {
             if (!err) {
               pArr.push(true);
@@ -776,7 +776,7 @@ exports.updateCardSource = async (req, res, next) => {
           data_type: item.data_type
         };
         await connection.query(
-          "INSERT INTO design_content SET ?",
+          "INSERT INTO market.content SET ?",
           obj,
           (err, rows) => {
             if (!err) {
@@ -812,7 +812,7 @@ exports.updateCardSource = async (req, res, next) => {
         data_type: item.data_type
       };
       await connection.query(
-        `UPDATE design_content SET ? WHERE uid = ${item.uid}`,
+        `UPDATE market.content SET ? WHERE uid = ${item.uid}`,
         obj,
         (err, rows) => {
           if (!err) {

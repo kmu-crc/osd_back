@@ -1,5 +1,17 @@
 const connection = require("../../configs/connection");
 
+exports.createListHeader = (data) => {
+  return new Promise((resolve, reject) => {
+    connection.query("INSERT INTO market.list_header SET ? ", data, (err, rows) => {
+      if (!err) { 
+        resolve(rows.insertId); 
+      } else { 
+        console.error("Create List Header - Mysql Error:", err);
+	reject(err);
+      }
+    });
+  });
+};
 exports.createListDB = (data) => {
   return new Promise((resolve, reject) => {
     connection.query("INSERT INTO market.list SET ?", data, (err, rows) => {

@@ -30,7 +30,7 @@ exports.GetQuestion = (req, res, next) => {
     };
     const getTotalCount = id => {
         return new Promise((resolve, reject) => {
-            const sql = `SELECT COUNT(*) AS 'total' FROM market.question Q WHERE Q.item_id=${id};`;
+            const sql = `SELECT COUNT(*) AS 'total' FROM market.question Q WHERE Q.item_id=${id} AND Q.sort_in_group=0;`;
             connection.query(sql, (err, row) => {
                 if (!err) {
                     resolve(row[0]["total"]);
@@ -40,6 +40,19 @@ exports.GetQuestion = (req, res, next) => {
             });
         });
     };
+    const getBeforeReplyCount=id=>{
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT * FROM market.question Q WHERE Q.item_id=${id} AND Q.sort_in_group!=0 LIMIT 0,${page*10};`;
+            connection.query(sql, (err, row) => {
+                if (!err) {
+                    resolve(row.length);
+                } else {
+                    reject(err);
+                }
+            });
+        });
+    } 
+
 
     const success = data => { res.status(200).json({ success: true, data: data }) };
     const failure = err => { res.status(500).json({ success: false, data: err }) };
@@ -52,6 +65,10 @@ exports.GetQuestion = (req, res, next) => {
         })
         .then(total => {
             data = { ...data, total: total };
+            return getBeforeReplyCount(id);
+        })
+        .then(replyCount=>{
+            data = { ...data, replyCount:replyCount };
             return data;
         })
         .then(success)

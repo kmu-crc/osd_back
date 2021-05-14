@@ -149,7 +149,7 @@ exports.likeInDesigner=(req,res,next)=>{
   LEFT JOIN market.thumbnail T ON T.uid = E.thumbnail_id
   LEFT JOIN market.user U ON U.uid = E.user_id
   WHERE L.user_id = ${id} AND L.type="designer" AND E.type="designer"
-  LIMIT ` + (page * 10) + `, 10`;
+  LIMIT ` + (page * 8) + `, 8`;
   req.sql = sql;
   next();
 }
@@ -275,7 +275,7 @@ exports.likeInMaker=(req,res,next)=>{
   LEFT JOIN market.thumbnail T ON T.uid = E.thumbnail_id
   LEFT JOIN market.user U ON U.uid = E.user_id
   WHERE L.user_id = ${id} AND L.type="maker" AND E.type="maker"
-  LIMIT ` + (page * 10) + `, 10`;
+  LIMIT ` + (page * 8) + `, 8`;
   req.sql = sql;
   next();
 }

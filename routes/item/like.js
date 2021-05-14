@@ -103,9 +103,9 @@ exports.unlikeItem = (req, res, next) => {
     JOIN market.like L ON I.uid = L.to_id
     LEFT JOIN market.thumbnail T ON T.uid = I.thumbnail_id
     LEFT JOIN market.user U ON U.uid = I.user_id
-    LEFT JOIN market.\`item-detail\` D ON I.uid=D.\`item-id\`
+    LEFT JOIN market.item_detail D ON I.uid=D.\`item-id\`
     WHERE L.user_id=${id} AND L.type="item" 
-    LIMIT ` + (page * 10) + `, 10`;
+    LIMIT ` + (page * 6) + `, 6`;
     req.sql = sql;
     next();
   }

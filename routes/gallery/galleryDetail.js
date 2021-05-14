@@ -28,20 +28,18 @@ exports.galleryDetail = (req, res, next) => {
     function getGroupItem(data) {
       const p = new Promise((resolve, reject) => {
         connection.query(
-            `SELECT I.uid
+            `SELECT I.*
             FROM market.gallery_item G 
             LEFT JOIN market.item I ON G.item_id=I.uid
             WHERE G.gallery_id=${data.uid}`
             , (err, row) => {
           if (!err && row.length === 0) {
-            // resolve(null);
-            let number=0;
             data.itemList = [];
             resolve(data);
           } else if (!err && row.length > 0) {
             let number=0;
             data.itemList = row.map((item,index)=>{
-              return({value:item.uid,number:number++})
+              return item;
             });
             resolve(data);
           } else {

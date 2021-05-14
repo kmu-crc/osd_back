@@ -248,8 +248,10 @@ exports.myPage = (req, res, next) => {
   };
   function getRequestDesignerCount(data) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT COUNT(*) AS 'requestDesigner_count' FROM market.request R
-      WHERE R.type='designer' AND R.client_id=${id};`;
+      const sql = `SELECT COUNT(*) AS 'requestDesigner_count' FROM market.request Q
+      WHERE group_id IN
+        (SELECT DISTINCT group_id FROM market.request Q 
+              WHERE(client_id = ${id} OR expert_id = ${id}) AND Q.type LIKE 'designer' AND Q.status NOT LIKE 'normal');`;
       connection.query(sql, (err, row) => {
         if (!err) {
           data.allCount = {...data.allCount,requestDesigner_count:row[0].requestDesigner_count};
@@ -262,8 +264,10 @@ exports.myPage = (req, res, next) => {
   };
   function getRequestMakerCount(data) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT COUNT(*) AS 'requestMaker_count' FROM market.request R
-      WHERE R.type='maker' AND R.client_id=${id};`;
+      const sql = `SELECT COUNT(*) AS 'requestMaker_count' FROM market.request Q
+      WHERE group_id IN
+        (SELECT DISTINCT group_id FROM market.request Q 
+              WHERE(client_id = ${id} OR expert_id = ${id}) AND Q.type LIKE 'maker' AND Q.status NOT LIKE 'normal');`;
       connection.query(sql, (err, row) => {
         if (!err) {
           data.allCount = {...data.allCount,requestMaker_count:row[0].requestMaker_count};

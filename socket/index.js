@@ -7,17 +7,20 @@ const { SendMsg, CheckOpponentConnected } = require("./Chatting");
 const { WServer } = require("../bin/www");
 
 const io = socketIO(WServer, {
-  pingTimeout: 5000,
+	//path : '/socket.io',
+	//origins: ["http://localhost:5000"],
+  	pingTimeout: 5000,
 });
 let sockets = [];
 
 function SocketConnection() {
   // This is what the socket.io syntax is like, we will work this later
   io.on("connection", socket => {
-    //console.log("New client connected");
     sockets.push(socket);
+	socket.on("INIT", uid => {
+    	console.log("socket", uid, socket.id);
+	});
     // socket.on("INIT", (uid) => {
-    //   //console.log("socket", uid, socket.id);
     //   connection.query(`UPDATE market.user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, rows) => {
     //     if (!err) {
     //       // GetAlarm(socket.id, uid, io);
@@ -104,7 +107,7 @@ function SocketConnection() {
     });
     //ALARM
     socket.on("INIT", (uid) => {
-      //console.log("socket", uid, socket.id);
+      console.log("socket", uid, socket.id);
       connection.query(`UPDATE market.user SET ? WHERE uid=${uid}`, { socket_id: socket.id }, (err, _) => {
         if (!err) {
           SendAlarm2({ io: io, socket: socket.id, user_id: uid });
@@ -175,7 +178,7 @@ const SendAlarmOnLive = obj => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {
-            console.log("socket id:", row[0].socket_id);
+            console.log("socket id:", row[0], row[0].socket_id);
             resolve(row[0] ? row[0].socket_id : null);
           } else {
             console.error(err);
@@ -185,6 +188,7 @@ const SendAlarmOnLive = obj => {
       );
     });
   };
+  console.log(":::",obj);
   getSocketId(obj.user_id)
     .then(socket =>
       SendAlarm2({ user_id: obj.user_id, socket: socket, io: io }));

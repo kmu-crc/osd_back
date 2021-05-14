@@ -2,17 +2,24 @@ const connection = require("../../configs/connection");
 // const insertThumbnail = require("../../middlewares/insertThumbnail");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 const { createImages } = require("../../middlewares/createImages");
-const { createListDB } = require("./itemList");
+const { createListHeader, createListDB } = require("./itemList");
 const { createCardDB, createContents } = require("./itemCard");
 const fs = require("fs");
 
+const getTemplateStep = (type) => {
+	const T = {
+	"fashion":[{ order: 0, title: "Ideation" }, { order: 1, title: "Purpose" }, { order: 2, title: "Design" }, { order: 3, title: "Mock-up" }, { order: 4, title: "Establish" },],
+	"software":[{ order: 0, title: "기획" }, { order: 1, title: "요구사항 분석" }, { order: 2, title: "소프트웨어 설계" }, { order: 3, title: "시스템 구현" }, { order: 4, title: "시스템 테스트 및 평가" },],
+	"engineering":[{ order: 0, title: "기획" }, { order: 1, title: "시스템 분석" }, { order: 2, title: "시스템 설계" }, { order: 3, title: "시스템 구현" }, { order: 4, title: "시스템 테스트 및 평가" },],
+	};
+	return T[type];
+};
+const LECTURE_ITEM = 8;
+
 exports.deleteItem = async (req, res, next) => {
   const itemId = req.params.id;
-  // console.log("deleteItem", itemId);
   const deleteItemDB = () => {
-    // console.log("deleteItemDB");
     return new Promise((resolve, reject) => {
-      // console.log("promise");
       const sql = `UPDATE market.item SET visible=0 WHERE uid = ${itemId}`;
       connection.query(sql, (err, rows) => {
         if (!err && rows) {
@@ -38,14 +45,18 @@ exports.deleteItem = async (req, res, next) => {
 };
 
 exports.updateItem = async (req, res, next) => {
+
   const itemId = req.params.id;
   console.log(req.body);
+
   const basic = {
     title: req.body.title,
     tag: (typeof req.body.tag === "string") ? req.body.tag : req.body.tag.join(",") || "",
     category_level1: req.body.category1,
     category_level2: req.body.category2,
+    category_level3: req.body.category3,
     private: req.body.additional.public === "아니오" ? 1 : 0,
+	is_problem: req.body.is_problem,
   };
   const additional = {
     price: req.body.additional.price,
@@ -73,7 +84,7 @@ exports.updateItem = async (req, res, next) => {
   const updateItemDetailDB = data => {
     console.log("UpdateItemDetailDB", data);
     return new Promise((resolve, reject) => {
-      const sql = `UPDATE market.\`item-detail\` SET ? WHERE \`item-id\`=${itemId}`
+      const sql = `UPDATE market.item_detail SET ? WHERE \`item-id\`=${itemId}`
       connection.query(sql, data, (err, rows) => {
         if (!err && rows) {
           resolve(true);
@@ -160,6 +171,18 @@ exports.updateItem = async (req, res, next) => {
     .catch(error);
 };
 
+/* { 
+  title: 'xcvb', tag: [], category1: -1, category2: -1, category3: -1, is_problem: 0, 
+  itemType: 8, type: 'project', private: 0,
+   additional:
+    { description: null, price: 4000000, max_students: 1, recruit_unlimited: false, recruit_always: false,
+      start_date: '2021-04-12', end_date: '2021-04-15', day_date: 4 },
+   content: [],
+   step:
+    [ { order: 0, title: 'Ideation' }, { order: 1, title: 'Purpose' }, { order: 2, title: 'Design' }, { order: 3, title: 'Mock-up' }, { order: 4, title: 'Establish' } ],
+   step2:
+    [ { order: 0, title: '기획' }, { order: 1, title: '요구사항 분석' }, { order: 2, title: '소프트웨어 설계' }, { order: 3, title: '시스템 구현' }, { order: 4, title: '시스템 테스트 및 평가' } ],
+   } */
 exports.createItem = async (req, res, next) => {
   const userId = req.decoded.uid;
 
@@ -170,6 +193,8 @@ exports.createItem = async (req, res, next) => {
     tag: req.body.tag ? req.body.tag.join(',') : "",
     category_level1: req.body.category1,
     category_level2: req.body.category2,
+    category_level3: req.body.category3,
+    is_problem: req.body.is_problem === 1 || req.body.is_problem === "1" ? 1 : 0,
     private: req.body.additional.public === "아니오" ? 1 : 0,
   };
   const additional = {
@@ -183,26 +208,18 @@ exports.createItem = async (req, res, next) => {
   const members = req.body.additional.members ? [...req.body.additional.members] : null;
   const { content } = req.body;
   const { step } = req.body;
+  const { step2 } = req.body;
 
   // ITEM DB
   const insertItemDetailDB = data => {
     console.log("insertItemDetailDB", data);
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO market.\`item-detail\`
-      (\`item-id\`, \`type\`, \`description\`, \`price\`,
-        \`public\`, \`contact-type\`, \`selling-type\`, \`list-id\`) 
-      VALUES(
-        ${data.itemId}, ${data.type}, "${data.description}", ${parseInt(data.price, 10)}, 
-        ${data.public ? data.public === '예' ? '\'yes\'' : '\'no\'' : null},
-        ${data.contactType ? data.contactType === '온라인' ? '\'on\'' : '\'off\'' : null},
-        ${data.sellingType ? data.sellingType === '양도' ? '\'assginment\'' : data.sellingType === '독점 사용권' ? '\'monopoly\'' : '\'normal\'' : null},
-        ${data.listId || null}
-    )`;
+      const sql = `INSERT INTO market.item_detail (\`item-id\`, \`type\`, \`description\`, \`price\`, \`public\`, \`contact-type\`, \`selling-type\`, \`list-id\`, \`max_students\`, \`recruit_unlimited\`, \`start_date\`, \`end_date\`) VALUES( ${data.itemId}, ${data.type}, "${data.description}", ${parseInt(data.price, 10)}, ${data.public ? data.public === '예' ? '\'yes\'' : '\'no\'' : null}, ${data.contactType ? data.contactType === '온라인' ? '\'on\'' : '\'off\'' : null}, ${data.sellingType ? data.sellingType === '양도' ? '\'assginment\'' : data.sellingType === '독점 사용권' ? '\'monopoly\'' : '\'normal\'' : null}, ${data.listId || null} , ${data.max_students || 0}, ${data.recruit_unlimited}, ${data.start_date}, ${data.end_date})`;
       connection.query(sql, (err, rows) => {
         if (!err) {
           resolve(data.itemId);
         } else {
-          console.log("err", err);
+          console.error("err", err);
           reject(err);
         }
       })
@@ -257,17 +274,16 @@ exports.createItem = async (req, res, next) => {
         .catch(err => reject(err))
     })
   }
-  const insertSteps = (id, steps) => {
-    console.log("insertSteps", id, steps);
+  const insertSteps = (id, steps, type) => {
     return new Promise((resolve, reject) => {
       if (steps.length === 0) resolve(id);
-      // type, userId, content_id, title, order //
+
       Promise.all(
         steps.map(step => {
           new Promise(async (resolve, reject) => {
             if (step) {
               const obj = {
-                type: "item", user_id: userId, content_id: id, title: step.title, order: step.uid
+                type: type, user_id: userId, content_id: id, title: step.title, order: step.uid
               }
               await createListDB(obj)
                 .then(listId => {
@@ -286,6 +302,48 @@ exports.createItem = async (req, res, next) => {
           });
         })
       )
+        .then(resolve(id))
+        .catch(err => reject(err));
+    });
+  }
+  const insertSteps2 = (header, id, steps) => {
+    return new Promise((resolve, reject) => {
+      if (steps.length === 0) resolve(id);
+
+      Promise.all(
+        steps.map(step => {
+          new Promise(async (resolve, reject) => {
+            if (step) {
+              const obj = { list_header_id: header, user_id: userId, content_id: id, title: step.title, order: step.uid };
+
+	      await createListDB(obj).then(listId => {
+                  step.cards.map(async (card, index) => {
+                    await createCardDB({
+                      user_id: userId, list_id: listId, order: index,
+                      title: card.title, description: card.content,
+                    })
+                      .then(cardId => createContents(userId, cardId, card.contents))
+                  });
+                })
+                .then(resolve())
+                .catch(err => reject(err));
+            }
+            resolve();
+          });
+        })
+      )
+        .then(resolve(id))
+        .catch(err => reject(err));
+    });
+  }
+
+  const insertContent2 = (header, id, content) => {
+    console.log("insertContent2", header, id, content);
+    return new Promise(async (resolve, reject) => {
+      if (content.length === 0) resolve(id);
+      await createListDB({ list_header_id: header, user_id: userId, content_id: id, order: 0 })
+        .then(listId => createCardDB({ user_id: userId, list_id: listId, order: 0 }))
+        .then(cardId => createContents(userId, cardId, content))
         .then(resolve(id))
         .catch(err => reject(err));
     });
@@ -356,15 +414,56 @@ exports.createItem = async (req, res, next) => {
   createThumbnails(file)
     // item
     .then(thumbnail => insertItemDB({ ...basic, thumbnail_id: thumbnail }))
-    // item-detail
+    // item_detail
     .then(id => insertItemDetailDB({ ...additional, itemId: id }))
-    // item-detail-image-list
+    // item_detail-image-list
     // .then(id =>
     // (additional.type === 7)
     // ? insertImageList(id, additional.imageList)
     // : id)
+
     // steps or content
-    .then(id => basic.upload_type === 'blog' ? insertContent(id, content) : insertSteps(id, step))
+    // first step add
+    // second step add 
+    .then(id => {
+
+	//	
+	if(req.body.itemType === LECTURE_ITEM){
+		const { headers } = req.body;
+		headers && headers.length > 0 && 
+		headers.map((head, index) => {
+			const steps = getTemplateStep(head.template);
+			createListHeader({ 
+				type: head.is_practice ? "practice" : "item", 
+				name: head.name,
+				content_id: id, 
+				editor_type: basic.upload_type
+			}).then(head => insertSteps2(head, id, steps))
+		});
+	}
+	//
+	else {
+		if(basic.upload_type === "blog") {
+		console.log("content added");
+		createListHeader({ type:"item", content_id: id, editor_type: basic.upload_type })
+		.then(header => insertContent2(header, id, content))
+		}
+
+		if(step && step.length > 0) { 
+		console.log("step added");
+		createListHeader({ type:"item", name: req.body.listname1, content_id: id, editor_type: "project" })
+		.then(header => insertSteps2(header, id, step))
+		}
+
+		if(step2 && step2.length > 0) { 
+		console.log("step2 added");
+		createListHeader({ type:"practice", name: req.body.listname2, content_id: id, editor_type: "project" })
+		.then(header => insertSteps2(header, id, step2))
+		}
+	}
+
+	return id;
+	})
     // leader
     .then(id => insertLeader(id))
     // members

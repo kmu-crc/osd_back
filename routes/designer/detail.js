@@ -41,7 +41,7 @@ exports.getDesignerReview = (req, res, next) => {
             WHERE item_id IN 
               (SELECT uid FROM market.item WHERE user_id = ${id}) 
           AND sort_in_group LIKE 0
-        LIMIT ${page * 10}, 10`;
+        LIMIT ${page * 4}, 4`;
       connection.query(sql, (err, row) => {
         if (!err) {
           resolve(row);

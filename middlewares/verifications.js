@@ -67,8 +67,10 @@ exports.isUserDetail = (userId) => {
       connection.query(`SELECT count(uid) FROM market.user WHERE uid='${userId}'`, (err, rows) => {
       if (!err) {
         if (rows[0]["count(uid)"] === 0) {
+          console.log("false");
           resolve(false);
         } else {
+          console.log("true");
           resolve(true);
         }
       } else {

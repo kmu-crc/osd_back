@@ -6,7 +6,7 @@ const { createThumbnails } = require("../../middlewares/createThumbnails");
 const {/* S3SourcesDetele, */ S3Upload } = require("../../middlewares/S3Sources");
 
 exports.itemDetail = (req, res, next) => {
-  // console.log("item-detail");
+  // console.log("item_detail");
   const itemId = req.params.id;
   if (req.decoded !== null) {
     loginId = req.decoded.uid;
@@ -60,7 +60,7 @@ exports.itemDetail = (req, res, next) => {
   function getAdditional(id) {
     return new Promise((resolve, reject) => {
       connection.query(`
-      SELECT * FROM market.\`item-detail\` 
+      SELECT * FROM market.item_detail
       WHERE \`item-id\`=${id}`, (err, result) => {
         if (!err) {
           resolve(result[0]);
@@ -153,7 +153,7 @@ exports.itemDetail = (req, res, next) => {
   // get list and card
   function getListId(id) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT uid FROM market.list WHERE content_id=${id} AND type="item"`
+      const sql = `SELECT uid FROM market.list WHERE content_id=${id} `
       // console.log(sql);
       connection.query(sql, (err, rows) => {
         if (!err && rows) {
@@ -192,6 +192,20 @@ exports.itemDetail = (req, res, next) => {
       });
     });
   }
+  const convert = (raw) => JSON.parse(JSON.stringify(raw));
+  const header = (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM market.list_header WHERE content_id = ?";
+      connection.query(sql, id, (err, row)=>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(convert(row));
+        }
+      });
+    });
+  };
+
   //finish
   function respond(data) {
     res.status(200).json({ ...data, success: true });
@@ -231,7 +245,6 @@ exports.itemDetail = (req, res, next) => {
       return getUserThumbnail(data.user_id);
     })
     .then(thumbnail => {
-      console.log("WHO", thumbnail);
       data = { ...data, who: thumbnail };
       return getImageList(itemId);
     })
@@ -253,6 +266,11 @@ exports.itemDetail = (req, res, next) => {
     })
     .then(members => {
       data = { ...data, members: members };
+      return header(itemId);
+    })
+    .then(headers => {
+	    //console.log(headers);
+      data = { ...data, headers: headers };
       return data;
     })
     .then(respond)
@@ -266,7 +284,72 @@ exports.itemStep = (req, res, next) => {
   function getList(id) {
     const p = new Promise((resolve, reject) => {
       let arr = [];
-      const sql = `SELECT * FROM market.list L WHERE L.content_id=${id} AND L.type="item" ORDER BY L.order ASC`;
+      const sql = `SELECT * FROM market.list L WHERE L.content_id=${id}  ORDER BY L.order ASC`;
+      connection.query(sql, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          for (var i = 0, l = row.length; i < l; i++) {
+            arr.push(new Promise((resolve, reject) => {
+              let listData = row[i];
+              const sql = `
+              SELECT 
+                C.uid, C.user_id, U.nick_name, 
+                C.list_id, C.order, 
+                T.m_img AS 'thumbnail', 
+                C.title, C.description, 
+                C.create_time, C.update_time,
+                C.private
+              FROM market.card C
+                LEFT JOIN market.user U ON U.uid = C.user_id
+                LEFT JOIN market.thumbnail T ON T.uid = C.thumbnail
+              WHERE list_id like ${listData.uid}`
+              connection.query(sql, (err, row) => {
+                if (!err && row.length === 0) {
+                  listData.cards = null;
+                  resolve(listData);
+                } else if (!err && row.length > 0) {
+                  listData.cards = row;
+                  resolve(listData);
+                } else {
+                  reject(err);
+                }
+              });
+            }));
+          }
+          Promise.all(arr).then(result => {
+            resolve(result);
+          });
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  // respond
+  function respond(data) {
+    // console.log(data);
+    res.status(200).json({ success: true, contents: data });
+  };
+  // error
+  function error(err) {
+    res.status(500).json({ success: false, error: err });
+  };
+
+  getList(itemId)
+    .then(respond)
+    .catch(error);
+};
+exports.itemStep2 = (req, res, next) => {
+  const itemId = req.params.id;
+
+  // board 목록 가져오기
+  function getList(id) {
+    const p = new Promise((resolve, reject) => {
+      let arr = [];
+      const sql = `SELECT * FROM market.list L WHERE L.content_id=${id} ORDER BY L.order ASC`;
       connection.query(sql, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
@@ -325,6 +408,74 @@ exports.itemStep = (req, res, next) => {
     .catch(error);
 };
 
+exports.itemStep3 = (req, res, next) => {
+  const { id : listId } = req.params;
+
+  // board 목록 가져오기
+  function getList(id) {
+    const p = new Promise((resolve, reject) => {
+      let arr = [];
+      const sql = `SELECT * FROM market.list L WHERE L.list_header_id = ${id}  ORDER BY L.order ASC`;
+      connection.query(sql, (err, row) => {
+        if (!err && row.length === 0) {
+          resolve(null);
+        } else if (!err && row.length > 0) {
+          for (var i = 0, l = row.length; i < l; i++) {
+            arr.push(new Promise((resolve, reject) => {
+              let listData = row[i];
+              const sql = `
+              SELECT 
+                C.uid, C.user_id, U.nick_name, 
+                C.list_id, C.order, 
+                T.m_img AS 'thumbnail', 
+                C.title, C.description, 
+                C.create_time, C.update_time,
+                C.private
+              FROM market.card C
+                LEFT JOIN market.user U ON U.uid = C.user_id
+                LEFT JOIN market.thumbnail T ON T.uid = C.thumbnail
+              WHERE list_id like ${listData.uid}`
+              connection.query(sql, (err, row) => {
+                if (!err && row.length === 0) {
+                  listData.cards = null;
+                  resolve(listData);
+                } else if (!err && row.length > 0) {
+                  listData.cards = row;
+                  resolve(listData);
+                } else {
+                  reject(err);
+                }
+              });
+            }));
+          }
+          Promise.all(arr).then(result => {
+            resolve(result);
+          });
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return p;
+  };
+
+  // respond
+  function respond(data) {
+    // console.log(data);
+    res.status(200).json({ success: true, contents: data });
+  };
+  // error
+  function error(err) {
+    res.status(500).json({ success: false, error: err });
+  };
+
+  getList(listId)
+    .then(respond)
+    .catch(error);
+};
+
+
+
 exports.itemCard = (req, res, next) => {
   const cardId = req.params.card;
   function getContents(cardId) {
@@ -363,7 +514,7 @@ exports.HaveInItem = (req, res, next) => {
   const id = req.params.id
   const page = req.params.page
   let sql = `
-  SELECT I.uid, U.nick_name, I.thumbnail_id, I.user_id, I.title,I.category_level1, I.category_level2,
+  SELECT I.uid, U.nick_name, I.thumbnail_id, I.user_id, I.title,I.category_level1, I.category_level2, I.category_level3,
   I.create_time, I.update_time ,T.m_img FROM market.item I
   LEFT JOIN market.thumbnail T ON T.uid = I.thumbnail_id
   LEFT JOIN market.user U ON U.uid = I.user_id
@@ -426,7 +577,7 @@ exports.updateCardSource = async (req, res, next) => {
       let pArr = [];
       if (content.length === 0) resolve([]);
       for (let item of content) {
-        if (item.type === "FILE") {
+        if (item.type === "FILE" && item.fileUrl) {
           const fileStr = item.fileUrl.split("base64,")[1];
           let data = await WriteFile(fileStr, item.file_name);
           if (item.file_type === "video") {

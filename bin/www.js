@@ -20,8 +20,9 @@ app.set("port", port);
 var server = http.createServer(app);
 exports.WServer = server;
 
-var { SocketConnection } = require("../socket");
+var {  SocketConnection } = require("../socket");
 SocketConnection();
+
 /**
  * Listen on provided port, on all network interfaces.
  */

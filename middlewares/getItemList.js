@@ -78,7 +78,7 @@ const getItemList = (req, res, next) => {
   // 아이템 가격 가져오는 함수
   function getPrice(data) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT price FROM market.\`item-detail\` WHERE \`item-id\`=${data.uid};`;
+      const sql = `SELECT price FROM market.item_detail WHERE \`item-id\`=${data.uid};`;
       connection.query(sql, (err, row) => {
         if (!err) {
           resolve(row[0] ? row[0].price : null);

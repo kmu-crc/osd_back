@@ -18,7 +18,7 @@ exports.GetReview = (req, res, next) => {
                     LEFT JOIN market.item I ON Q.item_id=I.uid
                 WHERE Q.item_id=${id}
                 ORDER BY group_id DESC, sort_in_group ASC
-                LIMIT ${page * 10}, 10`;
+                LIMIT ${page * 4}, 4`;
 
             connection.query(sql, (err, row) => {
                 if (!err) {

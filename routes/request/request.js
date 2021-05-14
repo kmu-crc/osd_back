@@ -6,9 +6,10 @@ exports.GetRequest = (req, res, next) => {
   const page = req.params.page;
   const cate1 = req.params.cate1 === 'undefined' || req.params.cate1 === 'null' ? null : req.params.cate1;
   const cate2 = req.params.cate2 === 'undefined' || req.params.cate2 === 'null' ? null : req.params.cate2;
+  const cate3 = req.params.cate3 === 'undefined' || req.params.cate3 === 'null' ? null : req.params.cate2;
   const sort = req.params.sort === 'undefined' || req.params.sort === 'null' ? 'update' : req.params.sort;
   const keyword = req.params.keyword === 'undefined' || req.params.keyword === 'null' ? null : req.params.keyword;
-  console.log(`GET REQUEST / list / ${type} / ${page} / ${cate1} / ${cate2} / ${sort} / ${keyword}`);
+  console.log(`GET REQUEST / list / ${type} / ${page} / ${cate1} / ${cate2} /${cate3} / ${sort} / ${keyword}`);
 
   const getRequest = () => {
     return new Promise((resolve, reject) => {
@@ -615,7 +616,7 @@ exports.GetMyMakerRequest = (req, res, next) => {
         `SELECT * FROM market.request Q
       WHERE group_id IN
         (SELECT DISTINCT group_id FROM market.request Q 
-              WHERE(client_id = ${ id} OR expert_id = ${id}) AND Q.type LIKE 'maker' AND Q.status NOT LIKE 'normal')
+              WHERE(client_id = ${id} OR expert_id = ${id}) AND Q.type LIKE 'maker' AND Q.status NOT LIKE 'normal')
       LIMIT ${ page * 10}, 10`
       connection.query(sql, (err, row) => {
         if (!err) {

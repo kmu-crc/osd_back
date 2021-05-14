@@ -125,23 +125,26 @@ const getDesignerList = (req, res, next) => {
   // 카테고리 이름 가져오는 함수
   function getCategory(data) {
     return new Promise((resolve, reject) => {
-      if (!data.category_level1 && !data.category_level2) {
-        resolve(null);
-      }
-      console.log("data.category_level1:::::",data.category_level1,data.category_level2);
-      const sql = data.category_level2 !=null && data.category_level2>0
-        ? `SELECT name FROM market.category_level2 WHERE parents_id=${data.category_level1} AND value=${data.category_level2}`
-        : `SELECT name FROM market.category_level1 WHERE uid=${data.category_level1}`;
-      connection.query(sql, (err, row) => {
-        if (!err) {
-          console.log("data.category_level1:::::",sql,data.category_level2 ,(data.category_level2 != null ,data.category_level2 != "undefined",data.category_level2!==-1));
-          resolve(row[0] ? row[0]["name"] : null);
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
+	const { category_level1, category_level2, category_level3 } = data;
+
+	const sql = 
+		(category_level3)
+		? `SELECT name FROM market.category_level3 WHERE uid = ${category_level3}` 
+		: (category_level2)
+		? `SELECT name FROM market.category_level2 WHERE uid = ${category_level2}`
+		: (category_level1)
+		? `SELECT name FROM market.category_level1 WHERE uid = ${category_level1}`
+		: `SELECT " - " as name`
+	
+		connection.query(sql, (err, row) => {
+	        if (!err) {
+	          resolve(row[0] ? row[0]["name"] : null);
+	        } else {
+	          reject(err);
+	        }
+	      });
+	    });
+	};
 
   getDesignerList(sql)
     .then(data => res.status(200).json(data))

@@ -42,9 +42,8 @@ router.use("/payment", payment);
 router.use("/gallery", gallery);
 router.use("/upload", upload);
 
-// v0205
-// const category = require('./category');
-// router.use("/category", category);
+const devel = require('./devel');
+router.use("/devel", devel);
 
 module.exports = router;
 

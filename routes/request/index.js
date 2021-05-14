@@ -17,7 +17,7 @@ router.post("/comment-create/:id", auth, CreateComment);
 router.post("/create", auth, CreateRequest);
 router.post("/update/:id", auth, UpdateRequest);
 router.delete("/delete/:id", auth, deleteRequest);
-router.get("/list/:type/:page/:cate1?/:cate2?/:sort?/:keyword?", GetRequest);
+router.get("/list/:type/:page/:cate1?/:cate2?/:cate3?/:sort?/:keyword?", GetRequest);
 router.get("/designer-list/:id/:page/", GetDesignerRequest);
 router.get("/maker-list/:id/:page/", GetMakerRequest);
 router.get("/My-designer-list/:id/:page/", GetMyDesignerRequest);

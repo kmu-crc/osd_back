@@ -47,7 +47,7 @@ exports.updateGroup = (req, res, next) => {
     return new Promise((resolve, reject) => {
       let arr = req.body.itemList.map(item => {
         return new Promise(async (resolve, reject) => {
-          connection.query("INSERT INTO market.gallery_item SET ?", {gallery_id:id,item_id:item.value}, async (err, rows) => {
+          connection.query("INSERT INTO market.gallery_item SET ?", {gallery_id:id,item_id:item.uid}, async (err, rows) => {
             if (!err) {
               resolve(rows.insertId);
             } else {

@@ -9,7 +9,7 @@ const signIn = (req, res, next) => {
   let userInfo = null;
   const verificationEmail = (email) => {
     const p = new Promise((resolve, reject) => {
-      const sql = `SELECT * FROM market.user WHERE email='${email}'`
+      const sql = `SELECT * FROM market.user WHERE email='${email}';`
       console.log(sql);
       connection.query(sql, (err, rows) => {
         if (!err) {
@@ -18,6 +18,7 @@ const signIn = (req, res, next) => {
             reject(errorMessage);
             // res.status(200).json({success: false, isMember: false, isPassword: false});
           } else if (rows[0].email === email) {
+            console.log(rows)
             userInfo = rows[0];
             resolve(rows);
           }
@@ -68,8 +69,10 @@ const signIn = (req, res, next) => {
           subject: "userInfo"
         }, (err, token) => {
           if (err) {
+            console.log(err);
             reject(err);
           } else {
+            console.log("ok")
             resolve(token);
           }
         });
@@ -78,6 +81,7 @@ const signIn = (req, res, next) => {
   };
 
   const respond = (data) => {
+    console.log("?",data);
     res.status(200).json({
       success: true,
       token: data,
