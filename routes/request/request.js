@@ -503,21 +503,19 @@ exports.GetMyDesignerRequest = (req, res, next) => {
 
   const getRequest = () => {
     return new Promise((resolve, reject) => {
-      const sql =
-        `SELECT * FROM market.request
-      WHERE group_id IN
-        (SELECT DISTINCT group_id FROM market.request Q 
-              WHERE(client_id = ${ id} OR expert_id = ${id}) AND Q.type LIKE 'designer' AND Q.status NOT LIKE 'normal')
-      LIMIT ${ page * 10}, 10`;
-      connection.query(sql, (err, row) => {
-        if (!err) {
-          resolve(row);
-        } else {
-          reject(err);
-        }
-      });
-    });
-  };
+const sql =
+`SELECT @REQ := GROUP_CONCAT(DISTINCT group_id ORDER BY create_time DESC) FROM market.request WHERE (client_id=${id} OR expert_id=${id}) AND type="designer" AND status <> "normal";
+SELECT * FROM market.request WHERE group_id IN (SELECT DISTINCT group_id FROM request WHERE (client_id=${id} OR expert_id=${id}) AND type="designer" AND status <> "normal" ORDER BY create_time DESC) ORDER BY FIND_IN_SET(group_id, @REQ) LIMIT ${page*10}, 10;`
+	connection.query(sql, (err, row) => {
+		if (!err && row.length > 1) {
+			resolve(row[1])
+		} else {
+			console.error(err);
+			reject(err)
+		}
+	})
+    })
+  }
   const getUserName = request => {
     return new Promise((resolve, reject) => {
       const sql =
@@ -599,7 +597,7 @@ exports.GetMyDesignerRequest = (req, res, next) => {
       return data;
     })
     .then(success)
-    .catch(failure);
+    .catch(e=>{ console.error("!", e); failure(e)});
 };
 
 
@@ -613,14 +611,11 @@ exports.GetMyMakerRequest = (req, res, next) => {
   const getRequest = () => {
     return new Promise((resolve, reject) => {
       const sql =
-        `SELECT * FROM market.request Q
-      WHERE group_id IN
-        (SELECT DISTINCT group_id FROM market.request Q 
-              WHERE(client_id = ${id} OR expert_id = ${id}) AND Q.type LIKE 'maker' AND Q.status NOT LIKE 'normal')
-      LIMIT ${ page * 10}, 10`
+`SELECT @REQ := GROUP_CONCAT(DISTINCT group_id ORDER BY create_time DESC) FROM market.request WHERE (client_id=${id} OR expert_id=${id}) AND type="maker" AND status <> "normal";
+SELECT * FROM market.request WHERE group_id IN (SELECT DISTINCT group_id FROM request WHERE (client_id=${id} OR expert_id=${id}) AND type="maker" AND status <> "normal" ORDER BY create_time DESC) ORDER BY FIND_IN_SET(group_id, @REQ) LIMIT ${page*10}, 10;`
       connection.query(sql, (err, row) => {
-        if (!err) {
-          resolve(row);
+        if (!err && row.length > 1) {
+          resolve(row[1]);
         } else {
           reject(err);
         }

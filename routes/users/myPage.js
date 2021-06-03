@@ -246,6 +246,24 @@ exports.myPage = (req, res, next) => {
       });
     });
   };
+  function getMyProjectCount(data) {
+    return new Promise((resolve, reject) => {
+      const sql = `
+SELECT COUNT(*) AS 'joinProject_count' FROM market.item I 
+LEFT JOIN market.item_detail D ON item_id = I.uid 
+WHERE I.uid IN 
+	(SELECT DISTINCT item_id FROM market.member M WHERE M.user_id=${id}) AND D.type=1`;
+	connection.query(sql, (err, row) => {
+        if (!err) {
+          data.allCount = {...data.allCount,joinProject_count:row[0].joinProject_count};
+          resolve(data);
+        } else {
+		console.error(err)
+          reject(err);
+        }
+      });
+    });
+  };
   function getRequestDesignerCount(data) {
     return new Promise((resolve, reject) => {
       const sql = `SELECT COUNT(*) AS 'requestDesigner_count' FROM market.request Q
@@ -291,6 +309,7 @@ exports.myPage = (req, res, next) => {
     .then(getLikeItemCount)
     .then(getLikeDesigner)
     .then(getLikeMaker)
+  	.then(getMyProjectCount)
     .then(getRequestDesignerCount)
     .then(getRequestMakerCount)
     .then(getRegisterItemCount)

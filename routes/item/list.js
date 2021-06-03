@@ -10,9 +10,10 @@ exports.itemList = (req, res, next) => {
   const basic = `
     SELECT 
       I.uid, I.user_id, I.title, I.thumbnail_id, I.create_time, I.update_time, 
-      I.category_level1, I.category_level2, I.category_level3, I.private, D.type
+      I.category_level1, I.category_level2, I.category_level3, I.private, D.type, S.status
         FROM market.item I
-        LEFT JOIN market.item_detail D ON I.uid=D.\`item-id\`
+		LEFT JOIN market.item_status S ON I.uid=S.item_id
+        LEFT JOIN market.item_detail D ON I.uid=D.item_id
         LEFT JOIN (SELECT to_id,COUNT(*) AS count FROM market.like L WHERE L.type=\"item\" GROUP BY to_id,L.type)AS totallike ON totallike.to_id=I.uid
         `;
       
@@ -47,7 +48,7 @@ exports.getItemCount = (req, res, next) => {
     SELECT 
       COUNT(*) AS count
         FROM market.item I
-        LEFT JOIN market.item_detail D ON I.uid=D.\`item-id\`
+        LEFT JOIN market.item_detail D ON I.uid=D.item_id
         LEFT JOIN (SELECT to_id,COUNT(*) AS count FROM market.like L WHERE L.type=\"item\" GROUP BY to_id,L.type)AS totallike ON totallike.to_id=I.uid
         `;
       
@@ -142,13 +143,15 @@ exports.getUploadItemList = (req, res, next) => {
       T.m_img,D.type
         FROM market.item I 
       LEFT JOIN market.thumbnail T ON I.thumbnail_id = T.uid
-      LEFT JOIN market.item_detail D ON I.uid=D.\`item-id\`
+      LEFT JOIN market.item_detail D ON I.uid=D.item_id
       WHERE I.user_id = ${id}
+	  ORDER BY I.create_time DESC
       LIMIT ${page * 6}, 6`;
 
   req.sql = sql;
   next();
 }
+
 exports.getMyProjectItemList = (req, res, next) => {
   const uploadtype="project";
   const id = req.params.id;
@@ -159,7 +162,7 @@ exports.getMyProjectItemList = (req, res, next) => {
       T.m_img,D.type
         FROM market.item I 
       LEFT JOIN market.thumbnail T ON I.thumbnail_id = T.uid
-      LEFT JOIN market.item_detail D ON I.uid=D.\`item-id\`
+      LEFT JOIN market.item_detail D ON I.uid=D.item_id
       WHERE I.uid IN (SELECT DISTINCT item_id FROM market.member M WHERE M.user_id=${id})
       AND D.type=1
       LIMIT ${page * 10}, 10`;
@@ -168,11 +171,9 @@ exports.getMyProjectItemList = (req, res, next) => {
   next();
 }
 
-
 exports.createItemList = (req, res, next) => {
   const user_id = req.decoded.uid;
   const data = { ...req.body, user_id: user_id };
-  //data = { title: _data.title, order: _data.where, type: "item", content_id: this.props.item["item-id"], }
   const createList = (obj) => {
     return new Promise((resolve, reject) => {
       connection.query("INSERT INTO market.list SET ?", obj, (err, rows) => {
@@ -213,6 +214,7 @@ exports.deleteItemList = (req, res, next) => {
     .then(respond)
     .catch(error)
 };
+
 exports.updateListHeader = (req, res, next) => {
 	const id = req.params.id;
 	const data = { ...req.body};
@@ -236,6 +238,7 @@ exports.updateListHeader = (req, res, next) => {
 	.then(respond)
 	.catch(error);
 };
+
 exports.updateItemList = (req, res, next) => {
   const list_id = req.params.list_id;
   const data = { ...req.body };

@@ -10,6 +10,21 @@ const executor = sql => new Promise((resolve, reject) => connection.query(sql, (
 const executor2 = (sql, obj) => new Promise((resolve, reject) => connection.query(sql, obj, (E, R) => E ? reject(E) : resolve(conversion(R))));
 
 // routers
+
+
+router.get("/gapi/:docid", (req, res, next) => {
+	const fs = require("fs");
+	const readline = require("readline");
+	const { google } = require("googleapis");
+	
+});
+
+
+
+
+
+
+
 router.post("/test/:id",auth, (req, res, next) => {
 	const user_id = req.decoded.uid;
 	const item_id = req.body.item;

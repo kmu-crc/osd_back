@@ -2,6 +2,7 @@ const connection = require("../configs/connection");
 
 const getItemList = (req, res, next) => {
   const sql = req.sql;
+console.log(sql);
   function getList(sql) {
     return new Promise((resolve, reject) => {
       let arr = [];
@@ -78,7 +79,7 @@ const getItemList = (req, res, next) => {
   // 아이템 가격 가져오는 함수
   function getPrice(data) {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT price FROM market.item_detail WHERE \`item-id\`=${data.uid};`;
+      const sql = `SELECT price FROM market.item_detail WHERE item_id=${data.uid};`;
       connection.query(sql, (err, row) => {
         if (!err) {
           resolve(row[0] ? row[0].price : null);

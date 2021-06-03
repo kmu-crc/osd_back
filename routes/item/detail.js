@@ -4,6 +4,14 @@ const { createCardDB, } = require("./itemCard");
 const { createThumbnails } = require("../../middlewares/createThumbnails");
 // const { insertSource } = require("../../middlewares/insertSource");
 const {/* S3SourcesDetele, */ S3Upload } = require("../../middlewares/S3Sources");
+const { executor, executorX } = require("../../middlewares/dbtools")
+
+exports.additionItemDetail = (req, res, next) => {
+
+
+	res.status(200).json({success:true, data: res.detail})
+}
+
 
 exports.itemDetail = (req, res, next) => {
   // console.log("item_detail");
@@ -61,7 +69,7 @@ exports.itemDetail = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query(`
       SELECT * FROM market.item_detail
-      WHERE \`item-id\`=${id}`, (err, result) => {
+      WHERE item_id=${id}`, (err, result) => {
         if (!err) {
           resolve(result[0]);
         } else {
@@ -192,22 +200,17 @@ exports.itemDetail = (req, res, next) => {
       });
     });
   }
-  const convert = (raw) => JSON.parse(JSON.stringify(raw));
-  const header = (id) => {
-    return new Promise((resolve, reject) => {
-      const sql = "SELECT * FROM market.list_header WHERE content_id = ?";
-      connection.query(sql, id, (err, row)=>{
-        if (err) {
-          reject(err);
-        } else {
-          resolve(convert(row));
-        }
-      });
-    });
-  };
+ const header = (id) => executorX("SELECT * FROM market.list_header WHERE content_id = ?",id)
+ const itemStatus = (id) => executorX("SELECT status FROM market.item_status WHERE item_id = ?;", id)
+
+  //const specific = (id, type) => {
+  //  return new Promise
+  //}
 
   //finish
   function respond(data) {
+	//res.detail = data
+	//next()
     res.status(200).json({ ...data, success: true });
   }
   function error(err) {
@@ -269,10 +272,71 @@ exports.itemDetail = (req, res, next) => {
       return header(itemId);
     })
     .then(headers => {
-	    //console.log(headers);
       data = { ...data, headers: headers };
+	//  return itemStatus(itemId)
+	//})
+	//.then(itemStatus => {
+	//  data = { ...data, status: itemStatus}
       return data;
     })
+    .then(respond)
+    .catch(error);
+};
+
+exports.getItemReivew = (req, res, next) => {
+  const id = req.params.id;
+  const page = req.params.page || 0;
+
+  const getReview = () => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+        SELECT 
+          R.item_id, R.sort_in_group, R.user_id, R.payment_id, R.comment, R.score,R.create_time, R.thumbnail,
+          T.m_img, U.nick_name
+        FROM market.review R
+          LEFT JOIN market.item I ON I.uid = R.item_id
+          LEFT JOIN market.thumbnail T ON T.uid = I.thumbnail_id
+          LEFT JOIN market.user U ON U.uid = R.user_id
+        WHERE R.item_id=${id}
+        ORDER BY R.create_time DESC 
+        LIMIT ${page * 4}, 4`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          resolve(row);
+        } else {
+          reject(err);
+        }
+      })
+    });
+  }
+  const respond = data => { res.status(200).json({ success: true, data: data }) }
+  const error = err => { res.status(500).json({ success: false, data: err }) };
+  getReview()
+    .then(respond)
+    .catch(error);
+};
+
+exports.getItemReviewTotalCount = (req, res, next) => {
+  const id = req.params.id;
+
+  const getReview = () => {
+    return new Promise((resolve, reject) => {
+      const sql = `
+        SELECT COUNT(*) AS 'count' FROM market.review
+          WHERE item_id =${id}`;
+      connection.query(sql, (err, row) => {
+        if (!err) {
+          console.log("=====",row[0],row[0]['count']);
+          resolve(row[0] ? row[0]['count'] : 0);
+        } else {
+          reject(err);
+        }
+      })
+    });
+  }
+  const respond = total => { res.status(200).json({ success: true, data: total }) }
+  const error = err => { res.status(500).json({ success: false, data: err }) };
+  getReview()
     .then(respond)
     .catch(error);
 };
@@ -675,11 +739,11 @@ exports.updateCardSource = async (req, res, next) => {
   }
 
   const updateDB = async arr => {
-    //console.log("updatearr", arr);
+    console.log("updatearr", arr);
     let pArr = [];
     if (arr.length === 0) return Promise.resolve(true);
     for (let item of arr) {
-      //console.log("update", item);
+      console.log("update", item);
       let obj = {
         file_name: item.file_name,
         content: item.content,

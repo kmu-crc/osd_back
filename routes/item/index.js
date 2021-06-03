@@ -5,7 +5,7 @@ const tokenDecoded = require("../../middlewares/tokenDecoded");
 const getItemList = require("../../middlewares/getItemList");
 const insertThumbnail = require("../../middlewares/insertThumbnail");
 const { itemList, getTotalCount, getItemCount, getTopList, getUploadItemList, getMyProjectItemList, updateListHeader, updateItemList, deleteItemList, createItemList } = require("./list");
-const { itemDetail, itemCard, itemStep, itemStep2,itemStep3, HaveInItem, updateCardInfo, updateCardSource, createItemCard } = require("./detail");
+const { itemDetail, additionItemDetail, getItemReivew, getItemReviewTotalCount, itemCard, itemStep, itemStep2,itemStep3, HaveInItem, updateCardInfo, updateCardSource, createItemCard } = require("./detail");
 const { createItem, updateItem, deleteItem } = require("./create");
 const { updateItemContent, deleteItemCard } = require("./itemCard");
 const { GetQuestion, RemoveQuestion, CreateQuestion } = require("./itemQuestion");
@@ -87,6 +87,9 @@ router.get("/getUploadItemList/:id/:page", getUploadItemList, getItemList);
 // my project item list
 router.get("/getMyProjectItemList/:id/:page", getMyProjectItemList, getItemList);
 
+//review
+router.get("/get-review/:id/:page", getItemReivew);
+router.get("/get-review-count/:id", getItemReviewTotalCount);
 
 
 

@@ -161,16 +161,17 @@ exports.GetMyPayment = (req, res, next) => {
         return new Promise((resolve, reject) => {
             const sql =
                 `SELECT 
-                    Q.uid AS 'payment_id', Q.user_id, Q.item_id, Q.payment_detail, Q.payment_title, Q.payment_price AS 'price', Q.create_time,
+                    Q.uid AS 'payment_id', Q.user_id, Q.item_id, Q.payment_detail, Q.payment_title,Q.response_id, Q.payment_price AS 'price', Q.create_time,
                     U.nick_name,D.type
                 FROM market.payment Q
                     LEFT JOIN market.user U ON U.uid = Q.user_id 
-                    LEFT JOIN market.item_detail D ON Q.\`item_id\`=D.\`item-id\`
+                    LEFT JOIN market.item_detail D ON Q.\`item_id\`=D.item_id
                 WHERE Q.user_id = ${user_id} AND Q.item_id
                 ORDER BY create_time DESC
                 LIMIT ${page * 6}, 6`;//AND Q.review_id IS NULL 
             connection.query(sql, (err, row) => {
                 if (!err) {
+                    console.log(row);
                     resolve(row);
                 } else {
                     reject(err);
@@ -249,7 +250,7 @@ exports.GetMyRequestItem = (req, res, next) => {
         return new Promise((resolve, reject) => {
             const sql =
                 `SELECT 
-                    Q.uid AS 'payment_id', Q.user_id, Q.item_id, Q.payment_detail, Q.payment_title, Q.payment_price AS 'price', Q.create_time,
+                    Q.uid AS 'payment_id', Q.user_id, Q.item_id, Q.payment_detail, Q.payment_title,Q.response_id, Q.payment_price AS 'price', Q.create_time,
                     U.nick_name, true AS 'custom', Q.confirm AS isPurchased
                 FROM market.payment Q
                     LEFT JOIN market.user U ON U.uid = Q.user_id 

@@ -84,7 +84,7 @@ exports.updateItem = async (req, res, next) => {
   const updateItemDetailDB = data => {
     console.log("UpdateItemDetailDB", data);
     return new Promise((resolve, reject) => {
-      const sql = `UPDATE market.item_detail SET ? WHERE \`item-id\`=${itemId}`
+      const sql = `UPDATE market.item_detail SET ? WHERE item_id=${itemId}`
       connection.query(sql, data, (err, rows) => {
         if (!err && rows) {
           resolve(true);
@@ -214,7 +214,7 @@ exports.createItem = async (req, res, next) => {
   const insertItemDetailDB = data => {
     console.log("insertItemDetailDB", data);
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO market.item_detail (\`item-id\`, \`type\`, \`description\`, \`price\`, \`public\`, \`contact-type\`, \`selling-type\`, \`list-id\`, \`max_students\`, \`recruit_unlimited\`, \`start_date\`, \`end_date\`) VALUES( ${data.itemId}, ${data.type}, "${data.description}", ${parseInt(data.price, 10)}, ${data.public ? data.public === '예' ? '\'yes\'' : '\'no\'' : null}, ${data.contactType ? data.contactType === '온라인' ? '\'on\'' : '\'off\'' : null}, ${data.sellingType ? data.sellingType === '양도' ? '\'assginment\'' : data.sellingType === '독점 사용권' ? '\'monopoly\'' : '\'normal\'' : null}, ${data.listId || null} , ${data.max_students || 0}, ${data.recruit_unlimited}, ${data.start_date}, ${data.end_date})`;
+      const sql = `INSERT INTO market.item_detail (item_id, \`type\`, \`description\`, \`price\`, \`public\`, \`contact-type\`, \`selling-type\`, \`list-id\`, \`max_students\`, \`recruit_unlimited\`, \`start_date\`, \`end_date\`) VALUES( ${data.itemId}, ${data.type}, "${data.description}", ${parseInt(data.price, 10)}, ${data.public ? data.public === '예' ? '\'yes\'' : '\'no\'' : null}, ${data.contactType ? data.contactType === '온라인' ? '\'on\'' : '\'off\'' : null}, ${data.sellingType ? data.sellingType === '양도' ? '\'assginment\'' : data.sellingType === '독점 사용권' ? '\'monopoly\'' : '\'normal\'' : null}, ${data.listId || null} , ${data.max_students || 0}, ${data.recruit_unlimited}, ${data.start_date}, ${data.end_date})`;
       connection.query(sql, (err, rows) => {
         if (!err) {
           resolve(data.itemId);

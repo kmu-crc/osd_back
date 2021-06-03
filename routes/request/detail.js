@@ -61,6 +61,31 @@ exports.RequestDetail = (req, res, next) => {
       });
     });
   };
+  // user_id
+  const getUserId= (data) => {
+    return new Promise((resolve, reject) => {
+      const sql = data.sort_in_group === 0 ?
+        `SELECT uid AS user_id FROM market.user WHERE uid=${data.client_id};` :
+        `SELECT U.uid, D.uid AS user_id FROM market.user U
+        INNER JOIN market.user D ON D.uid = ${data.client_id}
+        WHERE U.uid=${data.expert_id};`;
+      connection.query(sql, (err, row) => {
+        if (!err && row.length === 0) {
+          data.user_id = null;
+          resolve(data);
+        } else if (!err && row.length > 0) {
+          data.user_id = row[0]["user_id"];
+          if(data.sort_in_group!=0){
+            data.user_id = row[0]["user_id"]
+          }
+          resolve(data);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  };
+
 
   // 프로필 썸네일 가져오기
   const getThumbnail = (data) => {
@@ -112,6 +137,7 @@ exports.RequestDetail = (req, res, next) => {
     .then(getThumbnail)
     .then(getCategory)
     .then(getName)
+	.then(getUserId)
     // .then(getCountView)
     // .then(getCountLike)
     .then(result => {
