@@ -483,7 +483,6 @@ const copyList = (rows) =>
     const minusPoint = (id) => {
         return new Promise((resolve, reject) => {
             const sql = `UPDATE market.user SET point=point-${_.payment_price} WHERE uid=${user_id}`;
-            // console.log(sql);
             connection.query(sql, (err, row) => {
                 if (!err) {
 					console.log("minus point");
@@ -498,7 +497,6 @@ const copyList = (rows) =>
     const getExpertIdByItemId = itemid => {
         return new Promise((resolve, reject) => {
             const sql = `SELECT user_id FROM market.item WHERE uid=${itemid}`;
-            // console.log(sql, itemid);
             connection.query(sql, itemid, (err, row) => {
                 if (err) {
                     console.error(err);

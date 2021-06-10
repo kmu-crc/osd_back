@@ -22,6 +22,8 @@ const payment = require("./payment");
 const gallery = require("./gallery");
 const upload = require("./fileupload");
 
+const issue = require("./issue");
+
 /* GET home page. */
 router.use("/common", common);
 router.use("/users", users);
@@ -41,6 +43,8 @@ router.use("/point", point);
 router.use("/payment", payment);
 router.use("/gallery", gallery);
 router.use("/upload", upload);
+
+router.use("/issue", issue);
 
 const devel = require('./devel');
 router.use("/devel", devel);

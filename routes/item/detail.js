@@ -589,6 +589,7 @@ exports.HaveInItem = (req, res, next) => {
 }
 
 exports.createItemCard = (req, res, next) => {
+	console.log("CREATE ITEM CARD:", req.body)
   createCardDB({ ...req.body, list_id: req.params.list_id, user_id: req.decoded.uid })
     .then(cardId => {
       console.log("newcard: ", cardId);
@@ -815,7 +816,7 @@ exports.updateCardInfo = async (req, res, next) => {
   const userId = req.decoded.uid;
   const file = req.file;
   console.log("==========",req.body);
-  updateCardFn({ userId, cardId, data: { title: req.body.title, description: req.body.description, private:req.body.private } })
+  updateCardFn({ userId, cardId, data: { title: req.body.title, description: req.body.description, private:req.body.private, type: req.body.type } })
     .then(async () => {
       const id = await createThumbnails(file);
       return id;
