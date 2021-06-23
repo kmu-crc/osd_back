@@ -292,7 +292,7 @@ exports.getItemReivew = (req, res, next) => {
       const sql = `
         SELECT 
           R.item_id, R.sort_in_group, R.user_id, R.payment_id, R.comment, R.score,R.create_time, R.thumbnail,
-          T.m_img, U.nick_name
+          T.m_img, U.nick_name,I.title
         FROM market.review R
           LEFT JOIN market.item I ON I.uid = R.item_id
           LEFT JOIN market.thumbnail T ON T.uid = I.thumbnail_id
@@ -707,7 +707,6 @@ exports.updateCardSource = async (req, res, next) => {
       //console.log("insertDBarr", arr);
       if (arr.length === 0) resolve(true);
       for (let item of arr) {
-        console.log("!!!!!!!!!!!!", item);
         let obj = {
           file_name: item.file_name,
           content: item.content,
@@ -719,6 +718,7 @@ exports.updateCardSource = async (req, res, next) => {
           data_type: item.data_type,
           private: item.private,
         };
+        console.log("!!!!!!!!!!!!", {item, obj});
          connection.query(
           "INSERT INTO market.content SET ?",
           obj,
@@ -779,7 +779,7 @@ exports.updateCardSource = async (req, res, next) => {
   const error = err => {
     res.status(500).json({ success: false, message: err, });
   };
-
+	
   deleteDB(req.body.data.deleteContent)
     .then(() => updateDB(req.body.data.updateContent))
     .then(() => upLoadFile(req.body.data.newContent))

@@ -22,7 +22,10 @@ exports.GetRequest = (req, res, next) => {
              AND
             Q.completed NOT LIKE 1
              AND
-            Q.personal IS NULL ${cate2 ? `AND category_level2 = ${cate2} AND category_level1 = ${cate1}` : cate1 ? `AND category_level1 = ${cate1}` : ``})
+            Q.personal IS NULL ${cate2 ? `AND category_level2 = ${cate2} AND category_level1 = ${cate1}` : cate1 ? `AND category_level1 = ${cate1}` : ``}
+             AND
+             (SELECT COUNT(*) FROM market.request R WHERE R.uid = Q.group_id)!=0    
+        )
         ORDER BY 
             Q.group_id ${sort === 'update' ? 'DESC' : 'ASC'}, Q.sort_in_group ASC
         LIMIT ${page * 10}, 10`;
