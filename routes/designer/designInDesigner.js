@@ -104,3 +104,10 @@ exports.likeInDesigner = (req, res, next) => {
   req.sql = sql;
   next();
 };
+
+exports.TheBestDesignInDesigner = (req, res, next) => {
+  const id = req.params.id;
+  let sql = ``;
+  req.sql = sql;
+  next();
+};

@@ -1,5 +1,6 @@
 const connection = require("../../configs/connection");
 const axios = require("axios");
+const grade_server = "3.37.39.154"
 
 // result-request
 exports.getSubmit = async (req, res, next) => {
@@ -122,7 +123,7 @@ exports.createSubmit = async (req, res, next) => {
         try{
 	const result = await axios({
 		method: 'post',
-		url: `http://3.34.142.28:8080/api/v1/submit/`,
+		url: `http://${grade_server}:8080/api/v1/submit/`,
 		data: {
 			submit_id: submit_id,
 			problem_id: problem_id,

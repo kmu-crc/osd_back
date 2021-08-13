@@ -40,6 +40,8 @@ const { checkInvited, inviteUser, cancelInvitedUser } = require("./inviteVideoCh
 const { createSubmit, updateSubmit, getSubmit,getSubmit2, getMySubmitList } = require("./answer");
 const { makeProblemZip, makeProblemDir } = require("./make_problem");
 
+const grade_server = "3.37.39.154"
+
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designList_newversion/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", designList_newversion, getDesignList);
 
@@ -180,7 +182,7 @@ router.post("/:id/video-chat/cancel-invited-user", auth, cancelInvitedUser);
 router.get("/problem/category/:category_id",
 async (req, res, next) => {
   const category_id = req.params.category_id;
-  const url = `http://3.34.142.28:8080/api/v1/problem/?categories=${category_id}`;
+  const url = `http://${grade_server}:8080/api/v1/problem/?categories=${category_id}`;
   try {
     const result= await axios({
       url: url,
@@ -196,7 +198,7 @@ router.get("/problem/category",
 async (req, res, next) => {
   const page = req.params.page;
 //   console.log(req.params.page);
-  const url = `http://3.34.142.28:8080/api/v1/category`;
+  const url = `http://${grade_server}:8080/api/v1/category`;
   try {
     const result= await axios({
       url: url,
@@ -213,7 +215,7 @@ router.get("/problem/list/:page",
 async (req, res, next) => {
   const page = req.params.page;
 //   console.log(req.params.page);
-  const url = `http://3.34.142.28:8080/api/v1/problem/?page=${page}`;
+  const url = `http://${grade_server}:8080/api/v1/problem/?page=${page}`;
   try {
     const result= await axios({
       url: url,
@@ -230,7 +232,7 @@ async (req, res, next) => {
 router.get("/problem/detail/:id",
 async (req, res, next) => {
   const uid = req.params.id;
-  const url = `http://3.34.142.28:8080/api/v1/problem/${uid}`;
+  const url = `http://${grade_server}:8080/api/v1/problem/${uid}`;
   try{
     const result= await axios({
       url: url,
@@ -244,9 +246,9 @@ async (req, res, next) => {
 
 //ANSWER
 router.post("/problem/submit", auth, createSubmit);
-//router.post("/problem/submit", auth, (req, res,next)=>{
-//	res.status(200).json({success:false, message:"채점서버를 점검하고 있습니다."});
-//});
+router.post("/problem/tmp-submit", auth, (req, res,next)=>{
+	res.status(200).json({success:false, message:"채점서버를 점검하고 있습니다."});
+});
 router.put("/problem/update-submit/:id", updateSubmit);
 router.get("/problem/result-request/:id", getSubmit);
 router.get("/problem/result-request2/:id", getSubmit2);

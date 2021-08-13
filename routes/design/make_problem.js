@@ -9,6 +9,8 @@ const fs = require('fs');
 const unzipper = require('unzipper');
 const iconvlite = require('iconv-lite');
 
+const grade_server = "3.37.39.154"
+
 
 
 /*---------------------------
@@ -276,7 +278,7 @@ exports.makeProblemDir = async (req, res, next) => {
 		  "categories": obj.categories || []
 		};
 	
-		const url = `http://3.34.142.28:8080/api/v1/problem/treat/`;
+		const url = `http://${grade_server}:8080/api/v1/problem/treat/`;
 		axios.post(url, problem)
 			.then(res => {
 				if(res.statusText==='OK'){
@@ -584,7 +586,7 @@ exports.makeProblemZip = async (req, res, next) => {
 		  "categories": obj.categories || []
 		};
 	
-		const url = `http://3.34.142.28:8080/api/v1/problem/treat/`;
+		const url = `http://${grade_server}:8080/api/v1/problem/treat/`;
 		axios.post(url, problem)
 			.then(res => {
 				if(res.statusText==='OK'){

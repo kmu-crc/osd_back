@@ -42,6 +42,15 @@ function connectionDataBase () {
         console.log("Error DataBase Connection :" + err);
       }
     });
+		/*
+		 db.on('error', function(err) {
+		 	if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+				connectionDataBase();
+			} else {
+				throw err;
+			}
+		 });
+		*/
   }
   return db;
 };
