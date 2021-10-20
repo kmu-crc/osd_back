@@ -107,7 +107,8 @@ exports.likeInDesigner = (req, res, next) => {
 
 exports.TheBestDesignInDesigner = (req, res, next) => {
   const id = req.params.id;
-  let sql = ``;
+  let sql = `SELECT D.uid, D.user_id, D.title, D.thumbnail, D.category_level1, D.category_level2, D.create_time, D.update_time, COUNT(DL.design_id) AS DesignLikeCount FROM opendesign.design_like DL LEFT JOIN opendesign.design D ON D.uid = DL.design_id WHERE D.user_id = ${id} GROUP BY DL.design_id ORDER BY DesignLikeCount DESC LIMIT 1`;
+
   req.sql = sql;
   next();
 };

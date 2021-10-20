@@ -6,7 +6,7 @@ exports.designerDetail = (req, res, next) => {
   // 디자이너 정보 가져오기 (GET)
   function getDesignerInfo (id) {
     const p = new Promise((resolve, reject) => {
-      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, U.create_time, U.update_time, D.category_level1, D.category_level2, D.category_level3, D.about_me FROM user U LEFT JOIN user_detail D ON U.uid = D.user_id WHERE U.uid = ?", id, (err, row) => {
+      connection.query("SELECT U.uid, U.nick_name, U.thumbnail, U.create_time, U.update_time, D.category_level1, D.category_level2, D.category_level3, D.about_me, D.careerlist FROM user U LEFT JOIN user_detail D ON U.uid = D.user_id WHERE U.uid = ?", id, (err, row) => {
         if (!err && row.length === 0) {
           resolve(null);
         } else if (!err && row.length > 0) {

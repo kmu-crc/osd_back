@@ -55,7 +55,7 @@ let userData = {
   };
 	function thumbnail (data) {
 		return new Promise((resolve, reject) => {
-			const sql = `UPDATE opendesign.user SET thumbnail = 10500 WHERE uid=${data}`;
+			const sql = `UPDATE opendesign.user SET thumbnail = 14301 WHERE uid=${data}`;
 				connection.query(sql, (err, row) => {
 					if(!err) {
 						resolve(data);

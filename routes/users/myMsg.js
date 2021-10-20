@@ -9,7 +9,11 @@ exports.getChatRoomList = (req, res, next) => {
 	      LEFT JOIN (
 		      SELECT A.user_id, A.from_user_id, COUNT(*) AS 'count' FROM opendesign.alarm A 
             WHERE A.user_id=${id} AND A.type LIKE 'MESSAGE' AND A.confirm LIKE 0 GROUP BY A.from_user_id) AS T ON T.from_user_id = G.from_user_id
-        WHERE G.to_user_id=${id} OR G.from_user_id=${id} ORDER BY count DESC,G.update_time DESC;
+        WHERE 
+					(G.to_user_id=${id} OR G.from_user_id=${id})
+					AND
+					(G.update_time >= NOW() - INTERVAL 3 MONTH)
+				ORDER BY count DESC,G.update_time DESC;
       `;
       connection.query(sql, (err, row) => {
         if (err) {

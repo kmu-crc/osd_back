@@ -150,7 +150,7 @@ exports.designerList_newversion = (req, res, next) => {
   LEFT JOIN opendesign.category_level1 L1 ON L1.uid=D.category_level1
   LEFT JOIN opendesign.category_level2 L2 ON L2.uid=D.category_level2
   LEFT JOIN opendesign.category_level3 L3 ON L3.uid=D.category_level3
-  WHERE D.is_designer=1
+  WHERE D.is_designer=1 AND U.d_flag=0
   `
   // 0. nothing
   // 1. category2

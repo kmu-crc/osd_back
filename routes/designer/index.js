@@ -6,7 +6,7 @@ const getDesignerList = require("../../middlewares/getDesignerList");
 const getDesignList = require("../../middlewares/getDesignList");
 const getGroupList = require("../../middlewares/getGroupList");
 const { getLikeDesigner, likeDesigner, unlikeDesigner } = require("./likeDesigner");
-const { allDesignInDesigner, myDesignInDesigner, designInDesigner, likeInDesigner } = require("./designInDesigner");
+const { allDesignInDesigner, myDesignInDesigner, designInDesigner, likeInDesigner, TheBestDesignInDesigner } = require("./designInDesigner");
 const { getTopList } = require("./topList");
 const { designerDetail, getCount } = require("./designerDetail");
 const { designerList,designerList_newversion, getTotalCount,getTotalCount_newversion} = require("./designerList");
@@ -38,5 +38,7 @@ router.get("/getCount/:id", getCount);
 
 // top 5개 리스트 가져오기 (메인용)
 router.get("/TopList/:page", getTopList, getDesignerList);
+
+router.get("/designerDetail/:id/bestDesign", TheBestDesignInDesigner, getDesignList);
 
 module.exports = router;

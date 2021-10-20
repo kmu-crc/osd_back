@@ -23,7 +23,6 @@ exports.groupMember = (req, res, next) => {
 		.then(respond)
 		.catch(error);
 };
-
 // 그룹 정보 가져오기 (GET)
 exports.groupDetail = (req, res, next) => {
   const id = req.params.id;
@@ -99,6 +98,26 @@ exports.groupDetail = (req, res, next) => {
     //   reject(err);
     // }
     // })
+  }
+  function getChildren(data) {
+    return new Promise((resolve, reject) => {
+      if (data.design === 0 && data.group === 0) {
+        resolve(data);
+      } else {
+        const sql = `SELECT m_img FROM opendesign.thumbnail WHERE uid IN (SELECT thumbnail FROM opendesign.group G WHERE uid IN (SELECT group_id FROM opendesign.group_join_group WHERE is_join=1 AND parent_group_id=${data.uid})) UNION SELECT m_img FROM opendesign.thumbnail WHERE uid IN (SELECT thumbnail FROM opendesign.design WHERE uid IN (SELECT design_id FROM opendesign.group_join_design WHERE is_join=1 AND parent_group_id=${data.uid})) Limit 4`
+        connection.query(sql, (err, row) => {
+          if (!err && row.length === 0) {
+            data.children=[];
+            resolve(data);
+          } else if (!err && row.length > 0) {
+            data.children = [...row];
+            resolve(data);
+          } else {
+            reject(err); 
+          }
+        })
+      }
+    })
   }
   function getGroupInfo(id) {
     const p = new Promise((resolve, reject) => {
@@ -281,8 +300,6 @@ exports.groupDetail = (req, res, next) => {
     })
     return p;
   }
-
-
   getGroupInfo(id)
     .then(getName)
     .then(getGroupComment)
@@ -292,6 +309,7 @@ exports.groupDetail = (req, res, next) => {
     .then(getGrandParentGroup)
     .then(getCount)
     .then(getViewCount)
+    .then(getChildren)
     .then(getGroupUpdateTime)
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
