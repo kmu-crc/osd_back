@@ -1144,7 +1144,7 @@ exports.updateCardInfo2 = async (req, res, next) => {
   // // console.log("updateCardAllData", req.body.data.newContent);
 };
 exports.updateCardSource2 = async (req, res, next) => {
-  // console.log("UPDATE CARD SOURCE", req.body);
+//  console.log("UPDATE CARD SOURCE", req.body);
   const cardId = req.params.card_id;
   const userId = req.decoded.uid;
 
@@ -1187,7 +1187,8 @@ exports.updateCardSource2 = async (req, res, next) => {
           type: item.type,
           extension: item.extension,
           order: item.order,
-          data_type: item.data_type
+          data_type: item.data_type,
+					option: item.option,
         };
         await connection.query(
           "INSERT INTO design_content SET ?",
@@ -1220,7 +1221,8 @@ exports.updateCardSource2 = async (req, res, next) => {
         type: item.type,
         extension: item.extension,
         order: item.order,
-        data_type: item.data_type
+        data_type: item.data_type,
+				option: item.option,
       };
       await connection.query(
         `UPDATE design_content SET ? WHERE uid = ${item.uid}`,
