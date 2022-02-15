@@ -55,28 +55,77 @@ router.post("/detect-encoding",
          });
      }
  );
- router.post("/tmp",
-    upload.single('source'),
-     (req, res, next) => {
-        //  console.log(req.files);
-         const path = `uploads/${req.files.source.md5}${new Date().getTime()}${req.files.source.mimetype==="application/pdf"?".pdf":""}`;
-         fs.writeFile(path, req.files.source.data, { encoding: "ascii" }, async err => {
-             if (err) {
-                 console.log(err);
-                 res.status(500).json({ success: false, message: "file write failed" });
-             } else {
-                 // console.log(path);
-                 // let newfilename = null
-                 // if (req.files.source.name.search(".mp4") > -1) {
-                 // new_file_name = await convertToMP4(path).catch((err) => { console.log("err", err) });
-                 // }
-                 const s3path = await S3Upload(path, `${req.files.source.name}`) || null;
-                //  console.log(s3path);
-                 res.status(200).json({ success: true, path: s3path, message: "good!" })
-             }
-         });
-     }
- );
+router.post("/tmp",
+	upload.single('source'),
+		(req, res, next) => {
+
+			//  console.log(req.files);
+			const path = `uploads/${req.files.source.md5}${new Date().getTime()}${req.files.source.mimetype==="application/pdf"?".pdf":""}`;
+
+			fs.writeFile(path, req.files.source.data, { encoding: "ascii" }, async err => {
+
+				if (err) {
+					console.log(err);
+					res.status(500).json({ success: false, message: "file write failed" });
+
+				} else {
+
+					// let newfilename = null
+					// if (req.files.source.name.search(".mp4") > -1) { new_file_name = await convertToMP4(path).catch((err) => { console.log("err", err) }); }
+					// console.log(s3path);
+
+if(
+	req.files.source.name.search(".png") > -1 || 
+	req.files.source.name.search(".bmp") > -1 || 
+	req.files.source.name.search(".jpg") > -1 || 
+	req.files.source.name.search(".jpeg")> -1
+) {
+
+
+const image_procedure = () =>
+	new Promise(async (resolve) => {
+		const gm = require('gm');
+		await gm(path)
+			.size(async (err, size) => 
+			{ 
+				let { width, height } = size;
+				if( width * height >= 2000 * 2000) 
+				{ 
+					await gm(path)
+						.resize( 1920)//, 1080)
+						.write( path + "+", err => {
+							if( !err) {
+								resolve(true);	
+							} else {
+								resolve(false);
+							}
+						});
+				} else {
+					resolve(false);
+				}
+			});
+	});
+
+	image_procedure()
+		.then(async isResized => {
+				if(isResized){
+					fs.unlink(path, err => { if (err) console.log(err) })
+				}
+				const newpath = isResized ? path + "+" : path;
+				const	s3path = await S3Upload(newpath, `${req.files.source.name}`) || null;
+				res.status(200).json({ success: true, path: s3path, message: "good!" })
+		})
+}
+else {
+					const s3path = await S3Upload(path, `${req.files.source.name}`) || null;
+					res.status(200).json({ success: true, path: s3path, message: "good!" });
+}
+			}
+		});
+
+	}
+);
+
 router.get("/fixit",
     (req, res, next) => {
         return new Promise((resolve, reject) => {

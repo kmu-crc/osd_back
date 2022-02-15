@@ -5,7 +5,7 @@ const connection = require("../../configs/connection");
 
 const multer = require("multer");
 
-const { designList, designList_newversion, getTotalCount, getTotalCount_newversion } = require("./designList");
+const { designList, designList_newversion, getTotalCount, getTotalCount_newversion,designList_newversion_count } = require("./designList");
 const { designDetail, getCount, updateViewCount, changeToProject, getDesignComment, getCountDesignComment, createDetailComment, deleteDetailComment, confirmDesignComment } = require("./designDetail");
 const { getLikeDesign, likeDesign, unlikeDesign } = require("./likeDesign");
 const { designView } = require("./designView");
@@ -44,6 +44,7 @@ const grade_server = "3.37.39.154"
 
 router.get("/designList/:page/:sorting?/:cate1?/:cate2?/:keyword?", designList, getDesignList);
 router.get("/designList_newversion/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", designList_newversion, getDesignList);
+router.get("/designList_newversion_count/:cate1?/:cate2?/:cate3?/:keyword?", designList_newversion_count, getDesignList);
 
 router.get("/designCount/:cate1?/:cate2?", getTotalCount);
 router.get("/designCount_newversion/:cate1?/:cate2?/:cate3", getTotalCount_newversion);

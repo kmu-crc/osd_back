@@ -243,3 +243,65 @@ exports.getTotalCount_newversion = (req, res, next) => {
     .catch(err => res.status(500).json(err));
 };
 
+exports.designList_newversion_count = (req, res, next) => {
+  // const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
+  // const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
+  // const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate3 : null;
+  // const keyword = req.params.keyword;
+
+  // let sql2 = `
+  //   SELECT 
+  //     COUNT(*) as number
+  //   FROM design D 
+  //   LEFT JOIN (SELECT DD.parent_design, COUNT(*) AS children_count FROM design DD group by DD.parent_design) F ON F.parent_design = D.uid
+  //   LEFT JOIN design_counter C ON C.design_id = D.uid JOIN user U ON U.uid = D.user_id
+  //   `
+  // // 0. nothing
+  // // 1. category2
+  // // 2. category1
+  // // 3. category2 keyword
+  // // 4. category1 keyword
+  // if (category3 ||category2 || category1 ||
+  //   (keyword && keyword !== "null" && keyword !== "undefined")) {
+  //   sql2 = sql2 + ` WHERE `;
+  // }
+  // if(category3){
+  //   sql2=sql2+`category_level3 = ${category3}`
+  // }
+  // else if (category2) {
+  //   sql2 = sql2 + `category_level2 = ${category2}`
+  // } else if (category1) {
+  //   sql2 = sql2 + `category_level1 = ${category1}`
+  // }
+
+  // if (keyword && keyword !== "null" && keyword !== "undefined") {
+  //   const ary = keyword.trim().split(" ");
+  //   if (category3|| category2 || category1) {
+  //     sql2 = sql2 + ` AND `;
+  //   }
+  //   ary.length > 0 && ary.map((word, index) => {
+  //     if (word !== "") {
+  //       if (index !== 0) {
+  //         sql2 = sql2 + ` AND `;
+  //       }
+  //       sql2 = sql2 + `U.nick_name LIKE "%${word}%"`;
+  //     }
+  //     return word;
+  //   });
+  //   if (ary.length > 0) {
+  //     sql2 = sql2 + `OR `;
+  //   }
+  //   ary.length > 0 && ary.map((word, index) => {
+  //     if (word !== "") {
+  //       if (index !== 0) {
+  //         sql2 = sql2 + ` AND `;
+  //       }
+  //       sql2 = sql2 + `D.title LIKE "%${word}%"`;
+  //     }
+  //     return word;
+  //   });
+
+  // }
+  // req.sql = sql2;
+  // next();
+};

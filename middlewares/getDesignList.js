@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 
 const getDesignList = (req, res, next) => {
   const sql = req.sql;
-  // //console.log(sql);
+  console.log("get design list :", sql);
   // 디자인 리스트 가져오기 (GET)
   function getList (sql) {
     return new Promise((resolve, reject) => {

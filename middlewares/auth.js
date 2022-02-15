@@ -4,9 +4,10 @@ const connection = require("../configs/connection");
 const authMiddleware = (req, res, next) => {
   // read the token from header or url
   const token = req.headers["x-access-token"] || req.query.token;
+//	console.log({token});
   // token does not exist
   if (!token) {
-    //console.log("no token");
+    console.log("no token");
     return res.status(403).json({
       success: false,
       message: "not logged in"
