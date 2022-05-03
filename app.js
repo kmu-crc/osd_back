@@ -17,8 +17,8 @@ const connection = require("./configs/connection");
 const { resolve } = require("path");
 const { rejects } = require("assert");
  
-console.log('오래된 디자인 채팅 메시지를 지우는 타임 스케줄러가 시작되었습니다.');
-console.log('(매주 토요일 오후 11시 59분에 현재시간으로부터 12개월보다 오래된 메시지를 지웁니다.)');
+//console.log('오래된 디자인 채팅 메시지를 지우는 타임 스케줄러가 시작되었습니다.');
+//console.log('(매주 토요일 오후 11시 59분에 현재시간으로부터 12개월보다 오래된 메시지를 지웁니다.)');
 
 const sql = `
 set sql_safe_updates = 0;
@@ -164,4 +164,5 @@ app.use(function (err, req, res, next) {
   });
 });
 
+//const io = require('./socket/').listen(app);
 module.exports = app;

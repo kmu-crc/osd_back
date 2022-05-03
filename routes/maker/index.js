@@ -7,7 +7,7 @@ const { makerDetail, getMakerReview, getMakerReviewCount } = require("./detail")
 // const { getTopList } = require("./topList");
 const getMakerList = require("../../middlewares/getMakerList");
 
-router.get("/list/:page/:sorting?/:cate1?/:cate2?/:keyword?", makerList, getMakerList);
+router.get("/list/:page/:sorting?/:cate1?/:cate2?/:cate3?/:keyword?", makerList, getMakerList);
 router.get("/getMakerCount/:sorting?/:cate1?/:cate2?/:keyword?", getMakerCount);
 
 router.get("/list-count/:cate1?/:cate2?", getTotalCount);

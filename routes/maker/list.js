@@ -34,7 +34,7 @@ exports.makerList = (req, res, next) => {
 	? `AND E.category_level1 = ${category1}`
 	: ``
 	const optKeyword
-	= (keyword && keyword !== "null" && keyword !== "undefined") ? `AND E.nick_name LIKE "%${keyword}%"` : `    `
+	= (keyword && keyword !== "null" && keyword !== "undefined") ? `AND U.nick_name LIKE "%${keyword}%"` : `    `
 	const optSort
 	= `ORDER BY ${(sort === "update") ? "E.update_time DESC" : (sort === "name") ? "U.nick_name ASC" : "count DESC"}`
 	const sql

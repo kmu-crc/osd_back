@@ -3,10 +3,11 @@ const connection = require("../../configs/connection");
 exports.itemList = (req, res, next) => {
   const page = req.params.page;
   const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
-  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate2 : null;
+  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate2 : null;
   const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate3 !== "undefined" ? req.params.cate3 : null;
   const sort = (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") ? req.params.sorting : "update";
   const keyword = req.params.keyword;
+  // console.log("==========",page,category1,category2,category3,sort,keyword);
   const basic = `
     SELECT 
       I.uid, I.user_id, I.title, I.thumbnail_id, I.create_time, I.update_time, 
@@ -67,14 +68,14 @@ exports.getItemCount = (req, res, next) => {
       `I.title LIKE "%${keyword}%"` : ``;
 
   const sql = `${basic} WHERE I.visible = 1 AND I.private = 0 ${optCategory === `` && optKeyword === `` ? "" : "AND"} ${optCategory} ${optKeyword}`;
-  console.log(sql);
+  //console.log(sql);
   req.sql = sql;
 
   const getCount = () => {
     return new Promise((resolve, reject) => {
       connection.query(sql, (err, result) => {
         if (!err && result.length) {
-          console.log(result[0]);
+          //console.log(result[0]);
           resolve(result[0]);
         } else {
           reject(err);
@@ -223,7 +224,7 @@ exports.updateListHeader = (req, res, next) => {
 			const sql = `UPDATE market.list_header SET ? WHERE uid = ${id}`;
 			connection.query(sql, data, (err, _) => {
 				if (!err) {
-					console.log("updated", sql, data, id);
+					//console.log("updated", sql, data, id);
 					resolve(true);
 				} else {
 					console.error("update list header - mysql error", err);

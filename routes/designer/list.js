@@ -1,12 +1,13 @@
 const connection = require("../../configs/connection");
 
 exports.designerList = (req, res, next) => {
-  const page = req.params.page
-  const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null
-  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate2 : null
-  const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate3 !== "undefined" ? req.params.cate3 : null
-  const sort = (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") ? req.params.sorting : "update"  
-  const keyword = req.params.keyword
+  const page = req.params.page;
+  const category1 = req.params.cate1 && req.params.cate1 !== "null" && req.params.cate1 !== "undefined" ? req.params.cate1 : null;
+  const category2 = req.params.cate2 && req.params.cate2 !== "null" && req.params.cate2 !== "undefined" ? req.params.cate2 : null;
+  const category3 = req.params.cate3 && req.params.cate3 !== "null" && req.params.cate3 !== "undefined" ? req.params.cate3 : null;
+  const sort = (req.params.sorting !== "null" && req.params.sorting !== undefined && req.params.sorting !== "undefined") ? req.params.sorting : "update";
+  const keyword = req.params.keyword;
+  // console.log("==========",page,category1,category2,category3,sort,keyword);
   const basic = `
 SELECT 
     E.uid, E.user_id, E.category_level1, E.category_level2, E.category_level3, E.score,
@@ -27,10 +28,10 @@ LEFT JOIN (SELECT to_id,COUNT(*) AS count FROM market.like L
     : (category1)
     ? `AND E.category_level1 = ${category1}`
     : ``;
-  const optKeyword = (keyword && keyword !== "null" && keyword !== "undefined") ? `AND E.nick_name LIKE "%${keyword}%"` : ``;
+  const optKeyword = (keyword && keyword !== "null" && keyword !== "undefined") ? `AND U.nick_name LIKE "%${keyword}%"` : ``;
   const optSort = `ORDER BY ${(sort === "update") ? "E.update_time DESC" : (sort === "name") ? "U.nick_name ASC" : "count DESC"}` 
   const sql = `${basic} WHERE E.type = "designer" ${optKeyword} ${optCategory} ${optSort} LIMIT ${page * 10}, 10;`
-console.log(sql);
+// console.log(sql);
 
   req.sql = sql;
   next();

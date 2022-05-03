@@ -79,6 +79,10 @@ router.post("/detail/:id/updateList/:list_id", auth, updateItemList);
 // card
 router.post("/detail/:id/:list_id/createCard", auth, createItemCard);
 router.post("/detail/updateCardAllData/:card_id", auth, insertThumbnail, updateCardInfo, updateCardSource);
+//router.post("/detail/updateCardAllData/:card_id", (req, res,next)=>{
+//	console.log("!!!@#!@#!@#!@#!#!@#!#12", req.body)
+//	res.status(200).json({test:true})
+//});
 router.delete("/detail/:id/deleteCard/:card_id", auth, deleteItemCard);
 // ${host}/item/detail/${id}/${list_id}/createCard
 
