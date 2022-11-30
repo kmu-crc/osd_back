@@ -41,6 +41,9 @@ if (!fs.existsSync('./uploads')) {
 if (!fs.existsSync('./thumbnails')) {
   fs.mkdirSync('./thumbnails');
 }
+app.use("/vchat", function (req, res, next) {
+	res.status(200).json({ message: "video chatting index html" });
+});
 app.use("/", routers);
 
 app.use("/check", function (req, res, next) {

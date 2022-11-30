@@ -339,3 +339,64 @@ exports.getForkDesignList = (req, res, next) => {
   }
   getChildDesign(designId)
 }
+
+exports.getForkDesignTree = (req, res, next) => {
+  const designId = req.params.id;
+	
+	function getRootDesign(id) {
+		return new Promise((resolve, reject) => {
+			const sql = `
+				SELECT T2.uid 
+				FROM (
+						SELECT 
+							@r AS _id,
+							(SELECT @r := parent_design FROM design WHERE uid = _id) AS parent_design,
+							@l := @l + 1 AS lvl
+						FROM
+							(SELECT @r := ${id}, @l := 0) vars, opendesign.design d WHERE @r <> 0
+					) T1 
+				JOIN opendesign.design T2
+				ON T1._id = T2.uid
+				ORDER BY T1.lvl DESC LIMIT 1`;
+			connection.query(sql, (err, row) => {
+        if (!err) {
+            resolve({ 
+							message: `파생디자인목록 조회성공`, 
+							root: row[0] ? row[0].uid : null });
+        } else {
+          reject(`파생디자인목록 조회실패:` + err);
+        }
+			});
+		});		
+	}
+	function getTreeAsList(data) {
+		return new Promise((resolve, reject) => {
+			if(data.root == null) resovle({list:null});
+			const sql = `
+				SELECT D.*, T.m_img, U.nick_name FROM design D 
+				INNER JOIN thumbnail T ON T.uid = D.thumbnail 
+				INNER JOIN user U ON U.uid = T.user_id
+				WHERE D.uid = ${data.root}
+				UNION
+				SELECT T1.*, T.m_img, U.nick_name
+				FROM design AS T1 
+				INNER JOIN (SELECT uid FROM design WHERE parent_design = ${data.root}) AS T2 ON T2.uid = T1.parent_design OR T1.parent_design = ${data.root}
+				INNER JOIN thumbnail T ON T.uid = T1.thumbnail
+				INNER JOIN user U ON U.uid = T1.user_id
+				GROUP BY T1.uid`;
+
+				connection.query(sql, (err, row) => {
+					if(!err) {
+						resolve(row);
+					} else {
+						reject(err);
+					}
+				});
+		});
+	}
+
+	getRootDesign(designId)
+		.then(getTreeAsList)
+		.then(data => res.status(200).json({success: true, data: data}))
+		.catch(error => res.status(200).json({success: false, message: error}));
+}

@@ -80,9 +80,9 @@ const check = (req, res, next) => {
   }
 
   const respond = data => {
-    //console.log("respond---",req.decoded);
     res.status(200).json({
       success: true,
+			//exp: req.decoded.exp 
       info: req.decoded
     });
   };

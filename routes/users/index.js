@@ -19,6 +19,9 @@ const getDesignerList = require("../../middlewares/getDesignerList");
 const { getMainMyGroupList, getMainMyDesignList, myPage, myAllDesign, myDesign, myGroup, inGroup, myLikeDesign, myLikeGroup, myLikeDesigner, getMyInvitedList, getMyInvitingList } = require("./myPage");
 const { getChatRoomList, getMyMsgList, getMyMsgDetail, sendMsg } = require("./myMsg");
 const { findPw } = require("./resetMail");
+const { SendMail } = require("./sendemail");
+
+router.get("/sendmail", SendMail);
 
 router.post("/signUp", signUp, signIn);
 router.post("/signIn", signIn);

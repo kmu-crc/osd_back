@@ -59,8 +59,13 @@ router.post("/tmp",
 	upload.single('source'),
 		(req, res, next) => {
 
-			//  console.log(req.files);
-			const path = `uploads/${req.files.source.md5}${new Date().getTime()}${req.files.source.mimetype==="application/pdf"?".pdf":""}`;
+			// console.log(req.files);
+			const ext = req.files.source.name.split('.').pop();
+			const path = `uploads/${req.files.source.md5}${new Date().getTime()}${
+				ext === "pdf" ? ".pdf" //req.files.source.mimetype ==="application/pdf" ?".pdf"
+			: ext === "stl" ? ".stl" // req.files.source.mimetype ==="application/octet-stream" ?  ".stl"
+			: ext === "dxf" ? ".dxf"
+			: ""}`;
 
 			fs.writeFile(path, req.files.source.data, { encoding: "ascii" }, async err => {
 
