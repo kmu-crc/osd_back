@@ -63,10 +63,11 @@ const updateDesignCount = id => {
 };
 
 const updateCardFn = req => {
-  //console.log("fn", req);
+  //console.log("updateCardFn:", req);
   return new Promise((resolve, reject) => {
     connection.query(
-      `UPDATE design_card SET ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
+      //`UPDATE design_card SET ? WHERE uid = ${req.cardId} AND user_id=${req.userId}`, req.data,
+      `UPDATE design_card SET ? WHERE uid = ${req.cardId} `, req.data,
       (err, rows) => {
         if (!err) {
           if (rows.affectedRows) {
@@ -1149,7 +1150,6 @@ exports.updateCardSource2 = async (req, res, next) => {
   const userId = req.decoded.uid;
 
   const deleteDB = async content => {
-    //console.log("deleteDB");
     return new Promise(async (resolve, reject) => {
       let pArr = [];
       if (content.length === 0) resolve(true);
@@ -1259,6 +1259,7 @@ exports.updateCardSource2 = async (req, res, next) => {
     res.status(200).json({ success: true, message: "저장되었습니다." });
   };
   const error = err => {
+		console.error("ERROR: ", err);
     res.status(500).json({ success: false, message: "저장에 실패하였습니다.\n내용: " + err });
   }
 
