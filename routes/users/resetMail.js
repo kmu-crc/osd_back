@@ -44,6 +44,7 @@ exports.findPw = (req, res, next) => {
             }
           } else {
             const errorMessage = "isOnlyEmail err : " + err
+				 	console.error(err);
             reject(errorMessage)
           }
         }
@@ -55,6 +56,9 @@ exports.findPw = (req, res, next) => {
           if (!err && rows.length > 0) {
             old = rows[0]["password"]
           }
+					if(err){
+				 	console.error(err);
+				 }
         }
       )
     })
@@ -71,6 +75,7 @@ exports.findPw = (req, res, next) => {
         }
         resolve(pw);
       } catch (err) {
+				 console.error(err);
         reject(err)
       }
     })
@@ -88,6 +93,7 @@ exports.findPw = (req, res, next) => {
           hashPw = hash
           resolve(hashPw)
         } else {
+				 console.error(err);
           reject(err)
         }
       })

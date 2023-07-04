@@ -28,9 +28,9 @@ router.post("/signIn", signIn);
 
 // router.use("/check", auth, check);
 router.use("/check", auth, (req, res, next)=>{
-	if( req.decoded.uid === 77) {
-		console.log("====== 활동중 =====");
-	}
+	//if( req.decoded.uid === 77) {
+	//	console.log("====== 활동중 =====");
+	//}
 	next();
 }, check);
 
