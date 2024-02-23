@@ -11,7 +11,7 @@
     "adm-zip": "^0.5.2",
     "aws-sdk": "^2.243.1",
     "axios": "^0.21.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^5.1.1",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",

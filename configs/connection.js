@@ -2,14 +2,26 @@ var mysql = require("mysql");
 require("dotenv").config();
 var db;
 var options;
-
+console.log(
+	process.env.DB_HOST,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  process.env.DB_NAME,
+  process.env.DB_PORT,
+)
+ 
 if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
   options = {
-    host:     process.env.AWS_DB_HOST,
-    port:     process.env.AWS_DB_PORT,
-    database: process.env.AWS_DB_NAME,
-    user:     process.env.AWS_DB_USER,
-    password: process.env.AWS_DB_PASS,
+	    host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+    //host:     process.env.AWS_DB_HOST,
+    //port:     process.env.AWS_DB_PORT,
+    //database: process.env.AWS_DB_NAME,
+    //user:     process.env.AWS_DB_USER,
+    //password: process.env.AWS_DB_PASS,
     multipleStatements:true
   };
 } else if (process.env.DEVELOP === "true" || process.env.DEVELOP === true) {
@@ -33,6 +45,7 @@ if (process.env.OPERATION === "true" || process.env.OPERATION === true) {
 }
 
 function connectionDataBase () {
+const SEC = 1000;
   if (!db) {
     db = mysql.createConnection(options);
     db.connect(function (err) {
@@ -40,6 +53,8 @@ function connectionDataBase () {
         console.log("DataBase Connected!");
       } else {
         console.log("Error DataBase Connection :" + err);
+	setTimeout(connectionDataBase(),5*SEC);
+	      return;
       }
     });
 		/*
