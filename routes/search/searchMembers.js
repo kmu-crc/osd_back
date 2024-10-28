@@ -7,15 +7,26 @@ const searchMembers = (req, res) => {
   const searcDB = (data) => {
     let sql;
     if (designId && designId !== "null") {
-      sql = `SELECT U.email, U.uid, U.nick_name FROM user U
-      WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
-      AND U.uid NOT IN (SELECT U.uid FROM user U WHERE U.uid = ${req.decoded.uid})
-      AND NOT EXISTS (SELECT M.user_id FROM design_member M WHERE M.design_id = ${designId} AND U.uid = M.user_id)`;
+      // sql = `SELECT U.email, U.uid, U.nick_name FROM user U
+      // WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}')
+      // AND U.uid NOT IN (SELECT U.uid FROM user U WHERE U.uid = ${req.decoded.uid})
+      // AND NOT EXISTS (SELECT M.user_id FROM design_member M WHERE M.design_id = ${designId} AND U.uid = M.user_id)`;
+      sql = `SELECT U.email, U.uid, U.nick_name, G.uid as group_id, T.s_img FROM opendesign.user U
+      LEFT JOIN opendesign.message_group G
+      ON ((G.to_user_id=${req.decoded.uid} AND G.from_user_id=U.uid) OR (G.to_user_id=U.uid AND G.from_user_id=${req.decoded.uid}))
+      LEFT JOIN opendesign.thumbnail T ON T.uid = U.thumbnail 
+      WHERE (U.email regexp '%${data.key}%' OR U.nick_name regexp '%${data.key}%')
+      AND U.uid NOT IN (SELECT U.uid FROM market.user U WHERE U.uid = ${req.decoded.uid})`;
     } else {
-      sql = `SELECT email, uid, nick_name FROM user WHERE (email regexp '${data.key}' OR nick_name regexp '${data.key}') AND uid NOT IN (${req.decoded.uid})`;
+      sql = `SELECT U.email, U.uid, U.nick_name, G.uid as group_id, T.s_img FROM opendesign.user U
+      LEFT JOIN opendesign.message_group G
+      ON ((G.to_user_id=${req.decoded.uid} AND G.from_user_id=U.uid) OR (G.to_user_id=U.uid AND G.from_user_id=${req.decoded.uid}))
+      LEFT JOIN opendesign.thumbnail T ON T.uid = U.thumbnail 
+      WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}') AND U.uid NOT IN (${req.decoded.uid})`;
+      // sql = `SELECT U.email,U.uid,U.nick_name,thumbnail.s_img FROM opendesign.user U JOIN thumbnail ON U.thumbnail = thumbnail.uid WHERE (U.email regexp '${data.key}' OR U.nick_name regexp '${data.key}') AND U.uid NOT IN (${req.decoded.uid})`
     }
     return new Promise((resolve, reject) => {
-      //console.log(sql);
+      // console.log("sql", sql);
       connection.query(sql, (err, rows) => {
         if (!err) {
           //console.log(rows);

@@ -5,14 +5,12 @@ const check = (req, res, next) => {
   const getThumbnail = decoded => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM thumbnail WHERE user_id=${
-          decoded.uid
-        } AND uid=(SELECT thumbnail FROM user WHERE uid=${decoded.uid})`,
+        `SELECT * FROM thumbnail WHERE uid=(SELECT thumbnail FROM user WHERE uid=${decoded.uid})`,
         (err, rows) => {
           if (err) {
             reject(err);
           } else {
-            decoded.thumbnail = rows[0];
+            decoded.thumbnail = rows[0]==undefined?null:rows[0];
             resolve(decoded);
           }
         }
@@ -20,6 +18,27 @@ const check = (req, res, next) => {
     });
   };
 
+  const getUserCategory = decoded => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT category_level1 FROM user_detail WHERE user_id=${decoded.uid}`,
+        (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            if (rows.length > 0) {
+              decoded.category1 = rows[0].category_level1;
+              resolve(decoded);
+            } else {
+              let err = Error("잘못된 회원 정보");
+              reject(err);
+            }
+          }
+        }
+      );
+    });
+  };
+  
   const getNickName = decoded => {
     return new Promise((resolve, reject) => {
       connection.query(
@@ -29,7 +48,7 @@ const check = (req, res, next) => {
             reject(err);
           } else {
             if (rows.length > 0) {
-              decoded.nickName = rows[0].nick_name;
+              decoded.nickName = rows[0].nick_name || null;
               resolve(decoded);
             } else {
               let err = Error("잘못된 회원 정보");
@@ -63,6 +82,7 @@ const check = (req, res, next) => {
   const respond = data => {
     res.status(200).json({
       success: true,
+			//exp: req.decoded.exp 
       info: req.decoded
     });
   };
@@ -73,6 +93,7 @@ const check = (req, res, next) => {
       return getThumbnail(req.decoded);
     })
     .then(getNickName)
+    .then(getUserCategory)
     .then(getIsDesigner)
     .then(respond)
     .catch(next);

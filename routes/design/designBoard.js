@@ -2,8 +2,9 @@ const connection = require("../../configs/connection");
 
 const createBoardFn = (req) => {
   return new Promise((resolve, reject) => {
-    connection.query("INSERT INTO design_board SET ?", req, (err, rows) => {
+    connection.query("INSERT INTO opendesign.design_board SET ?", req, (err, rows) => {
       if (!err) {
+        // console.log("board:",rows.insertId);
         resolve(rows.insertId);
       } else {
         console.error("MySQL Error:", err);
@@ -18,10 +19,11 @@ exports.createBoardDB = (req) => {
 };
 
 exports.createBoard = (req, res, next) => {
-  //console.log(req.body);
+  // console.log("[0] createBoard:", req.body);
   let data = req.body;
   data.design_id = req.params.id;
   data.user_id = req.decoded.uid;
+  // console.log("[1] createBoard:", req.body);
 
   const respond = () => {
     res.status(200).json({
@@ -56,7 +58,7 @@ exports.getBoardList = (req, res, next) => {
       let arr = [];
       list.map((item, index) => {
         arr.push(new Promise((resolve, reject) => {
-          connection.query(`SELECT D.uid, D.user_id, U.nick_name, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ${item.uid} ORDER BY D.order ASC`, (err, rows) => {
+          connection.query(`SELECT D.uid, D.private, D.user_id, U.nick_name,D.content, D.first_img, D.title, D.order, D.update_time, C.comment_count FROM design_card D LEFT JOIN card_counter C ON D.uid = C.card_id LEFT JOIN user U ON D.user_id = U.uid WHERE board_id = ${item.uid} ORDER BY D.order ASC`, (err, rows) => {
             if (!err) {
               list[index].cards = rows;
               resolve(true);
@@ -147,7 +149,7 @@ exports.updateBoard = (req, res, next) => {
   const update = (obj) => {
     //console.log("obj: ---------", obj);
     return new Promise((resolve, reject) => {
-      connection.query(`UPDATE design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
+      connection.query(`UPDATE opendesign.design_board SET ? , update_time = now() WHERE uid = ${obj.board_id}`, obj.data, (err, rows) => {
         if (!err) {
           resolve(rows);
         } else {
@@ -167,7 +169,7 @@ exports.updateBoard = (req, res, next) => {
     });
   };
 
-  update({board_id, data: req.body})
+  update({ board_id, data: req.body })
     .then(respond)
     .catch(next);
 };
@@ -208,7 +210,7 @@ exports.deleteBoard = (req, res, next) => {
       let arr = [];
       list.map((item, index) => {
         arr.push(new Promise((resolve, reject) => {
-          connection.query(`UPDATE design_board SET ? WHERE uid=${item.uid}`, {order: index}, (err, rows) => {
+          connection.query(`UPDATE opendesign.design_board SET ? WHERE uid=${item.uid}`, { order: index }, (err, rows) => {
             if (!err) {
               resolve(rows);
             } else {

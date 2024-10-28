@@ -59,12 +59,17 @@ exports.S3Upload = (res, filename) => {
     fs.readFile(res, function (err, file_buffer) {
       if (err) reject(err);
       let filename_encoded = encodeURIComponent(filename);
+      let type = 'text/pain; charset=utf-8'
+      if( filename.search('.pdf') > -1) {
+        type = 'application/pdf';
+      }
+
       const upload = {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: process.env.OPERATION ? `${res}`:`dev/${res}`,
         ACL: "public-read",
         Body: file_buffer,
-	      ContentType: 'text/plain; charset=utf-8',
+	ContentType: type, // 'text/plain; charset=utf-8',
         ContentDisposition: 'attachment; filename="'+filename_encoded+'"'
       };
       s3.upload(upload, function (err, result) {

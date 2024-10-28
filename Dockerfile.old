@@ -1,0 +1,13 @@
+# 백엔드 서버용 Dockerfile
+FROM node:8
+RUN apt-get update && apt install -y imagemagick
+# sudo apt install imagemagick
+WORKDIR /app
+COPY . /app
+COPY .env /app/
+
+RUN npm install
+
+EXPOSE 3001
+
+CMD ["npm", "start"]

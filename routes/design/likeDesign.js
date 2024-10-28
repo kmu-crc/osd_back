@@ -2,7 +2,7 @@ var connection = require("../../configs/connection");
 
 const getSocketId = uid => {
   return new Promise((resolve, reject) => {
-    console.log("uid", uid);
+    // console.log("uid", uid);
     connection.query(
       `SELECT socket_id FROM user WHERE uid = ${uid}`,
       (err, row) => {

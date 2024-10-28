@@ -59,7 +59,7 @@ exports.deleteDesign = (req, res, next) => {
     return new Promise((resolve, reject) => {
       connection.query("DELETE FROM design WHERE uid = ?", id, (err, row) => {
         if (!err) {
-          console.log(row);
+          // console.log(row);
           resolve(row);
         } else {
           reject(err);

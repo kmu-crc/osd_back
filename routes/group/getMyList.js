@@ -34,14 +34,14 @@ exports.myDesignList = (req, res, next) => {
 exports.myGroupList = (req, res, next) => {
   const groupId = req.params.id;
   //console.log(groupId, req.decoded.uid);
-
+  // AND NOT EXISTS ( SELECT p.group_id FROM group_join_group p WHERE p.group_id = g.uid )
   const getList = (obj) => {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT g.uid, g.user_id, g.title
       FROM opendesign.group g WHERE g.user_id = ${obj.user_id}
       AND NOT g.uid = ${groupId}
       AND NOT EXISTS ( SELECT m.parent_group_id FROM group_join_group m WHERE m.group_id = ${groupId} AND m.parent_group_id = g.uid )
-      AND NOT EXISTS ( SELECT p.group_id FROM group_join_group p WHERE p.group_id = g.uid )`, (err, rows) => {
+      `, (err, rows) => {
         if (!err) {
           //console.log("detail: ", rows);
           resolve(rows);

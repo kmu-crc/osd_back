@@ -2,7 +2,7 @@ const connection = require("../configs/connection");
 
 const getDesignList = (req, res, next) => {
   const sql = req.sql;
-  // //console.log(sql);
+//  console.log("get design list :", sql);
   // 디자인 리스트 가져오기 (GET)
   function getList (sql) {
     return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ const getDesignList = (req, res, next) => {
             resolve(result);
           });
         } else {
-          //console.log(err);
+          // console.error(err);
           reject(err);
         }
       });
@@ -71,7 +71,10 @@ const getDesignList = (req, res, next) => {
       let sqlCate;
       if (!data.category_level1 && !data.category_level2) {
         resolve(null);
-      } else if (data.category_level2 && data.category_level2 !== "") {
+      } else if(data.category_level3 && data.category_level3!==""){
+        cate = data.category_level3;
+        sqlCate = "SELECT name FROM category_level3 WHERE uid = ?";
+      }else if (data.category_level2 && data.category_level2 !== "") {
         cate = data.category_level2;
         sqlCate = "SELECT name FROM category_level2 WHERE uid = ?";
       } else {
@@ -94,7 +97,7 @@ const getDesignList = (req, res, next) => {
       if (data.thumbnail === null) {
         resolve(null);
       } else {
-        connection.query("SELECT s_img, m_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
+        connection.query("SELECT s_img, m_img, l_img FROM thumbnail WHERE uid = ?", data.thumbnail, (err, row) => {
           if (!err && row.length === 0) {
             resolve(null);
           } else if (!err && row.length > 0) {

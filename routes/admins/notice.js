@@ -92,7 +92,7 @@ exports.deleteNotice = (req, res, next) => {
                 if (!err) {
                     resolve(row)
                 } else {
-                    console.log("notice:", err)
+                    console.log(err)
                     reject(err)
                 }
             })

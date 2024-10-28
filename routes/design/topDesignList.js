@@ -66,11 +66,14 @@ exports.insertTopDesign = (req, res, next) => {
   const order = req.body.order;
   const insertTopDesign = () => {
     return new Promise((resolve, reject) => {
-      connection.query(`INSERT INTO opendesign.collection_design VALUES(null,${id},${order},null)`, (err, result) => {
+      const sql = `INSERT INTO opendesign.collection_design VALUES(null, ${id}, ${order}, null)`;
+      connection.query(
+        sql,
+         (err, result) => {
         if (!err) {
           resolve(result);
         } else {
-          console.log(err);
+          console.error(err);
           reject(result);
         }
       });

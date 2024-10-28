@@ -5,11 +5,11 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const signIn = (req, res, next) => {
-  const {email, password} = req.body;
+  const {email, password, keep } = req.body;
   let userInfo = null;
   const verificationEmail = (email) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM user WHERE email='${email}'`, (err, rows) => {
+      connection.query(`SELECT * FROM user WHERE email='${email}' AND d_flag=0`, (err, rows) => {
         if (!err) {
           if (rows.length === 0) {
             const errorMessage = `${email}은 opendesign 회원이 아닙니다.`;
@@ -29,8 +29,9 @@ const signIn = (req, res, next) => {
 
   const verificationPw = (pw) => {
     const p = new Promise((resolve, reject) => {
-      connection.query(`SELECT * FROM user WHERE email='${email}';`, (err, rows) => {
+      connection.query(`SELECT * FROM user WHERE email='${email}' AND d_flag=0;`, (err, rows) => {
         if (!err) {
+				console.log("PASSWORD:", pw, rows[0].password);
           bcrypt.compare(pw, rows[0].password, function (err, respond) {
             if (!err) {
               if (respond) {
@@ -51,7 +52,6 @@ const signIn = (req, res, next) => {
   };
 
   const createJWT = (detail) => {
-    //console.log(detail);
     const p = new Promise((resolve, reject) => {
       jwt.sign(
         {
@@ -63,7 +63,7 @@ const signIn = (req, res, next) => {
         },
         process.env.SECRET_CODE,
         {
-          expiresIn: "7d",
+          expiresIn: keep ? "30d" : "7d",
           issuer: "opendesign.com",
           subject: "userInfo"
         }, (err, token) => {

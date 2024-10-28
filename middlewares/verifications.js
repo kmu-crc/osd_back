@@ -11,6 +11,7 @@ exports.isOnlyNicName = (name, userId) => {
             resolve(true);
           } else {
             const errorMessage = "중복된 닉네임입니다.";
+	          console.log(errorMessage);
             reject(errorMessage);
           }
         }
@@ -24,12 +25,13 @@ exports.isOnlyNicName = (name, userId) => {
 // email이 중복되는지 확인하는 로직
 exports.isOnlyEmail = (email) => {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT count(email) FROM user WHERE email='${email}'`, (err, rows) => {
+    connection.query(`SELECT count(email) FROM opendesign.user WHERE email='${email}'`, (err, rows) => {
       if (!err) {
         if (rows[0]["count(email)"] === 0) {
           resolve(rows);
         } else {
           const errorMessage = "중복된 E-Mail입니다.";
+	console.log(errorMessage);
           reject(errorMessage);
         }
       } else {
